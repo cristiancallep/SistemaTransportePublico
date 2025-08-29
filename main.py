@@ -1,33 +1,64 @@
 # Programa principal con menú
+from src.Gestor import GestorTarjeta
+gestor = GestorTarjeta()
+
 def menu():
 
+    
     while True:
         print("\n---  Sistema de Transporte Público ---")
-        print("1. Recargar tarjeta")
-        print("2. Consultar saldo")
-        print("3. Comprar tiquete en Bus")
-        print("4. Comprar tiquete en Metro")
-        print("5. Comprar tiquete en Tranvía")
-        print("6. Salir")
+        print("1. Conseguir Tarjeta")    ##Las personas no inician con tarjeta.
+        print("2. Recargar tarjeta")
+        print("3. Consultar saldo")
+        print("4. Comprar tiquete en Bus")
+        print("5. Comprar tiquete en Metro")
+        print("6. Comprar tiquete en Tranvía")
+        print("7. Salir")
 
         opcion = input("Seleccione una opción: ").strip()
 
         if opcion == "1":
-            pass
+            nombre=str(input("Ingrese su nombre: "))
+            documento = str(input("Ingrese su documento: "))
+            
+            if gestor.crear_tarjeta(nombre,documento):
+                print(f"Tarjeta creada para {nombre}")
+            else:
+                print("Ya existe una tarjeta registrada para este documento")
+            
 
         elif opcion == "2":
-            pass
+            documento = str(input("Ingrese su documento: "))
+            monto = float(input("Ingrese el monto a recargar: "))
+            if monto<=0:
+                print("Monto invalido para recarga.")
+            else:
+                ok = gestor.recargar(documento,monto)
 
+                if ok: 
+                    saldo = gestor.consultar(documento)
+                    print(f"recarga exitosa, nuevo saldo: {saldo}")
+                else:
+                    print("No hay ninguna tarjeta asociada a es documento")
+            
         elif opcion == "3":
-            pass
+            documento = str(input("Ingrese su documento: "))
+            saldo = gestor.consultar(documento)
+            if saldo ==0:
+                print("No hay una tarjeta asociada a este documento.")
+            else:
+                print(f"Su saldo es: {saldo}")
+            
             
         elif opcion == "4":
-            pass
-           
+            pass        
         elif opcion == "5":
             pass
 
         elif opcion == "6":
+            
+            pass
+        elif opcion=="7":
             print(" Gracias por usar el sistema de transporte.")
             break
 
