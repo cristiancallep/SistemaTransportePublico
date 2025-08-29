@@ -11,12 +11,12 @@ class GestorTarjeta:
         self.tarjetas[documento] = nueva
         return True
     
-    def recargar(self,documento:str,monto:float):
+    def recargar(self,documento:str,monto:float)->bool:
         if documento in self.tarjetas:
-            self.tarjetas[documento].set_saldo(monto)
-            return True, self.tarjetas[documento].get_saldo()
+            self.tarjetas[documento].modificar_saldo(monto)
+            return True
         else:
-            return False,0
+            return False
         
     def consultar(self,documento:str)->float:
         if documento in self.tarjetas:

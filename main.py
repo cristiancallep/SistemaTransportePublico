@@ -30,13 +30,16 @@ def menu():
         elif opcion == "2":
             documento = str(input("Ingrese su documento: "))
             monto = float(input("Ingrese el monto a recargar: "))
-
-            ok,saldo = gestor.recargar(documento,monto)
-
-            if ok: 
-                print(f"recarga exitosa, nuevo saldo: {saldo}")
+            if monto<=0:
+                print("Monto invalido para recarga.")
             else:
-                print("No hay ninguna tarjeta asociada a es documento")
+                ok = gestor.recargar(documento,monto)
+
+                if ok: 
+                    saldo = gestor.consultar(documento)
+                    print(f"recarga exitosa, nuevo saldo: {saldo}")
+                else:
+                    print("No hay ninguna tarjeta asociada a es documento")
             
         elif opcion == "3":
             documento = str(input("Ingrese su documento: "))
