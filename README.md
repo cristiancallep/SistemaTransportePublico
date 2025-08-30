@@ -6,12 +6,11 @@ Este proyecto es un **sistema de transporte público** implementado en Python, q
 
 ## Estructura del Proyecto
 
-- `SistemaTransporte.py`: Versión sencilla y didáctica del sistema, todo en un solo archivo.
-- `src/` (en caso de tenerlo): Implementación modular, separando clases y lógica en diferentes archivos.
+- `src/`: Implementación modular, separando clases y lógica en diferentes archivos.
 - `main.py`: Archivo principal que ejecuta el menú interactivo para el usuario.
 
 SistemaTransportePublico  
-├──src  
+├── src  
 &nbsp;&nbsp;&nbsp;&nbsp;├─ Transporte.py # Clase base y clases hijas (Bus, Metro, Tranvía)  
 &nbsp;&nbsp;&nbsp;&nbsp;├─ Tarjeta.py # Lógica de saldo y acceso al titular  
 &nbsp;&nbsp;&nbsp;&nbsp;├─ Gestor.py # Gestión centralizada de tarjetas y operaciones  
@@ -19,18 +18,27 @@ SistemaTransportePublico
 ├── README.md # Este archivo
 
 ---
+
 ## Instalación
 
-1. Clona este repositorio:  
+Clona este repositorio:  
 
-   ```bash
-   git clone https://github.com/cristiancallep/SistemaTransportePublico.git
-   cd SistemaTransportePublico
+  ```bash
+  git clone https://github.com/cristiancallep/SistemaTransportePublico.git
+  cd SistemaTransportePublico
+  ```
+
 ## Uso
 
-Ejecuta el programa en la terminar con:
+Ejecuta el programa en la terminal con:
 
-```python .\main.py ```  o tambien con  ```py .\main.py ```
+```bash
+python .\main.py
+```
+o también con
+```bash
+py .\main.py
+```
 
 ---
 
@@ -53,7 +61,7 @@ Ejecuta el programa en la terminar con:
 
 ### 3. Bus, Metro, Tranvía (Subclases de Transporte)
 
-- **Polimorfismo:** Cada subclase implementa su propio costo de tiquete.
+- **Polimorfismo:** Cada subclase implementa su propio costo de tiquete y demás propiedades únicas.
   - `Bus`: $2500
   - `Metro`: $2800
   - `Tranvía`: $2700
@@ -61,11 +69,12 @@ Ejecuta el programa en la terminar con:
 ---
 
 ## Funcionamiento del Menú
+
 El usuario puede:
 
-1. **Conseguir Tarjeta:** Ingresa un monto positivo para aumentar el saldo.
+1. **Conseguir tarjeta:** Ingresa un monto positivo para aumentar el saldo.
 2. **Recargar tarjeta:** Ingresa un monto positivo para aumentar el saldo.
-3. **Consultar Targetas:** Muestra el saldo actual de la tarjeta.
+3. **Consultar tarjetas:** Muestra el saldo actual de la tarjeta.
 4. **Consultar saldo:** Muestra el saldo actual de la tarjeta.
 5. **Comprar tiquete en Bus/Metro/Tranvía:** Descuenta el valor correspondiente si hay saldo suficiente.
 6. **Salir:** Termina el programa.
@@ -75,24 +84,25 @@ El menú valida las entradas del usuario y muestra mensajes claros en caso de er
 ---
 
 ## Ejemplo de Uso
+
 --- 🚏 Sistema de Transporte Público 🚏 ---  
-🔶 1. Conseguir Tarjeta  
-🔶 2. Recargar tarjeta   
+🔶 1. Conseguir tarjeta  
+🔶 2. Recargar tarjeta  
 🔶 3. Consultar saldo  
 🔶 4. Consultar tarjetas  
-🔶 5. Consultar saldo  
-🔶 6. Comprar tiquete en Bus   
-🔶 7. Comprar tiquete en Metro  
-🔶 8. Comprar tiquete en Tranvía  
-Salir Seleccione una opción: 1   
-Ingrese valor a recargar: 5000   
+🔶 5. Comprar tiquete en Bus  
+🔶 6. Comprar tiquete en Metro  
+🔶 7. Comprar tiquete en Tranvía  
+🔶 8. Salir  
+Seleccione una opción: 1  
+Ingrese valor a recargar: 5000  
 ✅ Recarga exitosa, nuevo saldo: 5000
 
 ## 👨‍💻 Créditos
 
-Proyecto desarrollado por  
+Proyecto desarrollado por:  
 - Cristian Calle
-- Tomas alvarez
-- Emely loaiza ocampo
+- Tomás Álvarez
+- Emely Loaiza Ocampo
 
 Inspirado en la aplicación de Programación Orientada a Objetos (POO) para la simulación de transporte público.
