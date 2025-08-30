@@ -1,13 +1,14 @@
-# Programa principal con menú
 from src.Gestor import GestorTarjeta
+from src.Transporte import  Tranvia
+
 gestor = GestorTarjeta()
+tranvia = Tranvia("A", 200, 12)  # Linea, capacidad, paradas
+
 
 def menu():
-
-    
     while True:
         print("\n---  Sistema de Transporte Público ---")
-        print("1. Conseguir Tarjeta")    ##Las personas no inician con tarjeta.
+        print("1. Conseguir Tarjeta")
         print("2. Recargar tarjeta")
         print("3. Consultar saldo")
         print("4. Comprar tiquete en Bus")
@@ -18,52 +19,56 @@ def menu():
         opcion = input("Seleccione una opción: ").strip()
 
         if opcion == "1":
-            nombre=str(input("Ingrese su nombre: "))
-            documento = str(input("Ingrese su documento: "))
-            
-            if gestor.crear_tarjeta(nombre,documento):
-                print(f"Tarjeta creada para {nombre}")
+            nombre = input("Ingrese su nombre: ").strip()
+            documento = input("Ingrese su documento: ").strip()
+            if gestor.crear_tarjeta(nombre, documento):
+                print(f"✅ Tarjeta creada para {nombre}")
             else:
-                print("Ya existe una tarjeta registrada para este documento")
-            
+                print("❌ Ya existe una tarjeta registrada para este documento")
 
         elif opcion == "2":
-            documento = str(input("Ingrese su documento: "))
-            monto = float(input("Ingrese el monto a recargar: "))
-            if monto<=0:
-                print("Monto invalido para recarga.")
-            else:
-                ok = gestor.recargar(documento,monto)
-
-                if ok: 
-                    saldo = gestor.consultar(documento)
-                    print(f"recarga exitosa, nuevo saldo: {saldo}")
+            documento = input("Ingrese su documento: ").strip()
+            monto_str = input("Ingrese el monto a recargar: ").strip()
+            if monto_str.isdigit():
+                monto = int(monto_str)
+                if monto > 0:
+                    if gestor.recargar(documento, monto):
+                        saldo = gestor.consultar(documento)
+                        print(f"✅ Recarga exitosa, nuevo saldo: {saldo}")
+                    else:
+                        print("❌ No hay ninguna tarjeta asociada a ese documento")
                 else:
-                    print("No hay ninguna tarjeta asociada a es documento")
-            
-        elif opcion == "3":
-            documento = str(input("Ingrese su documento: "))
-            saldo = gestor.consultar(documento)
-            if saldo ==0:
-                print("No hay una tarjeta asociada a este documento.")
+                    print("❌ Monto inválido para recarga.")
             else:
-                print(f"Su saldo es: {saldo}")
-            
-            
+                print("❌ Debe ingresar solo números enteros.")
+
+        elif opcion == "3":
+            documento = input("Ingrese su documento: ").strip()
+            saldo = gestor.consultar(documento)
+            if saldo == 0:
+                print("❌ No hay saldo asociado a este documento.")
+            else:
+                print(f"💳 Su saldo es: {saldo}")
+
         elif opcion == "4":
-            pass        
+            pass
+
         elif opcion == "5":
             pass
 
         elif opcion == "6":
-            
-            pass
-        elif opcion=="7":
-            print(" Gracias por usar el sistema de transporte.")
-            break
+            documento = input("Ingrese su documento: ").strip()
+            if gestor.vender_tiquete(documento, tranvia):
+                print("🎟️ Tiquete de Tranvía comprado con éxito.")
+                print("ℹ️", tranvia.info())
+            else:
+                print("❌ No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
 
+        elif opcion == "7":
+            print("👋 Gracias por usar el sistema de transporte.")
+            break
         else:
-            print(" Opción inválida. Intente de nuevo.")
+            print("❌ Opción inválida. Intente de nuevo.")
 
 
 if __name__ == "__main__":
