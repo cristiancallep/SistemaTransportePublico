@@ -22,5 +22,26 @@ class Tranvia(Transporte):
         self.capacidad = capacidad
         self.paradas = paradas
 
-    def info(self):
-        return f"{self.nombre} - Línea {self.linea}, Capacidad {self.capacidad}, Paradas {self.paradas}"
+    def info(self) -> str:
+        return f"{self.nombre} --- \nLínea {self.linea} \nCapacidad {self.capacidad} \nParadas {self.paradas}"
+
+class Bus(Transporte):
+    def __init__(self,capacidad: int, paradas: int, horario: str, tipo:str):
+        super().__init__("Bus", 3000)
+        self.capacidad = capacidad
+        self.paradas = paradas
+        self.horario = horario
+        self.tipo = tipo
+
+    def info(self) -> str:
+        return f"{self.nombre} --- \nHorario {self.horario}\nCapacidad {self.capacidad}\nParadas {self.paradas}\nTipo {self.tipo}"
+
+class Metro(Transporte):
+    def __init__(self, linea: str, paradas: int, horario: str):
+        super().__init__("Metro", 2500)
+        self.linea = linea
+        self.horario = horario
+        self.paradas = paradas
+
+    def info(self)-> str:
+        return f"{self.nombre} --- \nHorario {self.horario} \nLínea {self.linea} \nParadas {self.paradas}"
