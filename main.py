@@ -57,7 +57,7 @@ def menu():
             else:
                 print("💳 Tarjetas registradas: 💳")
                 for doc, tarjeta in gestor.get_targetas().items():
-                    print(f"Nombre: {tarjeta.get_nombre()} \nDocumento: {doc} \nSaldo: {tarjeta.get_saldo()} \n -------")
+                    print(f"Nombre: {tarjeta.get_nombre()}\nSaldo: {tarjeta.get_saldo()} \n -------")
         
         elif opcion == "4": # Opción para consultar el saldo de una tarjeta
             documento = input("Ingrese su documento: ").strip()
