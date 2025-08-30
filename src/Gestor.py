@@ -3,6 +3,9 @@ from src.Tarjeta import Tarjeta
 class GestorTarjeta:
     def __init__(self):
         self.tarjetas = {}
+        
+    def get_targetas(self) -> dict:
+        return self.tarjetas
 
     def crear_tarjeta(self, nombre: str, documento: str) -> bool:
         if documento in self.tarjetas:
