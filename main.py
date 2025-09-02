@@ -5,9 +5,9 @@ from src.Bus import  Bus
 from src.Metro import Metro
 
 gestor = GestorTarjeta()
-tranvia = Tranvia("A", 200, 12)  # Linea, capacidad, paradas
-bus = Bus(30, 4, "9:00 - 22:00", "Electrico")  # Linea, capacidad, paradas
-metro = Metro("J", 10, "5:00 - 20:00")  # Linea, capacidad, paradas
+tranvia = Tranvia("A", 200, 12) 
+bus = Bus(30, 4, "9:00 - 22:00", "Electrico")  
+metro = Metro("J", 10, "5:00 - 20:00")  
 
 def menu():
     """
@@ -32,12 +32,11 @@ def menu():
 
         opcion = input("Seleccione una opción: ").strip()
 
-        if opcion == "1":# Opción para crear una nueva tarjeta
+        if opcion == "1":
             nombre = input("Ingrese su nombre: ").strip()
             documento = input("Ingrese su documento: ").strip()
             
-            # Validación de datos
-            if nombre.isalpha() == False or documento.isdigit() == False:#validacion de datos validos
+            if nombre.isalpha() == False or documento.isdigit() == False:
                 print("Nombre o documento inválido.")
                 continue
             if gestor.crear_tarjeta(nombre, documento):
@@ -45,11 +44,11 @@ def menu():
             else:
                 print("Ya existe una tarjeta registrada para este documento")
 
-        elif opcion == "2": # Opción para recargar una tarjeta existente
+        elif opcion == "2":
             documento = input("Ingrese su documento: ").strip()
             monto_str = input("Ingrese el monto a recargar: ").strip()
             
-            if monto_str.isdigit(): # Validar que el monto sea un número entero positivo
+            if monto_str.isdigit():
                 monto = int(monto_str)
                 if monto > 0:
                     if gestor.recargar(documento, monto):
@@ -62,10 +61,10 @@ def menu():
             else:
                 print("Debe ingresar solo números enteros.")
 
-        elif opcion == "3": # Opción para consultar todas las tarjetas registradas
+        elif opcion == "3":
             gestor.mostrar_tarjetas()
             
-        elif opcion == "4": # Opción para consultar el saldo de una tarjeta
+        elif opcion == "4":
             documento = input("Ingrese su documento: ").strip()
             saldo = gestor.consultar(documento)
             if saldo == 0:
@@ -73,7 +72,7 @@ def menu():
             else:
                 print(f"Su saldo es: {saldo}")
 
-        elif opcion == "5":# Comprar tiquete para Bus
+        elif opcion == "5":
             documento = input("Ingrese su documento: ").strip()
             if gestor.vender_tiquete(documento, bus):
                 print("Tiquete de Bus comprado con éxito.")
@@ -81,7 +80,7 @@ def menu():
             else:
                 print(" No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
 
-        elif opcion == "6": # Comprar tiquete para Metro
+        elif opcion == "6":
             documento = input("Ingrese su documento: ").strip()
             if gestor.vender_tiquete(documento, metro):
                 print("Tiquete de Metro comprado con éxito.")
@@ -89,7 +88,7 @@ def menu():
             else:
                 print("No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
 
-        elif opcion == "7":# Comprar tiquete para Tranvía
+        elif opcion == "7":
             documento = input("Ingrese su documento: ").strip()
             if gestor.vender_tiquete(documento, tranvia):
                 print("Tiquete de Tranvía comprado con éxito.")
@@ -97,7 +96,7 @@ def menu():
             else:
                 print("No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
 
-        elif opcion == "8": # Salir del sistema
+        elif opcion == "8":
             print("Gracias por usar el sistema de transporte.")
             break
         else:
