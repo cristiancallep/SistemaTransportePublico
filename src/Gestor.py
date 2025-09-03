@@ -59,4 +59,4 @@ class GestorTarjeta:
                 print("No hay tarjetas registradas.")
             else:
                 for doc, tarjeta in self.__tarjetas.items():
-                    print(f"Documento: {doc} | Nombre: {tarjeta.get_nombre()} | Saldo: {tarjeta.get_saldo()}")
+                    print(f"Nombre: {tarjeta.get_nombre()} | Saldo: {tarjeta.get_saldo()}")
