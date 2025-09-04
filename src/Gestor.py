@@ -2,28 +2,40 @@ from src.Tarjeta import Tarjeta
 
 class GestorTarjeta:
     def __init__(self):
-        self.tarjetas = {}
+        self.__tarjetas = {}
         
     def get_targetas(self) -> dict:
-        return self.tarjetas
+        return self.__tarjetas
 
     def crear_tarjeta(self, nombre: str, documento: str) -> bool:
-        if documento in self.tarjetas:
+        """
+        Crea una nueva tarjeta si el documento no existe.
+        
+        """
+        if documento in self.__tarjetas:
             return False
         nueva = Tarjeta(nombre, documento)
-        self.tarjetas[documento] = nueva
+        self.__tarjetas[documento] = nueva
         return True
 
     def recargar(self, documento: str, monto: float) -> bool:
-        if documento in self.tarjetas:
-            self.tarjetas[documento].modificar_saldo(monto)
+        """
+        Recarga el saldo de la tarjeta asociada al documento.
+        
+        """
+        if documento in self.__tarjetas:
+            self.__tarjetas[documento].modificar_saldo(monto)
             return True
         else:
             return False
 
     def consultar(self, documento: str) -> float:
-        if documento in self.tarjetas:
-            return self.tarjetas[documento].get_saldo()
+        """
+        Consulta el saldo de la tarjeta asociada al documento.
+        
+        """
+        if documento in self.__tarjetas:
+            return self.__tarjetas[documento].get_saldo()
         else:
             return 0
 
@@ -32,8 +44,19 @@ class GestorTarjeta:
         Vende un tiquete de un transporte usando la tarjeta del documento.
         
         """
-        if documento in self.tarjetas:
-            tarjeta = self.tarjetas[documento]
+        if documento in self.__tarjetas:
+            tarjeta = self.__tarjetas[documento]
             return transporte.vender_tiquete(tarjeta)
         else:
             return False
+
+    def mostrar_tarjetas(self):
+            """
+            Muestra todas las tarjetas registradas.
+            
+            """
+            if not self.__tarjetas:
+                print("No hay tarjetas registradas.")
+            else:
+                for doc, tarjeta in self.__tarjetas.items():
+                    print(f"Nombre: {tarjeta.get_nombre()} | Saldo: {tarjeta.get_saldo()}")
