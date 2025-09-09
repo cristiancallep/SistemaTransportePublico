@@ -1,0 +1,18 @@
+# motor de bd sqlite3 https://sqlite.org/download.html
+# Editor para la bd https://sqlitebrowser.org/dl/
+# pip install -r requirements.txt
+
+# Core ORM and Database
+SQLAlchemy==2.0.23
+alembic==1.12.1
+
+# Database Drivers
+sqlite3                 # SQLite (built-in with Python)
+
+# Data Validation and Serialization
+pydantic==2.5.0
+email-validator==2.1.0
+
+# Additional Utilities
+python-dotenv==1.0.0    # Environment variables
+typing-extensions==4.8.0  # Type hints support
