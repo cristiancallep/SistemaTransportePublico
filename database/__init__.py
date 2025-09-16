@@ -6,7 +6,6 @@ Este módulo contiene la configuración y conexión a la base de datos
 usando SQLAlchemy.
 """
 
-from .database import get_engine, get_session, create_tables, check_connection, Base, get_session_context
-from .config import DATABASE_URL
+from .config import DATABASE_URL, create_tables, Base, get_db, engine,SessionLocal
 
-__all__ = ['get_engine', 'get_session', 'create_tables', 'DATABASE_URL', 'check_connection', 'Base', 'get_session_context']
+__all__ = ['get_db', 'create_tables', 'DATABASE_URL', 'Base', 'engine', 'SessionLocal']
