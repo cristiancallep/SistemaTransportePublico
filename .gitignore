@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Ignorar carpeta seeders
+seeders/
+*seeders/*.pyc
+
 # Virtual environment
 venv/
 .env/
@@ -48,7 +52,7 @@ coverage.xml
 # SQLAlchemy / Alembic (migraciones)
 alembic/versions/*.pyc
 alembic/versions/__pycache__/
-alembic.ini
+
 
 # Logs
 *.log

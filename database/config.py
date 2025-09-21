@@ -29,18 +29,10 @@ if not DATABASE_URL:
             "Se requiere DATABASE_URL o las credenciales individuales de la base de datos"
         )
 
-# Crear el motor de SQLAlchemy
-engine = create_engine(
-    DATABASE_URL,
-    echo=False,  # Mostrar las consultas SQL en consola
-    pool_pre_ping=True,  # Verificar conexión antes de usar
-    pool_recycle=300,  # Reciclar conexiones cada 5 minutos
-)
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True, pool_recycle=300)
 
-# Crear la sesión
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base para los modelos
 Base = declarative_base()
 
 

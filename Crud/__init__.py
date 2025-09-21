@@ -7,5 +7,6 @@ para las entidades del sistema.
 """
 
 from .usuario_crud import UsuarioCRUD
+from .auditoria_crud import AuditoriaCRUD
 
-__all__ = ['UsuarioCRUD']
+__all__ = ["UsuarioCRUD", "AuditoriaCRUD"]

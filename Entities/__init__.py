@@ -7,11 +7,14 @@ y sus esquemas de validación con Pydantic.
 """
 
 from .usuario import Usuario, UsuarioCreate, UsuarioUpdate
-from .roles import Rol, RolCreate, RolUpdate
-from .auditoria import Auditoria, AuditoriaBase, AuditoriaCreate
+from .roles import Rol, RolCreate
+from .auditoria import Auditoria
 
 __all__ = [
-    'Usuario', 'UsuarioCreate', 'UsuarioUpdate'
-    'Rol', 'RolCreate', 'RolUpdate', 'RolResponse', 
-    'Auditoria', 'AuditoriaBase', 'AuditoriaCreate', 'AuditoriaUpdate'
+    "Usuario",
+    "UsuarioCreate",
+    "UsuarioUpdate" "Rol",
+    "RolCreate",
+    "RolResponse",
+    "Auditoria",
 ]

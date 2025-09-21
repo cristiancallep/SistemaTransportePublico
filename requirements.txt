@@ -2,7 +2,7 @@
 # Python 3.x (versión mínima recomendada: 3.8)
 
 # Core ORM and Database
-SQLAlchemy>=2.0.23
+SQLAlchemy>=2.0.43
 alembic>=1.12.1
 
 #Cargar variables de entorno desde un archivo .env
