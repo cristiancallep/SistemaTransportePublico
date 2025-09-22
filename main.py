@@ -6,6 +6,9 @@ from Entities import (
     UsuarioCreate,
     UsuarioUpdate,
 )
+from Entities.tarjeta import Tarjeta
+import logica
+
 # from seeders import run_rol_usuario_seeders PARA EJECUTAR LOS SEEDERS SOLO LA PRIMERA VEZ
 
 usuario_actual = None
@@ -151,14 +154,24 @@ def menuUsuario():
         print(f"\n¡Bienvenido Cliente {usuario_actual.nombre}!")
         print("9. salir")
 
-        opcion = input("Seleccione una opción: ").strip()
+        opcion = input(
+            "Seleccione una opción:\n"
+            "1. Crear Tarjeta\n"
+            "2. Recargar Tarjeta\n"
+            "3. Consultar Saldo\n"
+        ).strip()
 
-        if opcion == "1":
-            pass
+        if opcion == "1":  # maicol2314
+            documento = input("Ingrese su documento: ").strip()
+            logica.crear_tarjeta(documento=documento)
+
         elif opcion == "2":
-            pass
+            documento = input("Ingrese su documento: ").strip()
+            monto = float(input("Ingrese el monto a recargar: ").strip())
+            logica.recargar_tarjeta(documento=documento, monto=monto)
         elif opcion == "3":
-            pass
+            documento = input("Ingrese su documento: ").strip()
+            logica.consultar_saldo(documento=documento)
         elif opcion == "4":
             pass
         elif opcion == "5":
@@ -185,7 +198,9 @@ def menuAdmin():
         print("3. Eliminar Usuarios")
         print("4. Consultar Usuarios")
         print("5. Ver cambios")
-        print("6. Salir")
+        print("6. Agregar Ruta")
+        print("7. Modificar Ruta")
+        print("8. Salir")
 
         opcion = input("Seleccione una opción: ").strip()
 
@@ -200,6 +215,22 @@ def menuAdmin():
         elif opcion == "5":
             admin_listar_cambios()
         elif opcion == "6":
+            nombre_ruta = input("Ingrese el nombre de la nueva ruta: ").strip()
+            origen = input("Ingrese el origen de la ruta: ").strip()
+            destino = input("Ingrese el destino de la ruta: ").strip()
+            duracion = float(
+                input("Ingrese la duración estimada (en minutos): ").strip()
+            )
+            logica.generar_ruta(nombre_ruta, origen, destino, duracion)
+        elif opcion == "7":
+            nombre_ruta = input("Ingrese el nombre de la nueva ruta: ").strip()
+            origen = input("Ingrese el origen de la ruta: ").strip()
+            destino = input("Ingrese el destino de la ruta: ").strip()
+            duracion = float(
+                input("Ingrese la duración estimada (en minutos): ").strip()
+            )
+            logica.modificar_ruta(nombre_ruta, origen, destino, duracion)
+        elif opcion == "8":
             print(f"{usuario_actual.nombre} Gracias por usar el sistema de transporte.")
             break
 
