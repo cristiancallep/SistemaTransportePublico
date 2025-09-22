@@ -232,7 +232,9 @@ def menuAdmin():
             )
             logica.modificar_ruta(nombre_ruta, origen, destino, duracion)
         elif opcion == "8":
-            pass
+            nombre = input("Ingrese el nombre de la nueva linea: ").strip()
+            descripcion = input("Ingrese la descripcion de la linea: ").strip()
+            logica.generar_linea(nombre, descripcion)
         elif opcion == "9":
             print(f"{usuario_actual.nombre} Gracias por usar el sistema de transporte.")
             break
