@@ -1,107 +1,422 @@
-from src.Gestor import GestorTarjeta
-from src.Transporte import Transporte
-from src.Tranvia import  Tranvia
-from src.Bus import  Bus
-from src.Metro import Metro
+from database import get_db, create_tables
+import os
+from Crud import UsuarioCRUD, AuditoriaCRUD
+from Entities import (
+    Usuario,
+    UsuarioCreate,
+    UsuarioUpdate,
+)
+# from seeders import run_rol_usuario_seeders PARA EJECUTAR LOS SEEDERS SOLO LA PRIMERA VEZ
 
-gestor = GestorTarjeta()
-tranvia = Tranvia("A", 200, 12) 
-bus = Bus(30, 4, "9:00 - 22:00", "Electrico")  
-metro = Metro("J", 10, "5:00 - 20:00")  
+usuario_actual = None
 
-def menu():
+
+def limpiar_consola():
+    """Limpia la pantalla de la consola"""
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+def agregar_auditoria_usuario(nombre_accion: str, nombre_tabla: str, usuario: Usuario):
     """
-    Función principal que muestra el menú y maneja las opciones del usuario.
-    Permite crear tarjetas, recargar saldo, consultar tarjetas y comprar tiquetes para diferentes medios de transporte.
-    Args:
-        None    
-    Returns:
-        None
-        
+    Método para agregar un registro a la tabla auditoria
     """
-    while True:
-        print("\n--- Sistema de Transporte Público  ---")
-        print("1. Conseguir Tarjeta")
-        print("2. Recargar tarjeta")
-        print("3. Consultar tarjetas")
-        print("4. Consultar saldo")
-        print("5. Comprar tiquete en Bus")
-        print("6. Comprar tiquete en Metro")
-        print("7. Comprar tiquete en Tranvía")
-        print("8. Salir")
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        auditoria_crud = AuditoriaCRUD(db)
+
+        usuario_id = usuario_actual.id_usuario if usuario_actual else usuario.id_usuario
+
+        auditoria_crud.registrar_evento(
+            usuario_id=usuario_id,
+            tabla_afectada=nombre_tabla,
+            accion=nombre_accion,
+            descripcion=(
+                f"{nombre_accion} del usuario: {usuario.nombre} {usuario.apellido} "
+                f"| correo: {usuario.email} | documento: {usuario.documento}"
+            ),
+        )
+        db.commit()
+    except Exception as e:
+        print(f"Error al registrar auditoría: {e}")
+        db.rollback()
+    finally:
+        db_gen.close()
+
+
+def registrar(es_admin=False):
+    """
+    Registra un nuevo usuario. Si es_admin es True, permite seleccionar el rol.
+    """
+    print("\n=== REGISTRO DE USUARIO ===")
+
+    nombre = input("Nombre: ").strip()
+    apellido = input("Apellido: ").strip()
+    documento = input("Documento (mínimo 8 caracteres): ").strip()
+    email = input("Email: ").strip()
+    contrasena = input("Contraseña: ").strip()
+
+    if es_admin:
+        print("\nRoles disponibles:")
+        print("1. Administrador")
+        print("2. Cliente")
+        id_rol = input("Seleccione el rol: ").strip()
+        if id_rol != "1" and id_rol != "2":
+            print("Rol inválido. Debe ser 1 o 2.")
+            menuAdmin()
+        int(id_rol)
+    else:
+        id_rol = 2
+
+    db_gen = get_db()
+    db = next(db_gen)
+
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        nuevo_usuario = usuario_crud.crear_usuario(
+            UsuarioCreate(
+                nombre=nombre,
+                apellido=apellido,
+                documento=documento,
+                email=email,
+                contrasena=contrasena,
+                id_rol=id_rol,
+            )
+        )
+
+        print(
+            f"\nUsuario '{nuevo_usuario.nombre} {nuevo_usuario.apellido}' registrado con éxito."
+        )
+        print("Ahora puede iniciar sesión con sus credenciales.")
+        agregar_auditoria_usuario(
+            nombre_accion="CREATE", nombre_tabla="usuarios", usuario=nuevo_usuario
+        )
+
+    except ValueError as e:
+        print(f"\nError: {e}")
+        db.rollback()
+
+    except Exception as e:
+        print(f"\nError inesperado: {e}")
+        db.rollback()
+
+    finally:
+        db_gen.close()
+
+
+def iniciar_sesion():
+    """
+    Iniciar sesión de usuario con validación usando get_db y UsuarioCRUD
+    Returns: True si el inicio de sesión es exitoso, False en caso contrario.
+
+    """
+    global usuario_actual
+    print("\nIniciar Sesión")
+    print("=" * 20)
+
+    email = input("Ingrese su email: ").strip()
+    contrasena = input("Ingrese su contraseña: ").strip()
+
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        usuario = usuario_crud.validar_credenciales(email, contrasena)
+
+        usuario_actual = usuario
+
+        if usuario.id_rol == 1:
+            menuAdmin()
+        else:
+            menuUsuario()
+
+        return True
+    except ValueError as e:
+        print(f"Error: {e}")
+        return False
+    finally:
+        db_gen.close()
+
+
+def menuUsuario():
+    """
+    Menú principal del sistema de transporte público para usuarios registrados
+
+    """
+    print("SISTEMA DE TRANSPORTE PÚBLICO")
+    print("=" * 60)
+    limpiar_consola()
+
+    while usuario_actual is not None:
+        print(f"\n¡Bienvenido Cliente {usuario_actual.nombre}!")
+        print("9. salir")
 
         opcion = input("Seleccione una opción: ").strip()
 
         if opcion == "1":
-            nombre = input("Ingrese su nombre: ").strip()
-            documento = input("Ingrese su documento: ").strip()
-            
-            if nombre.isalpha() == False or documento.isdigit() == False:
-                print("Nombre o documento inválido.")
-                continue
-            if gestor.crear_tarjeta(nombre, documento):
-                print(f"Tarjeta creada para {nombre}")
-            else:
-                print("Ya existe una tarjeta registrada para este documento")
-
+            pass
         elif opcion == "2":
-            documento = input("Ingrese su documento: ").strip()
-            monto_str = input("Ingrese el monto a recargar: ").strip()
-            
-            if monto_str.isdigit():
-                monto = int(monto_str)
-                if monto > 0:
-                    if gestor.recargar(documento, monto):
-                        saldo = gestor.consultar(documento)
-                        print(f"Recarga exitosa, nuevo saldo: {saldo}")
-                    else:
-                        print("No hay ninguna tarjeta asociada a ese documento")
-                else:
-                    print("Monto inválido para recarga.")
-            else:
-                print("Debe ingresar solo números enteros.")
-
+            pass
         elif opcion == "3":
-            gestor.mostrar_tarjetas()
-            
+            pass
         elif opcion == "4":
-            documento = input("Ingrese su documento: ").strip()
-            saldo = gestor.consultar(documento)
-            if saldo == 0:
-                print("No hay saldo asociado a este documento.")
-            else:
-                print(f"Su saldo es: {saldo}")
-
+            pass
         elif opcion == "5":
-            documento = input("Ingrese su documento: ").strip()
-            if gestor.vender_tiquete(documento, bus):
-                print("Tiquete de Bus comprado con éxito.")
-                print("*", bus.info())
-            else:
-                print(" No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
-
+            pass
         elif opcion == "6":
-            documento = input("Ingrese su documento: ").strip()
-            if gestor.vender_tiquete(documento, metro):
-                print("Tiquete de Metro comprado con éxito.")
-                print("*", metro.info())
-            else:
-                print("No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
-
+            pass
         elif opcion == "7":
-            documento = input("Ingrese su documento: ").strip()
-            if gestor.vender_tiquete(documento, tranvia):
-                print("Tiquete de Tranvía comprado con éxito.")
-                print("*", tranvia.info())
-            else:
-                print("No se pudo comprar: saldo insuficiente o tarjeta inexistente.")
-
+            pass
         elif opcion == "8":
-            print("Gracias por usar el sistema de transporte.")
+            pass
+        elif opcion == "9":
+            print(f"{usuario_actual.nombre} Gracias por usar el sistema de transporte.")
             break
         else:
             print("Opción inválida. Intente de nuevo.")
 
 
+def menuAdmin():
+    limpiar_consola()
+    while usuario_actual is not None:
+        print(f"\n--- BIENVENID@ ADMIN: {usuario_actual.nombre} ---")
+        print("1. Registrar Usuarios")
+        print("2. Actualizar Usuarios")
+        print("3. Eliminar Usuarios")
+        print("4. Consultar Usuarios")
+        print("5. Ver cambios")
+        print("6. Salir")
+
+        opcion = input("Seleccione una opción: ").strip()
+
+        if opcion == "1":
+            registrar(es_admin=True)
+        elif opcion == "2":
+            actualizar_usuario_admin()
+        elif opcion == "3":
+            eliminar_usuario_admin()
+        elif opcion == "4":
+            admin_listar_usuarios()
+        elif opcion == "5":
+            admin_listar_cambios()
+        elif opcion == "6":
+            print(f"{usuario_actual.nombre} Gracias por usar el sistema de transporte.")
+            break
+
+
+def admin_listar_usuarios():
+    """Muestra todos los usuarios en la base de datos"""
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        usuarios = usuario_crud.listar_usuarios()
+
+        print("\n=== LISTA DE USUARIOS ===")
+        for u in usuarios:
+            print(
+                f"Nombre: {u.nombre} {u.apellido} | Email: {u.email} | Rol: {u.id_rol} | Documento: {u.documento} | fecha creacion: {u.fecha_registro} | fecha actualizacion: {u.fecha_actualizar}\n"
+            )
+
+        if not usuarios:
+            print("No hay usuarios registrados.")
+
+    finally:
+        db_gen.close()
+
+
+def admin_listar_cambios():
+    """
+    Método para que el admin vea los cambios realizados en el sistema
+    """
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        auditoria_crud = AuditoriaCRUD(db)
+        cambios_all = auditoria_crud.obtener_todas()
+        cambios_actual = auditoria_crud.obtener_por_usuario(usuario_actual.id_usuario)
+
+        print("\n=== MIS CAMBIOS ===")
+        if cambios_actual:
+            for cambio in cambios_actual:
+                print(
+                    f"[{cambio.fecha}] {cambio.accion} en {cambio.tabla_afectada} | "
+                    f"Detalle: {cambio.descripcion}\n"
+                )
+        else:
+            print("No has realizado cambios aún.")
+
+        print("\n=== TODOS LOS CAMBIOS ===")
+        if cambios_all:
+            for cambio in cambios_all:
+                print(
+                    f"[{cambio.fecha}] Usuario ID: {cambio.id_usuario} "
+                    f"| {cambio.accion} en {cambio.tabla_afectada} | "
+                    f"Detalle: {cambio.descripcion}\n"
+                )
+        else:
+            print("No hay cambios registrados aún.")
+
+    finally:
+        db_gen.close()
+
+
+def actualizar_usuario_admin():
+    """
+    Metodo para que el admin actualice los datos de un usuario existente
+    - Busca el usuario por email y documento para mayor seguridad
+    """
+    db_gen = get_db()
+    db = next(db_gen)
+    print("\n=== ACTUALIZAR USUARIO ===")
+
+    email = input("Ingrese el email del usuario: ").strip().lower()
+    documento = input("Ingrese el documento del usuario: ").strip()
+
+    if not email or not documento:
+        print("Debe ingresar ambos datos: email y documento.")
+        return
+
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        usuario = usuario_crud.obtener_por_email(email)
+
+        if not usuario or usuario.documento != documento:
+            print("No se encontró un usuario con ese email y documento.")
+            return
+
+        print(
+            f"===\nUsuario encontrado: {usuario.nombre} {usuario.apellido}\n Rol actual: {usuario.id_rol} \n==="
+        )
+
+        print("\nDeje el campo vacío si no desea modificarlo.")
+
+        nombre = input("Nuevo nombre: ").strip()
+        apellido = input("Nuevo apellido: ").strip()
+        nuevo_email = input("Nuevo email: ").strip()
+
+        print("\nRoles disponibles:")
+        print("1. Administrador")
+        print("2. Cliente")
+        id_rol = input("Nuevo rol (1-2): ").strip()
+
+        if id_rol != "1" and id_rol != "2" and id_rol != "":
+            print("Rol inválido. Debe ser 1 o 2.")
+            return
+        id_rol = int(id_rol) if id_rol else None
+
+        usuario_update = UsuarioUpdate(
+            nombre=nombre if nombre else None,
+            apellido=apellido if apellido else None,
+            email=nuevo_email if nuevo_email else None,
+            id_rol=id_rol,
+        )
+
+        usuario_actualizado = usuario_crud.actualizar_usuario(
+            usuario.id_usuario, usuario_update
+        )
+
+        print("\nUsuario actualizado con éxito. Datos finales:")
+        datos = usuario_crud.mostrar_usuario(usuario_actualizado.id_usuario)
+        for clave, valor in datos.items():
+            print(f"{clave}: {valor}")
+
+        agregar_auditoria_usuario(
+            nombre_accion="UPDATE", nombre_tabla="usuarios", usuario=usuario
+        )
+
+    except ValueError as e:
+        print(f"\nError: {e}")
+        db.rollback()
+
+    except Exception as e:
+        print(f"\nError inesperado: {e}")
+        db.rollback()
+
+    finally:
+        db_gen.close()
+
+
+def eliminar_usuario_admin():
+    """
+    metodo para que el admin elimine un usuario existente
+
+    """
+    print("\n=== ELIMINAR USUARIO ===")
+
+    email = input("Ingrese el email del usuario: ").strip().lower()
+    documento = input("Ingrese el documento del usuario: ").strip()
+
+    if not email or not documento:
+        print("Debe ingresar ambos datos: email y documento.")
+        return
+
+    db_gen = get_db()
+    db = next(db_gen)
+
+    try:
+        usuario_crud = UsuarioCRUD(db)
+
+        usuario = usuario_crud.obtener_por_email(email)
+
+        if not usuario or usuario.documento != documento:
+            print("No se encontró un usuario con ese email y documento.")
+            return
+
+        print(
+            f"\nUsuario encontrado: {usuario.nombre} {usuario.apellido}\nRol: {usuario.id_rol})"
+        )
+
+        confirmar = (
+            input("¿Está seguro de que desea eliminar este usuario? (s/n): ")
+            .strip()
+            .lower()
+        )
+        if confirmar != "s":
+            print("Operación cancelada.")
+            return
+
+        usuario_crud.eliminar_usuario(usuario.id_usuario)
+
+        print(
+            f"\nUsuario '{usuario.nombre} {usuario.apellido}' eliminado correctamente."
+        )
+        agregar_auditoria_usuario(
+            nombre_accion="DELETE", nombre_tabla="usuarios", usuario=usuario
+        )
+
+    except ValueError as e:
+        print(f"\nError: {e}")
+        db.rollback()
+
+    except Exception as e:
+        print(f"\nError inesperado: {e}")
+        db.rollback()
+
+    finally:
+        db_gen.close()
+
+
+def inicio():
+    while True:
+        tiene_cuenta = input("¿Tiene cuenta? (s/n): ").strip().lower()
+        if tiene_cuenta == "s":
+            if iniciar_sesion():
+                break
+        elif tiene_cuenta == "n":
+            registrar()
+        else:
+            print("Opción inválida. Ingrese 's' o 'n'.")
+
+
 if __name__ == "__main__":
-    menu()
+    print("Creando tablas en la base de datos...")
+    # try: PARA CREAR LAS TABLAS Y LOS SEEDERS SOLO LA PRIMERA VEZ
+    #     create_tables()
+    #     print("Tablas creadas exitosamente.")
+    #     print("Iniciando seeders de roles y usuarios...")
+    #     run_rol_usuario_seeders()
+    #     print("Seeders ejecutados con éxito.")
+    # except Exception as e:
+    #     print(f"Error al crear tablas o ejecutar seeders: {e}")
+    inicio()
