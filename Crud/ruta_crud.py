@@ -8,6 +8,13 @@ import uuid
 
 
 class RutaCRUD:
+    """Clase para operaciones CRUD en la entidad Ruta
+    Atributos:
+        db (Session): Sesión de la base de datos
+    Metodos:
+        registrar_ruta: Registra una nueva ruta en la base de datos
+        modificar_ruta: Modifica una ruta existente en la base de datos
+    """
 
     def __init__(self, db: Session):
         self.db = db
@@ -37,6 +44,7 @@ class RutaCRUD:
         ruta.origen = origen
         ruta.destino = destino
         ruta.duracion_estimada = duracion
+        ruta.fecha_actualizacion = datetime.now()
 
         self.db.commit()
         self.db.refresh(ruta)

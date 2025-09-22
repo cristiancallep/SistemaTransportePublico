@@ -200,7 +200,8 @@ def menuAdmin():
         print("5. Ver cambios")
         print("6. Agregar Ruta")
         print("7. Modificar Ruta")
-        print("8. Salir")
+        print("8. Agregar Linea")
+        print("9. Salir")
 
         opcion = input("Seleccione una opción: ").strip()
 
@@ -231,6 +232,8 @@ def menuAdmin():
             )
             logica.modificar_ruta(nombre_ruta, origen, destino, duracion)
         elif opcion == "8":
+            pass
+        elif opcion == "9":
             print(f"{usuario_actual.nombre} Gracias por usar el sistema de transporte.")
             break
 

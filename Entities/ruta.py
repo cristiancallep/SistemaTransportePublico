@@ -32,6 +32,7 @@ class Ruta(Base):
     fecha_actualizacion = Column(
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
+    linea = relationship("Linea", back_populates="ruta")
 
     def __repr__(self):
         """Representación en string del objeto Ruta"""

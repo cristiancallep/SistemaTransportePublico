@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from Crud.tarjeta_crud import TarjetaCRUD
 from Crud.transacciones_crud import TransaccionCRUD
 from Crud.ruta_crud import RutaCRUD
+from Crud.linea_crud import LineaCRUD
 import random
 
 
@@ -127,6 +128,22 @@ def modificar_ruta(
         print(f"Ruta {nombre_ruta} modificada exitosamente.")
     except Exception as e:
         print(f"Error al modificar la ruta: {e}")
+        db.rollback()
+    finally:
+        db_gen.close()
+
+
+def generar_linea(nombre: str, descripcion: str) -> None:
+    create_tables()
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        linea_crud = LineaCRUD(db)
+        linea_crud.registrar_linea(nombre, descripcion)
+        db.commit()
+        print(f"Línea creada exitosamente.")
+    except Exception as e:
+        print(f"Error al registrar la línea: {e}")
         db.rollback()
     finally:
         db_gen.close()
