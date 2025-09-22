@@ -1,22 +1,43 @@
 # Sistema de Transporte Público
 
-Este proyecto es un **sistema de transporte público** implementado en Python, que utiliza los conceptos de Programación Orientada a Objetos (POO): **herencia, polimorfismo y encapsulamiento**. Permite simular la compra de tiquetes y la gestión de saldo en una tarjeta para diferentes medios de transporte: Bus, Metro y Tranvía.
-
+- Este proyecto es un sistema para la gestión de transporte público. Incluye manejo de usuarios, auditorías, rutas, tarjetas, transportes, entre otros. Está desarrollado en **Python** y utiliza **SQLAlchemy** como ORM para la gestión de la base de datos.
 ---
 
 ## Estructura del Proyecto
 
-- `src/`: Implementación modular, separando clases y lógica en diferentes archivos.
-- `main.py`: Archivo principal que ejecuta el menú interactivo para el usuario.
-
-SistemaTransportePublico  
-├── src  
-&nbsp;&nbsp;&nbsp;&nbsp;├─ Transporte.py # Clase base y clases hijas (Bus, Metro, Tranvía)  
-&nbsp;&nbsp;&nbsp;&nbsp;├─ Tarjeta.py # Lógica de saldo y acceso al titular  
-&nbsp;&nbsp;&nbsp;&nbsp;├─ Gestor.py # Gestión centralizada de tarjetas y operaciones  
-├── main.py # Interfaz de usuario (menú y flujo principal)  
-├── README.md # Este archivo
-
+```
+SistemaTransportePublico/
+│
+├── Crud/ # Contiene la lógica CRUD (Crear, Leer, Actualizar y Eliminar) para interactuar con la base de datos.
+│ ├── auditoria_crud.py
+│ └── usuario_crud.py
+│
+├── database/ Configuración de la conexión a la base de datos y cualquier archivo relacionado a esta.
+│ ├── init.py
+│ └── config.py
+│
+├── Entities/ #Define las entidades o modelos que representan las tablas de la base de datos.
+│ ├── asignacionT.py 
+│ ├── auditoria.py 
+│ ├── empleado.py 
+│ ├── linea.py 
+│ ├── parada.py 
+│ ├── roles.py 
+│ ├── ruta.py 
+│ ├── tarjeta.py 
+│ ├── transporte.py 
+│ └── usuario.py 
+│
+├── seeders/ # Scripts para poblar la base de datos con datos iniciales (no se versiona)
+│ ├── init.py
+│ └── usuario_seeder.py
+│
+├── main.py # Punto de entrada de la aplicación
+├── requirements.txt # Dependencias del proyecto
+├── .env # Variables de entorno (no se versiona)
+├── .gitignore #Define qué archivos y carpetas no se deben subir a Git.
+└── README.md #Documentación y guía del proyecto. (actual)
+```
 ---
 
 ## Instalación
@@ -30,7 +51,14 @@ Clona este repositorio:
 
 ## Uso
 
-Ejecuta el programa en la terminal con:
+### Instalar dependencias
+
+Instala todas las librerías necesarias desde el archivo requirements.txt:
+```bash
+pip install -r requirements.txt
+```
+
+ ### Ejecuta el programa en la terminal con:
 
 ```bash
 python .\main.py
@@ -44,59 +72,16 @@ py .\main.py
 
 ## Clases Principales
 
-### 1. Tarjeta
-
-- **Encapsulamiento:** El saldo es un atributo privado (`__saldo`).
-- **Métodos:**
-  - `recargar(valor)`: Recarga la tarjeta con un valor positivo.
-  - `pagar(valor)`: Descuenta el valor del saldo si hay suficiente dinero.
-  - `consultar_saldo()`: Muestra el saldo actual.
-
-### 2. Transporte (Clase Base)
-
-- **Herencia:** Clase base para los diferentes medios de transporte.
-- **Métodos:**
-  - `costo_tiquete()`: Método abstracto, debe ser implementado por las subclases.
-  - `vender_tiquete(tarjeta)`: Intenta vender un tiquete usando la tarjeta.
-
-### 3. Bus, Metro, Tranvía (Subclases de Transporte)
-
-- **Polimorfismo:** Cada subclase implementa su propio costo de tiquete y demás propiedades únicas.
-  - `Bus`: $2500
-  - `Metro`: $2800
-  - `Tranvía`: $2700
 
 ---
 
 ## Funcionamiento del Menú
 
-El usuario puede:
-
-1. **Conseguir tarjeta:** Ingresa un monto positivo para aumentar el saldo.
-2. **Recargar tarjeta:** Ingresa un monto positivo para aumentar el saldo.
-3. **Consultar tarjetas:** Muestra el saldo actual de la tarjeta.
-4. **Consultar saldo:** Muestra el saldo actual de la tarjeta.
-5. **Comprar tiquete en Bus/Metro/Tranvía:** Descuenta el valor correspondiente si hay saldo suficiente.
-6. **Salir:** Termina el programa.
-
-El menú valida las entradas del usuario y muestra mensajes claros en caso de errores o acciones exitosas.
 
 ---
 
 ## Ejemplo de Uso
 
---- 🚏 Sistema de Transporte Público 🚏 ---  
-🔶 1. Conseguir tarjeta  
-🔶 2. Recargar tarjeta  
-🔶 3. Consultar saldo  
-🔶 4. Consultar tarjetas  
-🔶 5. Comprar tiquete en Bus  
-🔶 6. Comprar tiquete en Metro  
-🔶 7. Comprar tiquete en Tranvía  
-🔶 8. Salir  
-Seleccione una opción: 1  
-Ingrese valor a recargar: 5000  
-✅ Recarga exitosa, nuevo saldo: 5000
 
 ## 👨‍💻 Créditos
 
@@ -105,4 +90,3 @@ Proyecto desarrollado por:
 - Tomás Álvarez
 - Emely Loaiza Ocampo
 
-Inspirado en la aplicación de Programación Orientada a Objetos (POO) para la simulación de transporte público.
