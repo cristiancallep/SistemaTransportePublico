@@ -1,4 +1,7 @@
-# Menús de usuario y admin para el sistema de transporte público
+"""
+Menús de usuario y admin para el sistema de transporte público
+"""
+
 import Utilities.logica as logica
 from Crud.empleado_crud import EmpleadoCRUD
 from Crud.transporte_crud import TransporteCRUD
