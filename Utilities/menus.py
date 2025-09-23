@@ -18,7 +18,7 @@ def menuUsuario():
             "3. Recargar tarjeta\n"
             "4. Comprar tiquete\n"
             "5. Ver mis tiquetes y transportes asignados\n"
-            "9. Salir\n"
+            "6. Salir\n"
         ).strip()
         if opcion not in {"1", "2", "3", "4", "5", "6", "9"}:
             print("Opción inválida. Intente de nuevo.")
@@ -46,7 +46,14 @@ def menuUsuario():
             print(
                 "Tipos de transporte disponibles: 1. Bus 2. Metro 3. Tranvía 4. Metrocable"
             )
+            tipo_opciones = {
+                "1": "Bus",
+                "2": "Metro",
+                "3": "Tranvía",
+                "4": "Metrocable",
+            }
             tipo = input("Seleccione el tipo de transporte: ").strip()
+            tipo_texto = tipo_opciones.get(tipo, tipo)
             db_gen = logica.get_db()
             db = next(db_gen)
             transporte_crud = TransporteCRUD(db)
@@ -54,7 +61,7 @@ def menuUsuario():
             transportes = [
                 t
                 for t in transporte_crud.listar_transportes()
-                if t.tipo.lower() == tipo.lower()
+                if t.tipo.lower() == tipo_texto.lower()
             ]
             if not transportes:
                 print("No hay transportes disponibles para ese tipo.")
@@ -91,17 +98,66 @@ def menuUsuario():
                     continue
                 ruta = rutas[r_idx]
                 break
+            # Descontar saldo de la tarjeta antes de asignar
+            from Crud.tarjeta_crud import TarjetaCRUD
+            from Entities.tarjeta import Tarjeta
+
+            tarjeta_crud = TarjetaCRUD(db)
+            tarjeta = (
+                db.query(Tarjeta)
+                .filter_by(id_usuario=logica.usuario_actual.id_usuario)
+                .first()
+            )
+            valor_tiquete = 2500
+            if not tarjeta:
+                print(
+                    "No tienes una tarjeta registrada. No se puede comprar el tiquete."
+                )
+                db_gen.close()
+                continue
+            if tarjeta.saldo < valor_tiquete:
+                print(
+                    f"Saldo insuficiente. Tu saldo es {tarjeta.saldo}, el valor del tiquete es {valor_tiquete}."
+                )
+                db_gen.close()
+                continue
+            # Asignar automáticamente un empleado disponible
+            empleado_crud = EmpleadoCRUD(db)
+            empleados = empleado_crud.listar_empleados()
+            if not empleados:
+                print(
+                    "No hay empleados disponibles para asignar. No se puede completar la compra."
+                )
+                db_gen.close()
+                continue
+            import random
+
+            empleado = random.choice(empleados)
+            # Descontar saldo y guardar
+            tarjeta.saldo -= valor_tiquete
+            db.commit()
+            # Registrar transacción de pago de tiquete
+            from Crud.transacciones_crud import TransaccionCRUD
+
+            transacciones_crud = TransaccionCRUD(db)
+            transacciones_crud.registrar_transaccion(
+                numero_tarjeta=tarjeta.numero_tarjeta,
+                tipo_transaccion="Pago Tiquete",
+                monto=-valor_tiquete,
+            )
             from Entities.asignacionT import AsignacionTCreate
 
             asignacion_crud = AsignacionTCRUD(db)
             asignacion = AsignacionTCreate(
                 id_usuario=logica.usuario_actual.id_usuario,
-                id_empleado=None,
+                id_empleado=empleado.id_empleado,
                 id_transporte=transporte.id_transporte,
                 id_ruta=ruta.id_ruta,
             )
             asignacion_crud.registrar_asignacion(asignacion)
-            print("Tiquete comprado y transporte asignado correctamente.")
+            print(
+                f"Tiquete comprado y transporte asignado correctamente. Empleado asignado: {empleado.nombre} {empleado.apellido}. Se descontaron {valor_tiquete} de tu tarjeta y se registró la transacción."
+            )
             db_gen.close()
         elif opcion == "5":
             db_gen = logica.get_db()
@@ -142,7 +198,7 @@ def menuAdmin():
         print("11. Modificar Ruta")
         print("12. Agregar Linea")
         print("13. Agregar Transporte")
-        print("14. Asignar empleado a transporte/ruta")
+        print("14. Asignar empleado a transporte y ruta")
         print("15. Asignar transporte a usuario")
         print("16. Ver asignaciones y tiquetes")
         print("17. Salir")
@@ -222,9 +278,10 @@ def menuAdmin():
                 logica.agregar_auditoria_usuario(
                     "UPDATE", "empleados", logica.usuario_actual
                 )
-        elif opcion == "8":
+            from Crud.transacciones_crud import TransaccionCRUD
+
             empleado_crud = EmpleadoCRUD(db)
-            empleados = empleado_crud.listar_empleados()
+            transacciones_crud = TransaccionCRUD(db)
             print("Empleados disponibles:")
             for idx, e in enumerate(empleados):
                 print(
@@ -255,13 +312,37 @@ def menuAdmin():
                     f"ID: {e.id_empleado} | Nombre: {e.nombre} {e.apellido} | Documento: {e.documento} | Email: {e.email} | Rol: {e.rol} | Estado: {e.estado}"
                 )
         elif opcion == "10":
+            from Entities.linea import Linea
+
+            lineas = db.query(Linea).all()
+            if not lineas:
+                print(
+                    "No hay líneas registradas. Debe crear una línea antes de registrar una ruta."
+                )
+                return
+            print("Líneas disponibles:")
+            for idx, l in enumerate(lineas):
+                print(f"{idx+1}. {l.nombre} - {l.descripcion}")
+            while True:
+                l_idx_str = input("Seleccione la línea para la ruta: ").strip()
+                if not l_idx_str.isdigit():
+                    print("Debe ingresar un número válido.")
+                    continue
+                l_idx = int(l_idx_str) - 1
+                if l_idx < 0 or l_idx >= len(lineas):
+                    print("Índice fuera de rango. Intente de nuevo.")
+                    continue
+                linea = lineas[l_idx]
+                break
             nombre_ruta = input("Ingrese el nombre de la nueva ruta: ").strip()
             origen = input("Ingrese el origen de la ruta: ").strip()
             destino = input("Ingrese el destino de la ruta: ").strip()
             duracion = float(
                 input("Ingrese la duración estimada (en minutos): ").strip()
             )
-            logica.generar_ruta(nombre_ruta, origen, destino, duracion)
+            logica.generar_ruta(
+                nombre_ruta, origen, destino, duracion, id_linea=linea.id_linea
+            )
         elif opcion == "11":
             ruta_crud = RutaCRUD(db)
             rutas = ruta_crud.listar_rutas()
@@ -375,11 +456,30 @@ def menuAdmin():
                     continue
                 id_ruta = rutas[r_idx].id_ruta
                 break
+            # Mostrar usuarios
+            from Crud.usuario_crud import UsuarioCRUD
+
+            usuario_crud = UsuarioCRUD(db)
+            usuarios = usuario_crud.listar_usuarios()
+            print("Usuarios disponibles:")
+            for idx, u in enumerate(usuarios):
+                print(f"{idx+1}. {u.nombre} {u.apellido} | UUID: {u.id_usuario}")
+            while True:
+                u_idx_str = input("Seleccione el usuario: ").strip()
+                if not u_idx_str.isdigit():
+                    print("Debe ingresar un número válido.")
+                    continue
+                u_idx = int(u_idx_str) - 1
+                if u_idx < 0 or u_idx >= len(usuarios):
+                    print("Índice fuera de rango. Intente de nuevo.")
+                    continue
+                id_usuario = usuarios[u_idx].id_usuario
+                break
             asignacion_crud = AsignacionTCRUD(db)
             from Entities.asignacionT import AsignacionTCreate
 
             asignacion = AsignacionTCreate(
-                id_usuario=None,
+                id_usuario=id_usuario,
                 id_empleado=id_empleado,
                 id_transporte=id_transporte,
                 id_ruta=id_ruta,
@@ -427,9 +527,26 @@ def menuAdmin():
             asignacion_crud = AsignacionTCRUD(db)
             from Entities.asignacionT import AsignacionTCreate
 
+            # Mostrar empleados
+            empleado_crud = EmpleadoCRUD(db)
+            empleados = empleado_crud.listar_empleados()
+            print("Empleados disponibles:")
+            for idx, e in enumerate(empleados):
+                print(f"{idx+1}. {e.nombre} {e.apellido} | UUID: {e.id_empleado}")
+            while True:
+                e_idx_str = input("Seleccione el empleado: ").strip()
+                if not e_idx_str.isdigit():
+                    print("Debe ingresar un número válido.")
+                    continue
+                e_idx = int(e_idx_str) - 1
+                if e_idx < 0 or e_idx >= len(empleados):
+                    print("Índice fuera de rango. Intente de nuevo.")
+                    continue
+                id_empleado = empleados[e_idx].id_empleado
+                break
             asignacion = AsignacionTCreate(
                 id_usuario=id_usuario,
-                id_empleado=None,
+                id_empleado=id_empleado,
                 id_transporte=id_transporte,
                 id_ruta=id_ruta,
             )

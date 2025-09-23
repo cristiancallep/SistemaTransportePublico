@@ -378,13 +378,17 @@ def consultar_saldo(documento: str) -> None:
         db_gen.close()
 
 
-def generar_ruta(nombre_ruta: str, origen: str, destino: str, duracion: float) -> None:
+def generar_ruta(
+    nombre_ruta: str, origen: str, destino: str, duracion: float, id_linea=None
+) -> None:
     create_tables()
     db_gen = get_db()
     db = next(db_gen)
     try:
         ruta_crud = RutaCRUD(db)
-        ruta_crud.registrar_ruta(nombre_ruta, origen, destino, duracion)
+        ruta_crud.registrar_ruta(
+            nombre_ruta, origen, destino, duracion, id_linea=id_linea
+        )
         db.commit()
         print(f"Ruta {nombre_ruta} creada exitosamente.")
         # Auditoría solo si el commit fue exitoso
