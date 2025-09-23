@@ -24,6 +24,12 @@ class Ruta(Base):
     __tablename__ = "rutas"
 
     id_ruta = Column(Integer, primary_key=True, autoincrement=True)
+    id_linea = Column(
+        Integer,
+        ForeignKey("lineas.id_linea", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     nombre = Column(String(100), nullable=False, unique=True, index=True)
     origen = Column(String(100), nullable=False)
     destino = Column(String(100), nullable=False)
