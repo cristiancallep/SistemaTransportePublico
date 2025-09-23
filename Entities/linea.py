@@ -29,7 +29,7 @@ class Linea(Base):
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
 
-    ruta = relationship("Ruta", back_populates="linea")
+    ruta = relationship("Ruta", back_populates="linea", cascade="all, delete-orphan")
 
     def __repr__(self):
         """Representación en string del objeto Linea"""
