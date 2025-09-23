@@ -12,7 +12,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Usuario(Base):
@@ -47,6 +47,9 @@ class Usuario(Base):
 
     auditorias = relationship("Auditoria", back_populates="usuario")
     rol = relationship("Rol", back_populates="usuario")
+    tarjetas = relationship(
+        "Tarjeta", back_populates="usuario", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         """Representación en string del objeto Usuario"""
