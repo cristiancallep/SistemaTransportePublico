@@ -198,10 +198,9 @@ def menuAdmin():
         print("11. Modificar Ruta")
         print("12. Agregar Linea")
         print("13. Agregar Transporte")
-        print("14. Asignar empleado a transporte y ruta")
-        print("15. Asignar transporte a usuario")
-        print("16. Ver asignaciones y tiquetes")
-        print("17. Salir")
+        print("14. Asignar transporte a usuario")
+        print("15. Ver asignaciones y tiquetes")
+        print("16. Salir")
         opcion = input("Seleccione una opción: ").strip()
         db_gen = logica.get_db()
         db = next(db_gen)
@@ -403,90 +402,6 @@ def menuAdmin():
             transporte_crud.registrar_transporte(nuevo)
             print("Transporte registrado correctamente.")
         elif opcion == "14":
-            # Mostrar empleados
-            empleado_crud = EmpleadoCRUD(db)
-            empleados = empleado_crud.listar_empleados()
-            print("Empleados disponibles:")
-            for idx, e in enumerate(empleados):
-                print(f"{idx+1}. {e.nombre} {e.apellido} | UUID: {e.id_empleado}")
-            while True:
-                e_idx_str = input("Seleccione el empleado: ").strip()
-                if not e_idx_str.isdigit():
-                    print("Debe ingresar un número válido.")
-                    continue
-                e_idx = int(e_idx_str) - 1
-                if e_idx < 0 or e_idx >= len(empleados):
-                    print("Índice fuera de rango. Intente de nuevo.")
-                    continue
-                id_empleado = empleados[e_idx].id_empleado
-                break
-            # Mostrar transportes
-            transporte_crud = TransporteCRUD(db)
-            transportes = transporte_crud.listar_transportes()
-            print("Transportes disponibles:")
-            for idx, t in enumerate(transportes):
-                print(f"{idx+1}. {t.tipo} | Placa: {t.placa} | UUID: {t.id_transporte}")
-            while True:
-                t_idx_str = input("Seleccione el transporte: ").strip()
-                if not t_idx_str.isdigit():
-                    print("Debe ingresar un número válido.")
-                    continue
-                t_idx = int(t_idx_str) - 1
-                if t_idx < 0 or t_idx >= len(transportes):
-                    print("Índice fuera de rango. Intente de nuevo.")
-                    continue
-                id_transporte = transportes[t_idx].id_transporte
-                break
-            # Mostrar rutas
-            ruta_crud = RutaCRUD(db)
-            rutas = ruta_crud.listar_rutas()
-            print("Rutas disponibles:")
-            for idx, r in enumerate(rutas):
-                print(
-                    f"{idx+1}. {r.nombre} ({r.origen}->{r.destino}) | UUID: {r.id_ruta}"
-                )
-            while True:
-                r_idx_str = input("Seleccione la ruta: ").strip()
-                if not r_idx_str.isdigit():
-                    print("Debe ingresar un número válido.")
-                    continue
-                r_idx = int(r_idx_str) - 1
-                if r_idx < 0 or r_idx >= len(rutas):
-                    print("Índice fuera de rango. Intente de nuevo.")
-                    continue
-                id_ruta = rutas[r_idx].id_ruta
-                break
-            # Mostrar usuarios
-            from Crud.usuario_crud import UsuarioCRUD
-
-            usuario_crud = UsuarioCRUD(db)
-            usuarios = usuario_crud.listar_usuarios()
-            print("Usuarios disponibles:")
-            for idx, u in enumerate(usuarios):
-                print(f"{idx+1}. {u.nombre} {u.apellido} | UUID: {u.id_usuario}")
-            while True:
-                u_idx_str = input("Seleccione el usuario: ").strip()
-                if not u_idx_str.isdigit():
-                    print("Debe ingresar un número válido.")
-                    continue
-                u_idx = int(u_idx_str) - 1
-                if u_idx < 0 or u_idx >= len(usuarios):
-                    print("Índice fuera de rango. Intente de nuevo.")
-                    continue
-                id_usuario = usuarios[u_idx].id_usuario
-                break
-            asignacion_crud = AsignacionTCRUD(db)
-            from Entities.asignacionT import AsignacionTCreate
-
-            asignacion = AsignacionTCreate(
-                id_usuario=id_usuario,
-                id_empleado=id_empleado,
-                id_transporte=id_transporte,
-                id_ruta=id_ruta,
-            )
-            asignacion_crud.registrar_asignacion(asignacion)
-            print("Empleado asignado correctamente a transporte/ruta.")
-        elif opcion == "15":
             # Mostrar usuarios
             from Crud.usuario_crud import UsuarioCRUD
 
@@ -552,16 +467,58 @@ def menuAdmin():
             )
             asignacion_crud.registrar_asignacion(asignacion)
             print("Transporte asignado correctamente al usuario.")
-        elif opcion == "16":
+        elif opcion == "15":
             asignacion_crud = AsignacionTCRUD(db)
-            asignaciones = asignacion_crud.obtener_por_usuario(
-                logica.usuario_actual.id_usuario
-            )
-            for a in asignaciones:
-                print(
-                    f"Usuario: {a.id_usuario} | Empleado: {a.id_empleado} | Transporte: {a.id_transporte} | Ruta: {a.id_ruta}"
-                )
-        elif opcion == "17":
+            asignaciones = asignacion_crud.listar_asignaciones()
+            from Entities.usuario import Usuario
+            from Entities.empleado import Empleado
+            from Entities.transporte import Transporte
+            from Entities.ruta import Ruta
+
+            if not asignaciones:
+                print("No hay asignaciones registradas.")
+            else:
+                print("\n=== LISTADO DE ASIGNACIONES ===")
+                for idx, a in enumerate(asignaciones, 1):
+                    usuario = (
+                        db.query(Usuario).filter_by(id_usuario=a.id_usuario).first()
+                    )
+                    empleado = (
+                        db.query(Empleado).filter_by(id_empleado=a.id_empleado).first()
+                    )
+                    transporte = (
+                        db.query(Transporte)
+                        .filter_by(id_transporte=a.id_transporte)
+                        .first()
+                    )
+                    ruta = db.query(Ruta).filter_by(id_ruta=a.id_ruta).first()
+                    nombre_usuario = (
+                        f"{usuario.nombre} {usuario.apellido}"
+                        if usuario
+                        else str(a.id_usuario)
+                    )
+                    nombre_empleado = (
+                        f"{empleado.nombre} {empleado.apellido}"
+                        if empleado
+                        else str(a.id_empleado)
+                    )
+                    ref_transporte = (
+                        f"{transporte.tipo} - {transporte.placa}"
+                        if transporte
+                        else str(a.id_transporte)
+                    )
+                    ref_ruta = (
+                        f"{ruta.nombre} ({ruta.origen}->{ruta.destino})"
+                        if ruta
+                        else str(a.id_ruta)
+                    )
+                    print(f"\nAsignación #{idx}")
+                    print(f"  Usuario:    {nombre_usuario}")
+                    print(f"  Empleado:   {nombre_empleado}")
+                    print(f"  Transporte: {ref_transporte}")
+                    print(f"  Ruta:       {ref_ruta}")
+                print("\n==============================\n")
+        elif opcion == "16":
             print(
                 f"{logica.usuario_actual.nombre} Gracias por usar el sistema de transporte."
             )
