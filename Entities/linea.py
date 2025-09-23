@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -21,7 +22,7 @@ class Linea(Base):
 
     __tablename__ = "lineas"
 
-    id_linea = Column(Integer, primary_key=True, autoincrement=True)
+    id_linea = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String(100), nullable=False, unique=True, index=True)
     descripcion = Column(String(255), nullable=True)
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)

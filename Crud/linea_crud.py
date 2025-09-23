@@ -8,6 +8,8 @@ import uuid
 
 
 class LineaCRUD:
+    def listar_lineas(self):
+        return self.db.query(Linea).all()
 
     def __init__(self, db: Session):
         self.db = db

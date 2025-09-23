@@ -6,9 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
-# Ignorar carpeta seeders
-seeders/
-*seeders/*.pyc
+# Ignorar init_db.py
+init_db.py
 
 # Virtual environment
 venv/

@@ -20,13 +20,19 @@ class RutaCRUD:
         self.db = db
 
     def registrar_ruta(
-        self, nombre_ruta: str, origen: str, destino: str, duracion: float
+        self,
+        nombre_ruta: str,
+        origen: str,
+        destino: str,
+        duracion: float,
+        id_linea=None,
     ) -> Ruta:
         ruta = Ruta(
             nombre=nombre_ruta,
             origen=origen,
             destino=destino,
             duracion_estimada=duracion,
+            id_linea=id_linea,
         )
         self.db.add(ruta)
         self.db.commit()
@@ -49,3 +55,6 @@ class RutaCRUD:
         self.db.commit()
         self.db.refresh(ruta)
         return ruta
+
+    def listar_rutas(self):
+        return self.db.query(Ruta).all()

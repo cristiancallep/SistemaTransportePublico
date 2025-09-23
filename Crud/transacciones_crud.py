@@ -17,6 +17,7 @@ class TransaccionCRUD:
         self, numero_tarjeta: str, tipo_transaccion: str, monto: float
     ) -> Transaccion:
         transaccion = Transaccion(
+            id_transaccion=uuid.uuid4(),
             numero_tarjeta=numero_tarjeta,
             tipo_transaccion=tipo_transaccion,
             monto=monto,

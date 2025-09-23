@@ -19,8 +19,11 @@ class Transaccion(Base):
     """
 
     __tablename__ = "transacciones"
+    import uuid
 
-    id_transaccion = Column(Integer, primary_key=True, autoincrement=True)
+    id_transaccion = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
+    )
     numero_tarjeta = Column(
         String(20),
         ForeignKey("tarjetas.numero_tarjeta", ondelete="CASCADE"),
