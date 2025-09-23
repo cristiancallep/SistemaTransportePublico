@@ -5,8 +5,9 @@ Entidad Empleado
 Modelo de Empleado con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
+from datetime import datetime
 import uuid
-from sqlalchemy import Column, String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
@@ -22,6 +23,10 @@ class Empleado(Base):
     email = Column(String, unique=True, nullable=False)
     rol = Column(String, nullable=False)
     estado = Column(String, default="Activo")
+    fecha_registro = Column(DateTime, default=datetime.now, nullable=False)
+    fecha_actualizar = Column(
+        DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
+    )
 
 
 from uuid import UUID as UUIDType

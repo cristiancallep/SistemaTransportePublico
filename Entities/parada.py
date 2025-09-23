@@ -5,8 +5,9 @@ Entidad Parada
 Modelo de Parada con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
+from datetime import datetime
 import uuid
-from sqlalchemy import Column, String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
@@ -20,6 +21,10 @@ class Parada(Base):
     direccion = Column(String, nullable=False)
     coordenadas = Column(String, nullable=True)
     estado = Column(String, default="Activa")
+    fecha_registro = Column(DateTime, default=datetime.now, nullable=False)
+    fecha_actualizar = Column(
+        DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
+    )
 
 
 from uuid import UUID as UUIDType

@@ -19,6 +19,7 @@ from Entities.parada import Parada
 from database import get_db, create_tables
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+import bcrypt
 
 # Inicializa las tablas
 
@@ -192,6 +193,13 @@ try:
 
     # Insertar usuarios
     print("Insertando usuarios...")
+
+    hash_contrasenaA = bcrypt.hashpw(
+        "admin123".encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+    hash_contrasenaU = bcrypt.hashpw(
+        "cliente123".encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
     usuarios = [
         Usuario(
             id_usuario=uuid.uuid4(),
@@ -200,9 +208,7 @@ try:
             apellido="Calle",
             documento="1152717416",
             email="crisscp99@gmail.com",
-            contrasena="12345678",
-            fecha_registro=None,
-            fecha_actualizar=None,
+            contrasena=hash_contrasenaA,
         ),
         Usuario(
             id_usuario=uuid.uuid4(),
@@ -211,9 +217,7 @@ try:
             apellido="Martínez",
             documento="1152717417",
             email="laura@gmail.com",
-            contrasena="12345678",
-            fecha_registro=None,
-            fecha_actualizar=None,
+            contrasena=hash_contrasenaU,
         ),
     ]
     for usuario in usuarios:
@@ -225,7 +229,7 @@ try:
     print("Insertando tarjetas...")
     tarjetas = [
         Tarjeta(
-            id_tarjeta=1,
+            id_tarjeta=uuid.uuid4(),
             id_usuario=usuarios[0].id_usuario,
             tipo_tarjeta="Frecuente",
             numero_tarjeta="1234567890123456",
@@ -234,7 +238,7 @@ try:
             fecha_ultima_recarga=None,
         ),
         Tarjeta(
-            id_tarjeta=2,
+            id_tarjeta=uuid.uuid4(),
             id_usuario=usuarios[1].id_usuario,
             tipo_tarjeta="Estudiante",
             numero_tarjeta="6543210987654321",
@@ -252,12 +256,14 @@ try:
     print("Insertando transacciones...")
     transacciones = [
         Transaccion(
+            id_transaccion=uuid.uuid4(),
             numero_tarjeta=tarjetas[0].numero_tarjeta,
             tipo_transaccion="Recarga",
             monto=5000.0,
             fecha_transaccion=None,
         ),
         Transaccion(
+            id_transaccion=uuid.uuid4(),
             numero_tarjeta=tarjetas[1].numero_tarjeta,
             tipo_transaccion="Recarga",
             monto=3000.0,
@@ -269,31 +275,6 @@ try:
     db.commit()
     print("Transacciones insertadas.")
 
-    # Insertar auditorías
-    print("Insertando auditorías...")
-    auditorias = [
-        Auditoria(
-            id_auditoria=uuid.uuid4(),
-            id_usuario=usuarios[0].id_usuario,
-            tabla_afectada="usuarios",
-            accion="CREATE",
-            descripcion="Usuario creado",
-            fecha=None,
-        ),
-        Auditoria(
-            id_auditoria=uuid.uuid4(),
-            id_usuario=usuarios[1].id_usuario,
-            tabla_afectada="usuarios",
-            accion="CREATE",
-            descripcion="Usuario creado",
-            fecha=None,
-        ),
-    ]
-    for auditoria in auditorias:
-        db.merge(auditoria)
-    db.commit()
-    print("Auditorías insertadas.")
-
     # Insertar asignaciones
     print("Insertando asignaciones...")
     asignaciones = [
@@ -303,7 +284,6 @@ try:
             id_empleado=empleados[0].id_empleado,
             id_transporte=transportes[0].id_transporte,
             id_ruta=rutas[0].id_ruta,
-            fecha_asignacion=None,
         ),
         AsignacionT(
             id_asignacion=uuid.uuid4(),
@@ -311,7 +291,6 @@ try:
             id_empleado=empleados[1].id_empleado,
             id_transporte=transportes[2].id_transporte,
             id_ruta=rutas[1].id_ruta,
-            fecha_asignacion=None,
         ),
     ]
     for asignacion in asignaciones:

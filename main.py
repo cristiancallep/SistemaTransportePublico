@@ -1,5 +1,5 @@
-import logica
-import menus
+import Utilities.logica as logica
+import Utilities.menus as menus
 
 
 def inicio():

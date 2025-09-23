@@ -2,12 +2,14 @@ from Entities.asignacionT import AsignacionT, AsignacionTCreate, AsignacionTUpda
 from uuid import UUID
 from sqlalchemy.orm import Session
 
+
 class AsignacionTCRUD:
     def __init__(self, db: Session):
         self.db = db
 
     def registrar_asignacion(self, asignacion: AsignacionTCreate):
         import uuid
+
         nueva = AsignacionT(id_asignacion=uuid.uuid4(), **asignacion.dict())
         self.db.add(nueva)
         self.db.commit()
@@ -30,3 +32,6 @@ class AsignacionTCRUD:
             self.db.commit()
             return True
         return False
+
+    def listar_asignaciones(self):
+        return self.db.query(AsignacionT).all()

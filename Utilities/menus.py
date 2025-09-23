@@ -1,5 +1,5 @@
 # Menús de usuario y admin para el sistema de transporte público
-import logica
+import Utilities.logica as logica
 from Crud.empleado_crud import EmpleadoCRUD
 from Crud.transporte_crud import TransporteCRUD
 from Crud.ruta_crud import RutaCRUD
@@ -152,8 +152,10 @@ def menuAdmin():
         if opcion == "1":
             logica.registrar(es_admin=True)
         elif opcion == "2":
+            logica.admin_listar_usuarios()
             logica.actualizar_usuario_admin()
         elif opcion == "3":
+            logica.admin_listar_usuarios()
             logica.eliminar_usuario_admin()
         elif opcion == "4":
             logica.admin_listar_usuarios()
@@ -177,9 +179,29 @@ def menuAdmin():
             )
             empleado_crud.crear_empleado(nuevo)
             print("Empleado registrado correctamente.")
+            if logica.usuario_actual:
+                logica.agregar_auditoria_usuario(
+                    "CREATE", "empleados", logica.usuario_actual
+                )
         elif opcion == "7":
-            id_empleado = input("ID del empleado a actualizar: ").strip()
             empleado_crud = EmpleadoCRUD(db)
+            empleados = empleado_crud.listar_empleados()
+            print("Empleados disponibles:")
+            for idx, e in enumerate(empleados):
+                print(
+                    f"{idx+1}. {e.nombre} {e.apellido} | Documento: {e.documento} | Email: {e.email} | Rol: {e.rol} | Estado: {e.estado}"
+                )
+            while True:
+                idx_str = input("Seleccione el empleado a actualizar: ").strip()
+                if not idx_str.isdigit():
+                    print("Debe ingresar un número válido.")
+                    continue
+                idx = int(idx_str) - 1
+                if idx < 0 or idx >= len(empleados):
+                    print("Índice fuera de rango. Intente de nuevo.")
+                    continue
+                empleado = empleados[idx]
+                break
             from Entities.empleado import EmpleadoUpdate
 
             nombre = input("Nuevo nombre: ").strip()
@@ -194,13 +216,37 @@ def menuAdmin():
                 rol=rol or None,
                 estado=estado or None,
             )
-            empleado_crud.actualizar_empleado(id_empleado, update)
+            empleado_crud.actualizar_empleado(empleado.id_empleado, update)
             print("Empleado actualizado correctamente.")
+            if logica.usuario_actual:
+                logica.agregar_auditoria_usuario(
+                    "UPDATE", "empleados", logica.usuario_actual
+                )
         elif opcion == "8":
-            id_empleado = input("ID del empleado a eliminar: ").strip()
             empleado_crud = EmpleadoCRUD(db)
-            empleado_crud.eliminar_empleado(id_empleado)
+            empleados = empleado_crud.listar_empleados()
+            print("Empleados disponibles:")
+            for idx, e in enumerate(empleados):
+                print(
+                    f"{idx+1}. {e.nombre} {e.apellido} | Documento: {e.documento} | Email: {e.email} | Rol: {e.rol} | Estado: {e.estado}"
+                )
+            while True:
+                idx_str = input("Seleccione el empleado a eliminar: ").strip()
+                if not idx_str.isdigit():
+                    print("Debe ingresar un número válido.")
+                    continue
+                idx = int(idx_str) - 1
+                if idx < 0 or idx >= len(empleados):
+                    print("Índice fuera de rango. Intente de nuevo.")
+                    continue
+                empleado = empleados[idx]
+                break
+            empleado_crud.eliminar_empleado(empleado.id_empleado)
             print("Empleado eliminado correctamente.")
+            if logica.usuario_actual:
+                logica.agregar_auditoria_usuario(
+                    "DELETE", "empleados", logica.usuario_actual
+                )
         elif opcion == "9":
             empleado_crud = EmpleadoCRUD(db)
             empleados = empleado_crud.listar_empleados()
@@ -217,12 +263,29 @@ def menuAdmin():
             )
             logica.generar_ruta(nombre_ruta, origen, destino, duracion)
         elif opcion == "11":
-            id_ruta = input("ID de la ruta a modificar: ").strip()
+            ruta_crud = RutaCRUD(db)
+            rutas = ruta_crud.listar_rutas()
+            print("Rutas disponibles:")
+            for idx, r in enumerate(rutas):
+                print(
+                    f"{idx+1}. {r.nombre} ({r.origen}->{r.destino}) | Duración: {r.duracion_estimada} min"
+                )
+            while True:
+                idx_str = input("Seleccione la ruta a modificar: ").strip()
+                if not idx_str.isdigit():
+                    print("Debe ingresar un número válido.")
+                    continue
+                idx = int(idx_str) - 1
+                if idx < 0 or idx >= len(rutas):
+                    print("Índice fuera de rango. Intente de nuevo.")
+                    continue
+                ruta = rutas[idx]
+                break
             nombre_ruta = input("Nuevo nombre de la ruta: ").strip()
             origen = input("Nuevo origen: ").strip()
             destino = input("Nuevo destino: ").strip()
             duracion = float(input("Nueva duración estimada (en minutos): ").strip())
-            logica.modificar_ruta(id_ruta, nombre_ruta, origen, destino, duracion)
+            logica.modificar_ruta(ruta.id_ruta, nombre_ruta, origen, destino, duracion)
         elif opcion == "12":
             nombre = input("Ingrese el nombre de la nueva linea: ").strip()
             descripcion = input("Ingrese la descripcion de la linea: ").strip()
@@ -238,7 +301,7 @@ def menuAdmin():
             lineas = linea_crud.listar_lineas()
             print("Líneas disponibles:")
             for idx, l in enumerate(lineas):
-                print(f"{idx+1}. {l.nombre} ({l.descripcion}) | UUID: {l.id_linea}")
+                print(f"{idx+1}. {l.nombre} ({l.descripcion})")
             while True:
                 l_idx_str = input("Seleccione la línea: ").strip()
                 if not l_idx_str.isdigit():

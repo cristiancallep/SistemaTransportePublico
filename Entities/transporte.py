@@ -6,12 +6,12 @@ Modelo de Transporte con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
 import uuid
-from sqlalchemy import Column, String, ForeignKey, Integer
+from sqlalchemy import Column, DateTime, String, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel, Field
+from datetime import datetime
 from database import Base
-
+from pydantic import BaseModel
 
 class Transporte(Base):
     __tablename__ = "transportes"
@@ -21,6 +21,10 @@ class Transporte(Base):
     capacidad = Column(Integer, nullable=False)
     estado = Column(String, default="Activo")
     id_linea = Column(UUID(as_uuid=True), ForeignKey("lineas.id_linea"))
+    fecha_registro = Column(DateTime, default=datetime.now, nullable=False)
+    fecha_actualizar = Column(
+        DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
+    )
 
 
 from uuid import UUID as UUIDType

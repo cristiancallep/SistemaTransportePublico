@@ -49,3 +49,6 @@ class RutaCRUD:
         self.db.commit()
         self.db.refresh(ruta)
         return ruta
+
+    def listar_rutas(self):
+        return self.db.query(Ruta).all()

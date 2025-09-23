@@ -40,7 +40,7 @@ def agregar_auditoria_usuario(nombre_accion: str, nombre_tabla: str, usuario: Us
             tabla_afectada=nombre_tabla,
             accion=nombre_accion,
             descripcion=(
-                f"{nombre_accion} del usuario: {usuario.nombre} {usuario.apellido} "
+                f"{nombre_accion} en {nombre_tabla}: {usuario.nombre} {usuario.apellido} "
                 f"| correo: {usuario.email} | documento: {usuario.documento}"
             ),
         )
@@ -91,6 +91,7 @@ def registrar(es_admin=False):
             f"\nUsuario '{nuevo_usuario.nombre} {nuevo_usuario.apellido}' registrado con éxito."
         )
         print("Ahora puede iniciar sesión con sus credenciales.")
+        # Auditoría solo si el commit fue exitoso
         agregar_auditoria_usuario(
             nombre_accion="CREATE", nombre_tabla="usuarios", usuario=nuevo_usuario
         )
@@ -283,18 +284,30 @@ def crear_tarjeta(
     numero = generar_numero_tarjeta()
     try:
         tarjeta_crud = TarjetaCRUD(db)
-        id_usuario = db.execute(
+        id_usuario_obj = db.execute(
             select(usuario.Usuario).where(usuario.Usuario.documento == documento)
         ).scalar_one_or_none()
 
-        if not id_usuario:
+        if not id_usuario_obj:
             print(f"No se encontró un usuario con el documento: {documento}")
             return
-        id_usuario = id_usuario.id_usuario
+        id_usuario = id_usuario_obj.id_usuario
+
+        # Verificar si ya existe una tarjeta para este usuario
+        from Entities.tarjeta import Tarjeta
+
+        tarjeta_existente = db.query(Tarjeta).filter_by(id_usuario=id_usuario).first()
+        if tarjeta_existente:
+            print("El usuario ya tiene una tarjeta registrada. No se puede crear otra.")
+            return
 
         tarjeta_crud.registrar_tarjeta(id_usuario, tipo_tarjeta, estado, numero, saldo)
         db.commit()
         print(f"Tarjeta creada exitosamente con número: {numero}")
+        # Auditoría solo si el commit fue exitoso
+        usuario_obj = db.query(Usuario).filter_by(id_usuario=id_usuario).first()
+        if usuario_obj:
+            agregar_auditoria_usuario("CREATE", "tarjetas", usuario_obj)
     except Exception as e:
         print(f"Error al registrar auditoría: {e}")
         db.rollback()
@@ -322,6 +335,12 @@ def recargar_tarjeta(documento: str, monto: float) -> None:
         tarjeta_crud.recargar_tarjeta(documento, monto)
         db.commit()
         print(f"Tarjeta recargada exitosamente con monto: {monto}")
+        # Auditoría solo si el commit fue exitoso
+        id_usuario_obj = db.execute(
+            select(usuario.Usuario).where(usuario.Usuario.documento == documento)
+        ).scalar_one_or_none()
+        if id_usuario_obj:
+            agregar_auditoria_usuario("UPDATE", "tarjetas", id_usuario_obj)
     except Exception as e:
         print(f"Error al registrar auditoría: {e}")
         db.rollback()
@@ -345,6 +364,9 @@ def consultar_saldo(documento: str) -> None:
             transaccion_crud.registrar_transaccion(numero_tarjeta, "Consulta", 0.0)
             db.commit()
             print(f"El saldo de la tarjeta es: {saldo}")
+            # Auditoría solo si la consulta fue exitosa
+            if id_usuario:
+                agregar_auditoria_usuario("CONSULT", "tarjetas", id_usuario)
 
         else:
             print(
@@ -365,6 +387,9 @@ def generar_ruta(nombre_ruta: str, origen: str, destino: str, duracion: float) -
         ruta_crud.registrar_ruta(nombre_ruta, origen, destino, duracion)
         db.commit()
         print(f"Ruta {nombre_ruta} creada exitosamente.")
+        # Auditoría solo si el commit fue exitoso
+        if usuario_actual:
+            agregar_auditoria_usuario("CREATE", "rutas", usuario_actual)
     except Exception as e:
         print(f"Error al registrar la ruta: {e}")
         db.rollback()
@@ -383,6 +408,9 @@ def modificar_ruta(
         ruta_crud.modificar_ruta(id_ruta, nombre_ruta, origen, destino, duracion)
         db.commit()
         print(f"Ruta {nombre_ruta} modificada exitosamente.")
+        # Auditoría solo si el commit fue exitoso
+        if usuario_actual:
+            agregar_auditoria_usuario("UPDATE", "rutas", usuario_actual)
     except Exception as e:
         print(f"Error al modificar la ruta: {e}")
         db.rollback()
@@ -399,6 +427,9 @@ def generar_linea(nombre: str, descripcion: str) -> None:
         linea_crud.registrar_linea(nombre, descripcion)
         db.commit()
         print(f"Línea creada exitosamente.")
+        # Auditoría solo si el commit fue exitoso
+        if usuario_actual:
+            agregar_auditoria_usuario("CREATE", "lineas", usuario_actual)
     except Exception as e:
         print(f"Error al registrar la línea: {e}")
         db.rollback()
