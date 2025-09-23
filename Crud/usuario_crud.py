@@ -109,8 +109,7 @@ class UsuarioCRUD:
 
     def eliminar_usuario(self, usuario_id: int):
         """
-        Elimina un usuario por su ID
-
+        Elimina un usuario por su ID, eliminando primero sus asignaciones, transacciones y tarjetas asociadas.
         """
         usuario = (
             self.db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
@@ -118,6 +117,24 @@ class UsuarioCRUD:
 
         if not usuario:
             raise ValueError("Usuario no encontrado")
+
+        # Eliminar asignaciones relacionadas
+        from Entities.asignacionT import AsignacionT
+
+        self.db.query(AsignacionT).filter(AsignacionT.id_usuario == usuario_id).delete()
+        self.db.commit()
+
+        # Eliminar transacciones y tarjetas asociadas
+        from Entities.tarjeta import Tarjeta
+        from Entities.transaccion import Transaccion
+
+        tarjetas = self.db.query(Tarjeta).filter(Tarjeta.id_usuario == usuario_id).all()
+        for tarjeta in tarjetas:
+            self.db.query(Transaccion).filter(
+                Transaccion.numero_tarjeta == tarjeta.numero_tarjeta
+            ).delete()
+            self.db.delete(tarjeta)
+        self.db.commit()
 
         self.db.delete(usuario)
         self.db.commit()
