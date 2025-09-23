@@ -239,6 +239,7 @@ def menuAdmin():
                     "CREATE", "empleados", logica.usuario_actual
                 )
         elif opcion == "7":
+            # Actualizar empleado
             empleado_crud = EmpleadoCRUD(db)
             empleados = empleado_crud.listar_empleados()
             print("Empleados disponibles:")
@@ -277,10 +278,10 @@ def menuAdmin():
                 logica.agregar_auditoria_usuario(
                     "UPDATE", "empleados", logica.usuario_actual
                 )
-            from Crud.transacciones_crud import TransaccionCRUD
-
+        elif opcion == "8":
+            # Eliminar empleado
             empleado_crud = EmpleadoCRUD(db)
-            transacciones_crud = TransaccionCRUD(db)
+            empleados = empleado_crud.listar_empleados()
             print("Empleados disponibles:")
             for idx, e in enumerate(empleados):
                 print(

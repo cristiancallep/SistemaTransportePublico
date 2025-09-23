@@ -15,7 +15,7 @@ def inicio():
                     menus.menuUsuario()
                 break
         elif tiene_cuenta == "n":
-            logica.registrar(True)
+            logica.registrar()
         else:
             print("Opción inválida. Ingrese 's' o 'n'.")
 
