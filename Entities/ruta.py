@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -23,9 +24,9 @@ class Ruta(Base):
 
     __tablename__ = "rutas"
 
-    id_ruta = Column(Integer, primary_key=True, autoincrement=True)
+    id_ruta = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     id_linea = Column(
-        Integer,
+        UUID(as_uuid=True),
         ForeignKey("lineas.id_linea", ondelete="CASCADE"),
         nullable=False,
         index=True,
