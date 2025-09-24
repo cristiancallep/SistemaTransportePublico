@@ -38,7 +38,6 @@ SISTEMATRANSPORTEPUBLICO/
 │ └── usuario.py # Modelo de usuarios
 │
 ├── Utilities/ # Funciones utilitarias y soporte del sistema
-│ ├── init_db.py # Inicialización y creación de tablas en la BD
 │ ├── logica.py # Lógica de negocio central
 │ └── menus.py # Menús y opciones de interacción para el usuario
 │
