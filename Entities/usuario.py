@@ -57,7 +57,10 @@ class Usuario(Base):
 
 
 class UsuarioBase(BaseModel):
-    """Esquema base para Usuario"""
+    """
+    Esquema base para la entidad Usuario.
+    Define los campos principales y validaciones comunes para creación y actualización.
+    """
 
     id_rol: int = Field(
         2, description="Identificador del rol del usuario (1: admin, 2: cliente)"
@@ -78,18 +81,27 @@ class UsuarioBase(BaseModel):
 
     @validator("nombre")
     def validar_nombre(cls, v):
+        """
+        Valida que el nombre no esté vacío y lo formatea con la primera letra en mayúscula.
+        """
         if not v.strip():
             raise ValueError("El nombre no puede estar vacío")
         return v.strip().title()
 
     @validator("apellido")
     def validar_apellido(cls, v):
+        """
+        Valida que el apellido no esté vacío y lo formatea con la primera letra en mayúscula.
+        """
         if not v.strip():
             raise ValueError("El apellido no puede estar vacío")
         return v.strip().title()
 
     @validator("documento")
     def validar_documento(cls, v):
+        """
+        Valida que el documento no esté vacío y tenga al menos 8 caracteres.
+        """
         if not v.strip():
             raise ValueError("El documento no puede estar vacío")
         if len(v.strip()) < 8:
@@ -98,22 +110,34 @@ class UsuarioBase(BaseModel):
 
     @validator("email")
     def validar_email(cls, v):
+        """
+        Normaliza el correo electrónico a minúsculas y sin espacios extra.
+        """
         return v.lower().strip()
 
     def validar_id_rol(self):
+        """
+        Valida que el rol del usuario sea 1 (admin) o 2 (cliente).
+        """
         if self.id_rol not in [1, 2]:
             raise ValueError("El id_rol debe ser 1 (admin) o 2 (cliente)")
         return self.id_rol
 
 
 class UsuarioCreate(UsuarioBase):
-    """Esquema para creación de usuario"""
+    """
+    Esquema para la creación de un nuevo usuario.
+    Hereda validaciones y atributos del esquema base.
+    """
 
     pass
 
 
 class UsuarioUpdate(BaseModel):
-    """Esquema para actualización de usuario"""
+    """
+    Esquema para la actualización de un usuario existente.
+    Todos los campos son opcionales y pueden modificarse parcialmente.
+    """
 
     id_rol: Optional[int] = Field(
         None, description="Identificador del rol del usuario (1: admin, 2: cliente)"
@@ -130,6 +154,10 @@ class UsuarioUpdate(BaseModel):
 
     @validator("nombre")
     def validar_nombre(cls, v):
+        """
+        Valida que el nombre, si se proporciona, no esté vacío
+        y lo formatea con la primera letra en mayúscula.
+        """
         if v is not None:
             if not v.strip():
                 raise ValueError("El nombre no puede estar vacío")
@@ -138,6 +166,11 @@ class UsuarioUpdate(BaseModel):
 
     @validator("apellido")
     def validar_apellido(cls, v):
+        """
+        Valida que el apellido, si se proporciona, no esté vacío
+        y lo formatea con la primera letra en mayúscula.
+        """
+
         if v is not None:
             if not v.strip():
                 raise ValueError("El apellido no puede estar vacío")
@@ -146,6 +179,9 @@ class UsuarioUpdate(BaseModel):
 
     @validator("id_rol")
     def validar_id_rol(cls, v):
+        """
+        Valida que el rol, si se proporciona, sea 1 (admin) o 2 (cliente).
+        """
         if v is not None:
             if v not in [1, 2]:
                 raise ValueError("El id_rol debe ser 1 (admin) o 2 (cliente)")
@@ -154,6 +190,9 @@ class UsuarioUpdate(BaseModel):
 
     @validator("email")
     def validar_email(cls, v):
+        """
+        Normaliza el correo electrónico a minúsculas y sin espacios extra, si se proporciona.
+        """
         if v is not None:
             return v.lower().strip()
         return v

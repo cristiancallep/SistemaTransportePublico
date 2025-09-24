@@ -15,6 +15,11 @@ from database import Base
 
 
 class Empleado(Base):
+    """
+    Modelo SQLAlchemy para la entidad Empleado.
+    Define los atributos y relaciones de la tabla empleados en la base de datos.
+    """
+
     __tablename__ = "empleados"
     id_empleado = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String, nullable=False)
@@ -33,6 +38,10 @@ from uuid import UUID as UUIDType
 
 
 class EmpleadoCreate(BaseModel):
+    """Esquema de entrada para crear un nuevo empleado.
+    Contiene la informacion basica obligatoria.
+    """
+
     nombre: str
     apellido: str
     documento: str
@@ -41,6 +50,10 @@ class EmpleadoCreate(BaseModel):
 
 
 class EmpleadoUpdate(BaseModel):
+    """Esquema de entrada para actualizar un empleado existente.
+    Todos los campos son opcionales.
+    """
+
     nombre: str | None = None
     apellido: str | None = None
     email: str | None = None
@@ -49,6 +62,10 @@ class EmpleadoUpdate(BaseModel):
 
 
 class EmpleadoOut(BaseModel):
+    """Esquema de salida para representar un empleado.
+    Se excluye la fecha de registro y actualizacion.
+    """
+
     id_empleado: UUIDType
     nombre: str
     apellido: str
@@ -58,4 +75,6 @@ class EmpleadoOut(BaseModel):
     estado: str
 
     class Config:
+        """Configuración para permitir la conversión desde objetos SQLAlchemy."""
+
         from_attributes = True
