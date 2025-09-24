@@ -15,6 +15,10 @@ from database import Base
 
 
 class AsignacionT(Base):
+    """Modelo SQLAlchemy que representa la tabla 'asignaciones'.
+    Define la relación entre usuario, empleado, transporte y ruta.
+    """
+
     __tablename__ = "asignaciones"
     id_asignacion = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"))
@@ -33,6 +37,11 @@ from uuid import UUID as UUIDType
 
 
 class AsignacionTCreate(BaseModel):
+    """
+    Esquema de entrada para crear una nueva asicnacion.
+    Contiene los identificadores de usuario, empleado, transporte y ruta.
+    """
+
     id_usuario: UUIDType
     id_empleado: UUIDType
     id_transporte: UUIDType
@@ -40,6 +49,10 @@ class AsignacionTCreate(BaseModel):
 
 
 class AsignacionTUpdate(BaseModel):
+    """Esquema de entrada para actualizar una asignacion existente.
+    Todos los campos son opcionales para permitir actualizaciones parciales.
+    """
+
     id_usuario: UUIDType | None = None
     id_empleado: UUIDType | None = None
     id_transporte: UUIDType | None = None
@@ -47,6 +60,10 @@ class AsignacionTUpdate(BaseModel):
 
 
 class AsignacionTOut(BaseModel):
+    """Esquema de salida para representar una asignacion.
+    Incluye todos los campos relevantes de la asignacion.
+    """
+
     id_asignacion: UUIDType
     id_usuario: UUIDType
     id_empleado: UUIDType

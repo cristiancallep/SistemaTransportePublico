@@ -27,6 +27,18 @@ class RutaCRUD:
         duracion: float,
         id_linea=None,
     ) -> Ruta:
+        """Registra una nueva ruta en la base de datos
+
+        Args:
+            nombre_ruta (str): Nombre de la ruta
+            origen (str): Origen de la ruta
+            destino (str): Destino de la ruta
+            duracion (float): Duración estimada de la ruta en minutos
+            id_linea (int, optional): ID de la línea asociada a la ruta.
+
+        Returns:
+            Ruta: Objeto de la ruta registrada
+        """
         ruta = Ruta(
             nombre=nombre_ruta,
             origen=origen,
@@ -42,6 +54,20 @@ class RutaCRUD:
     def modificar_ruta(
         self, id_ruta: int, nombre_ruta: str, origen: str, destino: str, duracion: float
     ) -> None:
+        """Modifica una ruta existente en la base de datos
+
+        Args:
+            id_ruta (int): ID de la ruta a modificar
+            nombre_ruta (str): Nuevo nombre de la ruta
+            origen (str): Nuevo origen de la ruta
+            destino (str): Nuevo destino de la ruta
+            duracion (float): Nueva duración estimada de la ruta en minutos
+
+        Raises:
+            ValueError: Si la ruta no es encontrada
+
+        Returns:
+            Ruta: Objeto de la ruta modificada"""
         ruta = self.db.query(Ruta).filter(Ruta.id_ruta == id_ruta).first()
         if not ruta:
             raise ValueError("Ruta no encontrada")
@@ -57,4 +83,9 @@ class RutaCRUD:
         return ruta
 
     def listar_rutas(self):
+        """Lista todas las rutas en la base de datos
+
+        Returns:
+            List[Ruta]: Lista de objetos de rutas
+        """
         return self.db.query(Ruta).all()

@@ -4,11 +4,33 @@ import bcrypt
 
 
 class UsuarioCRUD:
+    """Clase para manejar las operaciones CRUD de usuarios
+
+    Atributos:
+        db (Session): Sesión de la base de datos
+    """
+
     def __init__(self, db: Session):
         self.db = db
 
     def crear_usuario(self, usuario_data: UsuarioCreate):
-        """Crea un usuario nuevo en la base de datos"""
+        """Crea un usuario nuevo en la base de datos
+
+        Validaciones:
+        - El email no debe estar registrado
+        - El documento no debe estar registrado
+        - La contraseña debe tener al menos 6 caracteres
+
+        Args:
+            usuario_data (UsuarioCreate): Datos del usuario a crear
+
+        Raises:
+            ValueError: Si el email o documento ya están registrados, o si la contraseña es muy
+                        corta
+
+        Returns:
+            Usuario: El usuario creado
+        """
 
         if self.db.query(Usuario).filter(Usuario.email == usuario_data.email).first():
             raise ValueError("El email ya está registrado")
@@ -46,6 +68,12 @@ class UsuarioCRUD:
         """
         Busca un usuario por su email
 
+        Args:
+            email (str): Email del usuario a buscar
+
+        Returns:
+            Usuario | None: El usuario encontrado o None si no existe
+
         """
         return (
             self.db.query(Usuario)
@@ -55,7 +83,17 @@ class UsuarioCRUD:
 
     def validar_credenciales(self, email: str, contrasena: str) -> Usuario:
         """
-        Verifica si el email y la contraseña son correctos
+        Verifica si el email y la contraseña son correctos.
+
+        Args:
+            email (str): Email del usuario
+            contrasena (str): Contraseña del usuario
+
+        Raises:
+            ValueError: Si el usuario no existe o la contraseña es incorrecta
+
+        Returns:
+            Usuario: El usuario autenticado
 
         """
         usuario = self.obtener_por_email(email)
@@ -71,7 +109,17 @@ class UsuarioCRUD:
 
     def actualizar_usuario(self, usuario_id: int, usuario_update: UsuarioUpdate):
         """
-        Metodo para actualizar la información de un usuario
+        Metodo para actualizar la información de un usuario.
+
+        Args:
+            usuario_id (int): ID del usuario a actualizar
+            usuario_update (UsuarioUpdate): Datos a actualizar
+
+        Raises:
+            ValueError: Si el usuario no existe o si el email ya está registrado por otro usuario
+
+        Returns:
+            Usuario: El usuario actualizado
 
         """
         usuario = (
@@ -110,6 +158,14 @@ class UsuarioCRUD:
     def eliminar_usuario(self, usuario_id: int):
         """
         Elimina un usuario por su ID, eliminando primero sus asignaciones, transacciones y tarjetas asociadas.
+
+        Args:
+            usuario_id (int): ID del usuario a eliminar
+
+        Raises:
+            ValueError: Si el usuario no existe
+        Returns:
+            bool: True si el usuario fue eliminado exitosamente
         """
         usuario = (
             self.db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
@@ -150,6 +206,12 @@ class UsuarioCRUD:
     def mostrar_usuario(self, usuario_id: int):
         """
         Retorna la información completa de un usuario excepto la contraseña
+        Args:
+            usuario_id (int): ID del usuario a mostrar
+        Raises:
+            ValueError: Si el usuario no existe
+        Returns:
+            dict: Información del usuario
 
         """
         usuario = (
