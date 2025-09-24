@@ -13,7 +13,12 @@ from datetime import datetime
 from database import Base
 from pydantic import BaseModel
 
+
 class Transporte(Base):
+    """Modelo SQLAlchemy que representa la tabla 'transportes'.
+    Define la informacion de los vehiculos registraos en el sistema.
+    """
+
     __tablename__ = "transportes"
     id_transporte = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tipo = Column(String, nullable=False)
@@ -31,6 +36,10 @@ from uuid import UUID as UUIDType
 
 
 class TransporteCreate(BaseModel):
+    """Esquema de entrada para crear un nuevo transporte.
+    Contiene los datos obligatorios para el registro.
+    """
+
     tipo: str
     placa: str
     capacidad: int
@@ -38,6 +47,10 @@ class TransporteCreate(BaseModel):
 
 
 class TransporteUpdate(BaseModel):
+    """Esquema de entrada para actualizar un transporte existente.
+    Todos los campos son opcionales.
+    """
+
     tipo: str | None = None
     placa: str | None = None
     capacidad: int | None = None
@@ -46,6 +59,10 @@ class TransporteUpdate(BaseModel):
 
 
 class TransporteOut(BaseModel):
+    """Esquema de salida para mostrar la informacion de un transporte.
+    Incluye datos de identificacion, capacidad y estado.
+    """
+
     id_transporte: UUIDType
     tipo: str
     placa: str
@@ -54,4 +71,9 @@ class TransporteOut(BaseModel):
     id_linea: int
 
     class Config:
+        """
+        Configuración de Pydantic para habilitar la conversión
+        desde objetos ORM (SQLAlchemy).
+        """
+
         from_attributes = True

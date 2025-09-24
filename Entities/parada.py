@@ -15,6 +15,10 @@ from database import Base
 
 
 class Parada(Base):
+    """Modelo SQLAlchemy para la entidad Parada.
+    Define la informacion de los puntos de parada disponibles en el sistema de transporte.
+    """
+
     __tablename__ = "paradas"
     id_parada = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String, nullable=False)
@@ -31,12 +35,19 @@ from uuid import UUID as UUIDType
 
 
 class ParadaCreate(BaseModel):
+    """Esquema de entrada para crear una nueva parada.
+    Contiene la informacion basica necesaria.
+    """
+
     nombre: str
     direccion: str
     coordenadas: str | None = None
 
 
 class ParadaUpdate(BaseModel):
+    """Esquema de entrada para actualizar los datos de una parada.
+    Todos los campos son opcionales."""
+
     nombre: str | None = None
     direccion: str | None = None
     coordenadas: str | None = None
@@ -44,6 +55,9 @@ class ParadaUpdate(BaseModel):
 
 
 class ParadaOut(BaseModel):
+    """Esquema de salida para representar una parada.
+    Incluye los datos principales de identificacion y estado."""
+
     id_parada: UUIDType
     nombre: str
     direccion: str
@@ -51,4 +65,9 @@ class ParadaOut(BaseModel):
     estado: str
 
     class Config:
+        """
+        Configuración de Pydantic para habilitar la conversión
+        desde objetos ORM (SQLAlchemy).
+        """
+
         from_attributes = True

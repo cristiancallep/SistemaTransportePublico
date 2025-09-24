@@ -33,4 +33,5 @@ class Auditoria(Base):
     usuario = relationship("Usuario", back_populates="auditorias")
 
     def __repr__(self):
+        """Representación en string del objeto Auditoria"""
         return f"<Auditoria(id_auditoria={self.id_auditoria}, id_usuario={self.id_usuario}, tabla_afectada='{self.tabla_afectada}', accion='{self.accion}', fecha={self.fecha})>"

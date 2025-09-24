@@ -9,6 +9,11 @@ import uuid
 
 
 class TransaccionCRUD:
+    """CRUD operaciones para la entidad Transaccion.
+
+    Atributos:
+        db (Session): Sesión de la base de datos.
+    """
 
     def __init__(self, db: Session):
         self.db = db
@@ -16,6 +21,16 @@ class TransaccionCRUD:
     def registrar_transaccion(
         self, numero_tarjeta: str, tipo_transaccion: str, monto: float
     ) -> Transaccion:
+        """Registra una nueva transacción en la base de datos.
+
+        Args:
+            numero_tarjeta (str): Número de la tarjeta asociada a la transacción.
+            tipo_transaccion (str): Tipo de transacción (e.g., 'recarga', 'pago').
+            monto (float): Monto de la transacción.
+
+        Returns:
+            Transaccion: La transacción registrada.
+        """
         transaccion = Transaccion(
             id_transaccion=uuid.uuid4(),
             numero_tarjeta=numero_tarjeta,
