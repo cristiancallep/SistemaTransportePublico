@@ -118,7 +118,207 @@ Y sus funciones son estrictamente para este tipo de usuario, garantizando un bue
 
 ---
 
+
+
+## Lógica de Negocio - Sistema de Transporte
+
+### **1. Descripción General**
+
+El sistema de transporte permite a los usuarios interactuar digitalmente con los servicios de transporte público (bus, metro, tranvía, metrocable) a través de funcionalidades como compra de tiquetes, creación y recarga de tarjetas, y visualización de rutas.
+Los administradores tienen control total sobre la gestión de datos, pudiendo crear, editar y eliminar información relacionada con usuarios, rutas, líneas, paradas y tarjetas.
+
+### **2. Lógica de negocio para usuarios**
+**2.1 Autenticación y registro**
+
+- Registro de usuario:  
+  - El usuario debe proporcionar información básica como nombre, documento, correo electrónico y contraseña.
+
+  - Validar que el correo y documento no estén previamente registrados.
+
+  - Asignar un identificador único al usuario y crear su perfil inicial.
+
+  - Permitir la creación automática de una tarjeta asociada al usuario si lo selecciona durante el registro.
+
+- Inicio de sesión:
+
+  - Validar credenciales ingresadas (correo y contraseña).
+
+  - En caso de datos correctos, generar una sesión activa.
+
+  - Si el usuario ingresa credenciales incorrectas tres veces seguidas, bloquear el acceso temporalmente por seguridad.
+
+**2.2 Gestión de tarjetas**
+
+- Creación de tarjeta:  
+  - El usuario puede generar una tarjeta de transporte única vinculada a su cuenta.
+
+  - Cada tarjeta tiene un número único y saldo inicial en $0.
+
+  - No se puede crear más de una tarjeta activa por usuario.
+
+- Recarga de tarjeta:
+  - Validar que el monto ingresado sea mayor a $0 y dentro del límite permitido (ej. máximo $200.000).
+
+  - Sumar el valor recargado al saldo actual de la tarjeta.
+
+  - Generar un registro de la transacción en el historial.
+
+- Consulta de saldo:
+  -El usuario debe ingresar el documento asociado a la tarjeta que quiere consultar el saldo.
+  - Si el usuario ingresa un documento inexistente el sistema le notifica.
+  -Se puede consultar el saldo las veces que se consideren necesarias.
+
+**2.3 Compra de tiquetes**
+
+- El usuario selecciona:
+  - Tipo de transporte: bus, metro, tranvía o metrocable.
+
+  - Ruta disponible dentro de la línea seleccionada.
+
+  - Cantidad de tiquetes a comprar.
+
+- Validar que:
+  - El saldo de la tarjeta sea suficiente para la compra.
+
+  - La cantidad de tiquetes no supere el límite establecido (ej. máximo 10 por transacción).
+
+  - Descontar el valor total de la compra del saldo de la tarjeta.
+
+  - Generar un comprobante digital de la compra.
+
+- Consulta de tiquetes o transportes:
+  - El sistema utiliza la sesión actual del usuario buscar sus asignaciones.
+  - Si no tiene asignaciones el sistema le notifica.
+  - Si tiene, el sistema muestra el transporte y la ruta que sigue.
+
+**2.4 Consulta de rutas y líneas**
+
+- El usuario puede visualizar:
+
+  - Todas las líneas de transporte disponibles.
+
+  - Las rutas asociadas a cada línea.
+
+  - Detalle de paradas en cada ruta.
+
+### **3. Lógica de negocio para administrador**
+
+**3.1 Gestión completa (CRUD)**
+El administrador tiene acceso completo para administrar todas las entidades del sistema.
+
+- Usuarios:
+
+  - Crear nuevos usuarios o administradores.
+
+  - Editar información personal y estado (activo/inactivo).
+
+  - Eliminar usuarios inactivos o duplicados.
+
+- Empleados:
+  - Crear/Registrar un nuevo empleado.
+
+  - Actualizar la información de un empleado.
+
+  - Eliminar un empleado.
+
+  - Consultar todos los empleados.
+
+- Tarjetas:
+
+  - Crear tarjetas asociadas a un usuario.
+
+  - Modificar saldo en casos especiales (reembolsos, ajustes).
+
+  - Bloquear o reactivar tarjetas en caso de pérdida.
+
+- Líneas y rutas:
+
+  - Crear nuevas líneas de transporte (ej. Línea A - Metro, Línea B - Bus).
+
+  - Registrar rutas y asignarlas a una línea específica.
+
+  - Activar o desactivar rutas según disponibilidad.
+
+  - Editar información de paradas (nombre, ubicación).
+
+- Asignaciones:
+
+  - Relacionar rutas con líneas y definir horarios.
+
+  - Actualizar la asignación en caso de cambios en el servicio.
+
+  - Puede ver todas las asignaciones existentes en el sistema
+
+  - Asignar manualmente un transporte a un usuario
+
+
+**3.2 Control y monitoreo**
+
+- Generar reportes sobre:
+
+  - Ventas de tiquetes.
+
+  - Saldo total recargado.
+
+  - Uso de rutas y líneas más concurridas.
+
+  - Monitorear el estado de usuarios y tarjetas.
+
+**4. Reglas generales de negocio**
+
+Integridad de datos:
+
+Cada entidad debe tener identificadores únicos.
+
+No se permiten registros duplicados.
+
+Restricciones en recargas:
+
+Valor mínimo: $1.000.
+
+Valor máximo por recarga: $200.000.
+
+Compra de tiquetes:
+
+Solo se puede comprar si el saldo es suficiente.
+
+Límite máximo de tiquetes por compra: 10.
+
+Administradores:
+
+Solo usuarios con rol de administrador pueden acceder a la gestión de datos críticos.
+
+Seguridad:
+
+Contraseñas deben almacenarse encriptadas.
+
+Control de sesiones con cierre automático por inactividad.
+
+5. Flujo resumido del sistema
+Usuario:
+
+Registrarse o iniciar sesión.
+
+Crear una tarjeta (opcional si no se generó en el registro).
+
+Recargar saldo en la tarjeta.
+
+Consultar rutas y líneas disponibles.
+
+Comprar tiquetes con el saldo disponible.
+
+Recibir comprobante digital.
+
+Administrador:
+
+Iniciar sesión como administrador.
+
+Gestionar entidades (usuarios, tarjetas, líneas, rutas, paradas, asignaciones).
+
+Generar reportes y monitorear el sistema.
+
 ## Ejemplo de Uso
+
 Ejemplo de uso para tipo de cliente usuario. Funcionalidad: Crear Tarjeta
 
 ## 🎴 Flujo para crear una tarjeta  
