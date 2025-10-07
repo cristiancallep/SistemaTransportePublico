@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Auditoria(Base):
@@ -30,7 +30,7 @@ class Auditoria(Base):
     descripcion = Column(Text, nullable=False)
     fecha = Column(DateTime, default=datetime.now, nullable=False)
 
-    usuario = relationship("Usuario", back_populates="auditorias")
+    # usuario = relationship("Usuario", back_populates="auditorias")
 
     def __repr__(self):
         """Representación en string del objeto Auditoria"""

@@ -10,7 +10,7 @@ from sqlalchemy import Column, DateTime, String, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base
+from database.config import Base
 from pydantic import BaseModel
 
 
@@ -68,7 +68,7 @@ class TransporteOut(BaseModel):
     placa: str
     capacidad: int
     estado: str
-    id_linea: int
+    id_linea: UUIDType
 
     class Config:
         """

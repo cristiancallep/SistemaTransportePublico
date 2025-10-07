@@ -11,7 +11,7 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
-from database import Base
+from database.config import Base
 
 
 class Empleado(Base):
