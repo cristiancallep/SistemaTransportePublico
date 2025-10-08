@@ -91,7 +91,7 @@ def registrar(es_admin=False):
             f"\nUsuario '{nuevo_usuario.nombre} {nuevo_usuario.apellido}' registrado con éxito."
         )
         print("Ahora puede iniciar sesión con sus credenciales.")
-       
+
         agregar_auditoria_usuario(
             nombre_accion="CREATE", nombre_tabla="usuarios", usuario=nuevo_usuario
         )
@@ -303,7 +303,7 @@ def crear_tarjeta(
         tarjeta_crud.registrar_tarjeta(id_usuario, tipo_tarjeta, estado, numero, saldo)
         db.commit()
         print(f"Tarjeta creada exitosamente con número: {numero}")
-       
+
         usuario_obj = db.query(Usuario).filter_by(id_usuario=id_usuario).first()
         if usuario_obj:
             agregar_auditoria_usuario("CREATE", "tarjetas", usuario_obj)
@@ -334,7 +334,7 @@ def recargar_tarjeta(documento: str, monto: float) -> None:
         tarjeta_crud.recargar_tarjeta(documento, monto)
         db.commit()
         print(f"Tarjeta recargada exitosamente con monto: {monto}")
-       
+
         id_usuario_obj = db.execute(
             select(usuario.Usuario).where(usuario.Usuario.documento == documento)
         ).scalar_one_or_none()
@@ -363,7 +363,7 @@ def consultar_saldo(documento: str) -> None:
             transaccion_crud.registrar_transaccion(numero_tarjeta, "Consulta", 0.0)
             db.commit()
             print(f"El saldo de la tarjeta es: {saldo}")
-        
+
             if id_usuario:
                 agregar_auditoria_usuario("CONSULT", "tarjetas", id_usuario)
 

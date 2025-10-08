@@ -1,10 +1,11 @@
+import uuid
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Tarjeta(Base):
@@ -22,8 +23,6 @@ class Tarjeta(Base):
 
     __tablename__ = "tarjetas"
 
-    import uuid
-
     id_tarjeta = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
     )
@@ -39,7 +38,7 @@ class Tarjeta(Base):
     estado = Column(String(20), nullable=False, default="Inactiva")
     fecha_ultima_recarga = Column(DateTime, default=datetime.now, nullable=True)
     saldo = Column(Float, nullable=False, default=0.0)
-    usuario = relationship("Usuario", back_populates="tarjetas")
+    # usuario = relationship("Usuario", back_populates="tarjetas")
     transacciones = relationship("Transaccion", back_populates="tarjeta")
 
     def __repr__(self):

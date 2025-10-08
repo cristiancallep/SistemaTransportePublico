@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Transaccion(Base):
