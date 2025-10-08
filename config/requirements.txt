@@ -19,3 +19,12 @@ typing-extensions>=4.8.0  # Type hints support
 
 # Database Driver for PostgreSQL
 psycopg2-binary
+
+# FastAPI and Web Server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Authentication and Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6

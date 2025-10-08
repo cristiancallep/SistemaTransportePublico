@@ -11,7 +11,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
 from datetime import datetime
-from database import Base
+from database.config import Base
 
 
 class AsignacionT(Base):
@@ -69,7 +69,8 @@ class AsignacionTOut(BaseModel):
     id_empleado: UUIDType
     id_transporte: UUIDType
     id_ruta: UUIDType
-    fecha_asignacion: datetime
+    fecha_registro: datetime
+    fecha_actualizar: datetime
 
     class Config:
         from_attributes = True

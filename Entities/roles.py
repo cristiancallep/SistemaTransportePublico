@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Rol(Base):
@@ -25,7 +25,7 @@ class Rol(Base):
     id_rol = Column(Integer, primary_key=True, default=2)
     nombre = Column(String(20), nullable=False, unique=True, index=True)
 
-    usuario = relationship("Usuario", back_populates="rol", passive_deletes=True)
+    # usuario = relationship("Usuario", back_populates="rol", passive_deletes=True)
 
     def __repr__(self):
         """Representación en string del objeto Rol"""

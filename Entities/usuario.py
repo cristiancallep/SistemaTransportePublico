@@ -45,11 +45,12 @@ class Usuario(Base):
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
 
-    auditorias = relationship("Auditoria", back_populates="usuario")
-    rol = relationship("Rol", back_populates="usuario")
-    tarjetas = relationship(
-        "Tarjeta", back_populates="usuario", cascade="all, delete-orphan"
-    )
+    # Comentamos temporalmente las relaciones problemáticas para permitir que la API funcione
+    # auditorias = relationship("Auditoria", back_populates="usuario")
+    # rol = relationship("Rol", back_populates="usuario")
+    # tarjetas = relationship(
+    #     "Tarjeta", back_populates="usuario", cascade="all, delete-orphan"
+    # )
 
     def __repr__(self):
         """Representación en string del objeto Usuario"""
