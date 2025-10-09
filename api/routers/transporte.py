@@ -11,6 +11,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from Crud.auditoria_crud import AuditoriaCRUD
 from api.dependencies import get_db, get_pagination_params
 from Crud.transporte_crud import TransporteCRUD
 from Entities.transporte import TransporteCreate, TransporteUpdate, TransporteOut
@@ -34,8 +35,7 @@ async def listar_transportes(
     """
     crud = TransporteCRUD(db)
     transportes = crud.listar_transportes()
-
-    # Aplicar paginación manual ya que el CRUD no la tiene implementada
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Transporte")
     return transportes[skip : skip + limit]
 
 
@@ -49,14 +49,13 @@ async def obtener_transporte(transporte_id: UUID, db: Session = Depends(get_db))
     crud = TransporteCRUD(db)
     transportes = crud.listar_transportes()
 
-    # Buscar el transporte por ID
     transporte = next(
         (t for t in transportes if t.id_transporte == transporte_id), None
     )
 
     if not transporte:
         raise HTTPException(status_code=404, detail="Transporte no encontrado")
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Transporte")
     return transporte
 
 
@@ -73,6 +72,7 @@ async def crear_transporte(transporte: TransporteCreate, db: Session = Depends(g
     try:
         crud = TransporteCRUD(db)
         nuevo_transporte = crud.registrar_transporte(transporte)
+        AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "Transporte")
         return nuevo_transporte
     except Exception as e:
         raise HTTPException(
@@ -97,6 +97,7 @@ async def actualizar_transporte(
         transporte_actualizado = crud.modificar_transporte(
             transporte_id, transporte_update
         )
+        AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Transporte")
         return transporte_actualizado
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -118,11 +119,10 @@ async def eliminar_transporte(transporte_id: UUID, db: Session = Depends(get_db)
 
     if not eliminado:
         raise HTTPException(status_code=404, detail="Transporte no encontrado")
-
+    AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Transporte")
     return {"message": "Transporte eliminado correctamente"}
 
 
-# Endpoint adicional para buscar por placa
 @router.get("/placa/{placa}", response_model=TransporteOut)
 async def obtener_transporte_por_placa(placa: str, db: Session = Depends(get_db)):
     """
@@ -133,12 +133,11 @@ async def obtener_transporte_por_placa(placa: str, db: Session = Depends(get_db)
     crud = TransporteCRUD(db)
     transportes = crud.listar_transportes()
 
-    # Buscar el transporte por placa
     transporte = next((t for t in transportes if t.placa == placa), None)
 
     if not transporte:
         raise HTTPException(
             status_code=404, detail="Transporte con esa placa no encontrado"
         )
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Transporte")
     return transporte
