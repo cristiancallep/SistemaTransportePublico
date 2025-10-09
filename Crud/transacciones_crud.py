@@ -4,6 +4,7 @@ from Entities.transaccion import Transaccion
 
 from sqlalchemy import select, update
 from Entities.usuario import Usuario
+from Entities.tarjeta import Tarjeta
 from datetime import datetime
 import uuid
 
@@ -42,3 +43,21 @@ class TransaccionCRUD:
         self.db.commit()
         self.db.refresh(transaccion)
         return transaccion
+
+    def obtener_transacciones(self, documento: str) -> List[Transaccion]:
+        """Obtiene las transacciones asociadas a la tarjeta de un usuario por su documento.
+
+        Args:
+            documento (str): Documento del usuario.
+
+        Returns:
+            List[Transaccion]: Lista de transacciones asociadas a la tarjeta del usuario.
+        """
+        transacciones = (
+            self.db.query(Transaccion)
+            .join(Tarjeta, Tarjeta.numero_tarjeta == Transaccion.numero_tarjeta)
+            .join(Usuario, Usuario.id_usuario == Tarjeta.id_usuario)
+            .filter(Usuario.documento == documento)
+            .all()
+        )
+        return transacciones

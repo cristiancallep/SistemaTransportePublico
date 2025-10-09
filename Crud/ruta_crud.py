@@ -52,7 +52,12 @@ class RutaCRUD:
         return ruta
 
     def modificar_ruta(
-        self, id_ruta: int, nombre_ruta: str, origen: str, destino: str, duracion: float
+        self,
+        id_ruta: uuid.UUID,
+        nombre_ruta: str,
+        origen: str,
+        destino: str,
+        duracion: float,
     ) -> None:
         """Modifica una ruta existente en la base de datos
 
