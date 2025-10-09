@@ -38,7 +38,7 @@ class Tarjeta(Base):
     estado = Column(String(20), nullable=False, default="Inactiva")
     fecha_ultima_recarga = Column(DateTime, default=datetime.now, nullable=True)
     saldo = Column(Float, nullable=False, default=0.0)
-    usuario = relationship("Usuario", back_populates="tarjetas")
+    # usuario = relationship("Usuario", back_populates="tarjetas")
     transacciones = relationship("Transaccion", back_populates="tarjeta")
 
     def __repr__(self):

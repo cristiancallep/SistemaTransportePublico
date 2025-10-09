@@ -34,7 +34,7 @@ class Ruta(Base):
     nombre = Column(String(100), nullable=False, unique=True, index=True)
     origen = Column(String(100), nullable=False)
     destino = Column(String(100), nullable=False)
-    duracion_estimada = Column(Float, nullable=False)
+    duracion_estimada = Column(Float, nullable=False)  # en minutos
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False

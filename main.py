@@ -11,9 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 
-import Entities
+# Importar todos los modelos ANTES de los routers para evitar problemas circulares
+import Entities  # Esto importará todos los modelos en orden correcto
 
-from api.routers import transporte, parada, empleado, asignacion, usuarios, auditoria
+from api.routers import transporte, parada, empleado, asignacion
 from api.exception_handlers import (
     validation_exception_handler,
     integrity_error_handler,
@@ -21,6 +22,7 @@ from api.exception_handlers import (
     general_exception_handler,
 )
 
+# Crear la aplicación FastAPI
 app = FastAPI(
     title="Sistema de Transporte Público API",
     description="API REST para el manejo del sistema de transporte público",
@@ -29,6 +31,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # En producción, especificar dominios específicos
@@ -36,17 +39,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Configurar manejadores de excepciones
 app.add_exception_handler(ValidationError, validation_exception_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-app.include_router(usuarios.router, prefix="/api/usuarios", tags=["Usuarios"])
+# Incluir routers
 app.include_router(transporte.router, prefix="/api/transportes", tags=["Transportes"])
 app.include_router(parada.router, prefix="/api/paradas", tags=["Paradas"])
 app.include_router(empleado.router, prefix="/api/empleados", tags=["Empleados"])
 app.include_router(asignacion.router, prefix="/api/asignaciones", tags=["Asignaciones"])
-app.include_router(auditoria.router, prefix="/api/auditoria", tags=["Auditoria"])
 
 
 @app.get("/")

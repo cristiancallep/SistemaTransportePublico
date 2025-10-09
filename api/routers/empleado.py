@@ -11,7 +11,6 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from Crud.auditoria_crud import AuditoriaCRUD
 from api.dependencies import get_db
 from Crud.empleado_crud import EmpleadoCRUD
 from Entities.empleado import EmpleadoCreate, EmpleadoUpdate, EmpleadoOut
@@ -40,12 +39,15 @@ async def listar_empleados(
     crud = EmpleadoCRUD(db)
     empleados = crud.listar_empleados()
 
+    # Filtrar por rol si se proporciona
     if rol:
         empleados = [e for e in empleados if e.rol == rol]
 
+    # Filtrar por estado si se proporciona
     if estado:
         empleados = [e for e in empleados if e.estado == estado]
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Empleado")
+
+    # Aplicar paginación
     return empleados[skip : skip + limit]
 
 
@@ -59,13 +61,14 @@ async def obtener_empleado(empleado_id: UUID, db: Session = Depends(get_db)):
     crud = EmpleadoCRUD(db)
     empleados = crud.listar_empleados()
 
+    # Buscar el empleado por ID
     empleado = next(
         (e for e in empleados if str(e.id_empleado) == str(empleado_id)), None
     )
 
     if not empleado:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Empleado")
+
     return empleado
 
 
@@ -83,7 +86,6 @@ async def crear_empleado(empleado: EmpleadoCreate, db: Session = Depends(get_db)
     try:
         crud = EmpleadoCRUD(db)
         nuevo_empleado = crud.crear_empleado(empleado)
-        AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "Empleado")
         return nuevo_empleado
     except Exception as e:
         raise HTTPException(
@@ -104,7 +106,6 @@ async def actualizar_empleado(
     try:
         crud = EmpleadoCRUD(db)
         empleado_actualizado = crud.actualizar_empleado(empleado_id, empleado_update)
-        AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Empleado")
         return empleado_actualizado
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -126,10 +127,11 @@ async def eliminar_empleado(empleado_id: UUID, db: Session = Depends(get_db)):
 
     if not eliminado:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
-    AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Empleado")
+
     return {"message": "Empleado eliminado correctamente"}
 
 
+# Endpoint adicional para buscar por documento
 @router.get("/documento/{documento}", response_model=EmpleadoOut)
 async def obtener_empleado_por_documento(documento: str, db: Session = Depends(get_db)):
     """
@@ -140,16 +142,18 @@ async def obtener_empleado_por_documento(documento: str, db: Session = Depends(g
     crud = EmpleadoCRUD(db)
     empleados = crud.listar_empleados()
 
+    # Buscar el empleado por documento
     empleado = next((e for e in empleados if e.documento == documento), None)
 
     if not empleado:
         raise HTTPException(
             status_code=404, detail="Empleado con ese documento no encontrado"
         )
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Empleado")
+
     return empleado
 
 
+# Endpoint adicional para buscar por email
 @router.get("/email/{email}", response_model=EmpleadoOut)
 async def obtener_empleado_por_email(email: str, db: Session = Depends(get_db)):
     """
@@ -160,16 +164,18 @@ async def obtener_empleado_por_email(email: str, db: Session = Depends(get_db)):
     crud = EmpleadoCRUD(db)
     empleados = crud.listar_empleados()
 
+    # Buscar el empleado por email
     empleado = next((e for e in empleados if e.email == email), None)
 
     if not empleado:
         raise HTTPException(
             status_code=404, detail="Empleado con ese email no encontrado"
         )
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Empleado")
+
     return empleado
 
 
+# Endpoint para obtener empleados por rol
 @router.get("/rol/{rol}", response_model=List[EmpleadoOut])
 async def obtener_empleados_por_rol(rol: str, db: Session = Depends(get_db)):
     """
@@ -180,6 +186,7 @@ async def obtener_empleados_por_rol(rol: str, db: Session = Depends(get_db)):
     crud = EmpleadoCRUD(db)
     empleados = crud.listar_empleados()
 
+    # Filtrar por rol
     empleados_filtrados = [e for e in empleados if e.rol == rol]
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Empleado")
+
     return empleados_filtrados
