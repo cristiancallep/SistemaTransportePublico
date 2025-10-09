@@ -9,6 +9,7 @@ para la entidad Auditoria.
 from sqlalchemy.orm import Session
 from typing import List
 from Entities import Auditoria
+from api.dependencies import get_db
 
 
 class AuditoriaCRUD:
@@ -42,18 +43,6 @@ class AuditoriaCRUD:
 
         return auditoria
 
-    def obtener_por_usuario(self, id_usuario: int) -> List[Auditoria]:
-        """
-        Obtiene todas las auditorías realizadas por un usuario específico.
-
-        """
-        return (
-            self.db.query(Auditoria)
-            .filter(Auditoria.id_usuario == id_usuario)
-            .order_by(Auditoria.fecha.desc())
-            .all()
-        )
-
     def obtener_todas(self, skip: int = 0, limit: int = 100) -> List[Auditoria]:
         """
         Obtiene todas las auditorías con paginación.
@@ -66,3 +55,24 @@ class AuditoriaCRUD:
             .limit(limit)
             .all()
         )
+
+    def agregar_auditoria_usuario(nombre_accion: str, nombre_tabla: str):
+        """
+        Método para agregar un registro a la tabla auditoria
+        """
+        db_gen = get_db()
+        db = next(db_gen)
+        try:
+            auditoria_crud = AuditoriaCRUD(db)
+            auditoria_crud.registrar_evento(
+                usuario_id="7d1a4c4c-7427-4ea0-b377-2f9d5e20fbf8",
+                tabla_afectada=nombre_tabla,
+                accion=nombre_accion,
+                descripcion=(f"{nombre_accion} en {nombre_tabla}"),
+            )
+            db.commit()
+        except Exception as e:
+            print(f"Error al registrar auditoría: {e}")
+            db.rollback()
+        finally:
+            db_gen.close()
