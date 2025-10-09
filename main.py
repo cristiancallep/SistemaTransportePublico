@@ -14,16 +14,7 @@ from pydantic import ValidationError
 # Importar todos los modelos ANTES de los routers para evitar problemas circulares
 import Entities  # Esto importará todos los modelos en orden correcto
 
-from api.routers import (
-    transporte,
-    parada,
-    linea,
-    empleado,
-    asignacion,
-    tarjeta,
-    transaccion,
-    ruta,
-)
+from api.routers import transporte, parada, empleado, asignacion
 from api.exception_handlers import (
     validation_exception_handler,
     integrity_error_handler,
@@ -31,7 +22,7 @@ from api.exception_handlers import (
     general_exception_handler,
 )
 
-
+# Crear la aplicación FastAPI
 app = FastAPI(
     title="Sistema de Transporte Público API",
     description="API REST para el manejo del sistema de transporte público",
@@ -40,32 +31,26 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-
+# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # En producción, especificar dominios específicos
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
+# Configurar manejadores de excepciones
 app.add_exception_handler(ValidationError, validation_exception_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-
+# Incluir routers
 app.include_router(transporte.router, prefix="/api/transportes", tags=["Transportes"])
 app.include_router(parada.router, prefix="/api/paradas", tags=["Paradas"])
 app.include_router(empleado.router, prefix="/api/empleados", tags=["Empleados"])
 app.include_router(asignacion.router, prefix="/api/asignaciones", tags=["Asignaciones"])
-app.include_router(tarjeta.router, prefix="/api/tarjetas", tags=["Tarjetas"])
-app.include_router(
-    transaccion.router, prefix="/api/transacciones", tags=["Transacciones"]
-)
-app.include_router(linea.router, prefix="/api/lineas", tags=["Lineas"])
-app.include_router(ruta.router, prefix="/api/rutas", tags=["Rutas"])
 
 
 @app.get("/")
