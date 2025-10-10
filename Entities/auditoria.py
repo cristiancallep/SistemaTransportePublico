@@ -1,10 +1,12 @@
 import uuid
 from sqlalchemy import Column, String, DateTime, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from uuid import UUID as UUIDType
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from typing import Optional
-from database import Base
+from database.config import Base
+from pydantic import BaseModel
 
 
 class Auditoria(Base):
@@ -35,3 +37,21 @@ class Auditoria(Base):
     def __repr__(self):
         """Representación en string del objeto Auditoria"""
         return f"<Auditoria(id_auditoria={self.id_auditoria}, id_usuario={self.id_usuario}, tabla_afectada='{self.tabla_afectada}', accion='{self.accion}', fecha={self.fecha})>"
+
+
+class AuditoriaOut(BaseModel):
+    """Esquema de salida para representar un empleado.
+    Se excluye la fecha de registro y actualizacion.
+    """
+
+    id_auditoria: UUIDType
+    id_usuario: UUIDType
+    tabla_afectada: str
+    accion: str
+    descripcion: str
+    fecha: datetime
+
+    class Config:
+        """Configuración para permitir la conversión desde objetos SQLAlchemy."""
+
+        from_attributes = True

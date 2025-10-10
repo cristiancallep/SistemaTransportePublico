@@ -5,6 +5,9 @@ from sqlalchemy import select, update
 from Entities.usuario import Usuario
 from datetime import datetime
 import uuid
+from fastapi import HTTPException
+import random
+from Crud.transacciones_crud import TransaccionCRUD
 
 
 class TarjetaCRUD:
@@ -29,7 +32,6 @@ class TarjetaCRUD:
         id_usuario: uuid.UUID,
         tipo_tarjeta: str,
         estado: str,
-        numero_tarjeta: str,
         saldo,
     ) -> Tarjeta:
         """Registra una nueva tarjeta en la base de datos.
@@ -44,6 +46,7 @@ class TarjetaCRUD:
         Returns:
             Tarjeta: La tarjeta recién creada.
         """
+        numero_tarjeta = self.generar_numero_tarjeta()
         tarjeta = Tarjeta(
             id_usuario=id_usuario,
             tipo_tarjeta=tipo_tarjeta,
@@ -56,6 +59,21 @@ class TarjetaCRUD:
         self.db.commit()
         self.db.refresh(tarjeta)
         return tarjeta
+
+    def generar_numero_tarjeta(self) -> str:
+        """Genera un número de tarjeta único.
+
+        Returns:
+            str: Número de tarjeta generado.
+        """
+
+        while True:
+            numero = "".join(str(random.randint(0, 9)) for _ in range(16))
+            existe = (
+                self.db.query(Tarjeta).filter(Tarjeta.numero_tarjeta == numero).first()
+            )
+            if not existe:
+                return numero
 
     def recargar_tarjeta(self, documento: str, monto: float) -> Tarjeta:
         """Recarga el saldo de una tarjeta asociada a un usuario por su documento.
@@ -81,10 +99,13 @@ class TarjetaCRUD:
             tarjeta.fecha_ultima_recarga = datetime.now()
             self.db.commit()
             self.db.refresh(tarjeta)
+
             return tarjeta
+
         else:
-            raise ValueError(
-                "Tarjeta no encontrada para el usuario con el documento proporcionado."
+            raise HTTPException(
+                status_code=404,
+                detail="Tarjeta no encontrada para el usuario con el documento proporcionado.",
             )
 
     def obtener_saldo(self, documento: str) -> float:
@@ -106,10 +127,12 @@ class TarjetaCRUD:
             .first()
         )
         if tarjeta:
+
             return tarjeta.saldo
         else:
-            raise ValueError(
-                "Tarjeta no encontrada para el usuario con el documento proporcionado."
+            raise HTTPException(
+                status_code=404,
+                detail="Tarjeta no encontrada para el usuario con el documento proporcionado.",
             )
 
     def obtener_numero_tarjeta(self, id_usuario: uuid.UUID) -> str:

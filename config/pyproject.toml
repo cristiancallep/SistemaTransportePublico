@@ -1,0 +1,42 @@
+[tool.black]
+line-length = 88
+target-version = ['py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | __pycache__
+)/
+'''
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sistema-transporte-publico"
+version = "1.0.0"
+description = "API REST para Sistema de Transporte Público desarrollada con FastAPI"
+authors = [
+    {name = "Cristian Calle", email = "cristiancallep@gmail.com"}
+]
+dependencies = [
+    "fastapi==0.104.1",
+    "sqlalchemy==2.0.43", 
+    "psycopg2-binary==2.9.9",
+    "uvicorn[standard]==0.24.0",
+    "python-multipart==0.0.6",
+    "pydantic[email]",
+    "email-validator",
+    "bcrypt",
+    "passlib"
+]

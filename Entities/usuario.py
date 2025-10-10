@@ -13,6 +13,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
 from database.config import Base
+from uuid import UUID as UUIDType
 
 
 class Usuario(Base):
@@ -152,47 +153,20 @@ class UsuarioUpdate(BaseModel):
         None, description="Correo electrónico del usuario"
     )
 
-    @validator("nombre")
-    def validar_nombre(cls, v):
-        """
-        Valida que el nombre, si se proporciona, no esté vacío
-        y lo formatea con la primera letra en mayúscula.
-        """
-        if v is not None:
-            if not v.strip():
-                raise ValueError("El nombre no puede estar vacío")
-            return v.strip().title()
-        return v
 
-    @validator("apellido")
-    def validar_apellido(cls, v):
-        """
-        Valida que el apellido, si se proporciona, no esté vacío
-        y lo formatea con la primera letra en mayúscula.
-        """
+class UsuarioOut(BaseModel):
+    """Esquema de salida para representar un empleado.
+    Se excluye la fecha de registro y actualizacion.
+    """
 
-        if v is not None:
-            if not v.strip():
-                raise ValueError("El apellido no puede estar vacío")
-            return v.strip().title()
-        return v
+    id_usuario: UUIDType
+    id_rol: int
+    nombre: str
+    apellido: str
+    documento: str
+    email: str
 
-    @validator("id_rol")
-    def validar_id_rol(cls, v):
-        """
-        Valida que el rol, si se proporciona, sea 1 (admin) o 2 (cliente).
-        """
-        if v is not None:
-            if v not in [1, 2]:
-                raise ValueError("El id_rol debe ser 1 (admin) o 2 (cliente)")
-            return v
-        return v
+    class Config:
+        """Configuración para permitir la conversión desde objetos SQLAlchemy."""
 
-    @validator("email")
-    def validar_email(cls, v):
-        """
-        Normaliza el correo electrónico a minúsculas y sin espacios extra, si se proporciona.
-        """
-        if v is not None:
-            return v.lower().strip()
-        return v
+        from_attributes = True

@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Rol(Base):

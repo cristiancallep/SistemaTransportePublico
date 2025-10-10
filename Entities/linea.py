@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
-from database import Base
+from database.config import Base
 
 
 class Linea(Base):
@@ -35,3 +35,18 @@ class Linea(Base):
     def __repr__(self):
         """Representación en string del objeto Linea"""
         return f"<Linea(id_linea={self.id_linea}, nombre='{self.nombre}', descripcion='{self.descripcion}')>"
+
+
+class LineaCreate(BaseModel):
+    """Esquema de creación para una línea."""
+
+    nombre: str = Field(..., max_length=100, example="Línea 1")
+    descripcion: Optional[str] = Field(
+        None, max_length=255, example="Línea que conecta A con B"
+    )
+
+    @validator("nombre")
+    def nombre_no_vacio(cls, v):
+        if not v.strip():
+            raise ValueError("El nombre no puede estar vacío")
+        return v
