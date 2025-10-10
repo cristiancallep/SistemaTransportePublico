@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from api.dependencies import get_db
 from Crud.asignacionT_crud import AsignacionTCRUD
+from Crud.auditoria_crud import AuditoriaCRUD
 from Entities.asignacionT import AsignacionTCreate, AsignacionTOut
 
 router = APIRouter()
@@ -34,8 +35,8 @@ async def listar_asignaciones(
     """
     crud = AsignacionTCRUD(db)
     asignaciones = crud.listar_asignaciones()
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
 
-    # Aplicar paginación
     return asignaciones[skip : skip + limit]
 
 
@@ -49,13 +50,13 @@ async def obtener_asignacion(asignacion_id: UUID, db: Session = Depends(get_db))
     crud = AsignacionTCRUD(db)
     asignaciones = crud.listar_asignaciones()
 
-    # Buscar la asignación por ID
     asignacion = next(
         (a for a in asignaciones if str(a.id_asignacion) == str(asignacion_id)), None
     )
 
     if not asignacion:
         raise HTTPException(status_code=404, detail="Asignación no encontrada")
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
 
     return asignacion
 
@@ -75,6 +76,7 @@ async def crear_asignacion(
     try:
         crud = AsignacionTCRUD(db)
         nueva_asignacion = crud.registrar_asignacion(asignacion)
+        AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "AsignacionT")
         return nueva_asignacion
     except Exception as e:
         raise HTTPException(
@@ -94,11 +96,8 @@ async def eliminar_asignacion(asignacion_id: UUID, db: Session = Depends(get_db)
 
     if not eliminada:
         raise HTTPException(status_code=404, detail="Asignación no encontrada")
-
+    AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "AsignacionT")
     return {"message": "Asignación eliminada correctamente"}
-
-
-# Endpoints adicionales para consultas específicas
 
 
 @router.get("/usuario/{usuario_id}", response_model=List[AsignacionTOut])
@@ -117,7 +116,7 @@ async def obtener_asignaciones_por_usuario(
         raise HTTPException(
             status_code=404, detail="No se encontraron asignaciones para este usuario"
         )
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
     return asignaciones
 
 
@@ -137,7 +136,7 @@ async def obtener_asignaciones_por_empleado(
         raise HTTPException(
             status_code=404, detail="No se encontraron asignaciones para este empleado"
         )
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
     return asignaciones
 
 
@@ -158,11 +157,10 @@ async def obtener_asignaciones_por_transporte(
             status_code=404,
             detail="No se encontraron asignaciones para este transporte",
         )
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
     return asignaciones
 
 
-# Endpoint para verificar disponibilidad
 @router.get("/disponibilidad/empleado/{empleado_id}")
 async def verificar_disponibilidad_empleado(
     empleado_id: UUID, db: Session = Depends(get_db)
@@ -174,7 +172,7 @@ async def verificar_disponibilidad_empleado(
     """
     crud = AsignacionTCRUD(db)
     asignaciones = crud.obtener_por_empleado(empleado_id)
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
     return {
         "empleado_id": str(empleado_id),
         "tiene_asignaciones": len(asignaciones) > 0,
@@ -193,7 +191,7 @@ async def verificar_disponibilidad_transporte(
     """
     crud = AsignacionTCRUD(db)
     asignaciones = crud.obtener_por_transporte(transporte_id)
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "AsignacionT")
     return {
         "transporte_id": str(transporte_id),
         "tiene_asignaciones": len(asignaciones) > 0,

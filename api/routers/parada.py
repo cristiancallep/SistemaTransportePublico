@@ -11,6 +11,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from Crud.auditoria_crud import AuditoriaCRUD
 from api.dependencies import get_db
 from Crud.parada_crud import ParadaCRUD
 from Entities.parada import ParadaCreate, ParadaUpdate, ParadaOut
@@ -37,11 +38,9 @@ async def listar_paradas(
     crud = ParadaCRUD(db)
     paradas = crud.listar_paradas()
 
-    # Filtrar por estado si se proporciona
     if estado:
         paradas = [p for p in paradas if p.estado == estado]
-
-    # Aplicar paginación
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Parada")
     return paradas[skip : skip + limit]
 
 
@@ -54,13 +53,11 @@ async def obtener_parada(parada_id: UUID, db: Session = Depends(get_db)):
     """
     crud = ParadaCRUD(db)
     paradas = crud.listar_paradas()
-
-    # Buscar la parada por ID
     parada = next((p for p in paradas if str(p.id_parada) == str(parada_id)), None)
 
     if not parada:
         raise HTTPException(status_code=404, detail="Parada no encontrada")
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Parada")
     return parada
 
 
@@ -76,6 +73,7 @@ async def crear_parada(parada: ParadaCreate, db: Session = Depends(get_db)):
     try:
         crud = ParadaCRUD(db)
         nueva_parada = crud.registrar_parada(parada)
+        AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "Parada")
         return nueva_parada
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al crear parada: {str(e)}")
@@ -94,6 +92,7 @@ async def actualizar_parada(
     try:
         crud = ParadaCRUD(db)
         parada_actualizada = crud.modificar_parada(parada_id, parada_update)
+        AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Parada")
         return parada_actualizada
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -115,11 +114,10 @@ async def eliminar_parada(parada_id: UUID, db: Session = Depends(get_db)):
 
     if not eliminada:
         raise HTTPException(status_code=404, detail="Parada no encontrada")
-
+    AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Parada")
     return {"message": "Parada eliminada correctamente"}
 
 
-# Endpoint adicional para buscar por nombre
 @router.get("/buscar/nombre/{nombre}", response_model=List[ParadaOut])
 async def buscar_paradas_por_nombre(nombre: str, db: Session = Depends(get_db)):
     """
@@ -130,13 +128,11 @@ async def buscar_paradas_por_nombre(nombre: str, db: Session = Depends(get_db)):
     crud = ParadaCRUD(db)
     paradas = crud.listar_paradas()
 
-    # Buscar paradas que contengan el nombre (case-insensitive)
     paradas_encontradas = [p for p in paradas if nombre.lower() in p.nombre.lower()]
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Parada")
     return paradas_encontradas
 
 
-# Endpoint para obtener paradas por estado
 @router.get("/estado/{estado}", response_model=List[ParadaOut])
 async def obtener_paradas_por_estado(estado: str, db: Session = Depends(get_db)):
     """
@@ -147,7 +143,6 @@ async def obtener_paradas_por_estado(estado: str, db: Session = Depends(get_db))
     crud = ParadaCRUD(db)
     paradas = crud.listar_paradas()
 
-    # Filtrar por estado
     paradas_filtradas = [p for p in paradas if p.estado == estado]
-
+    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Parada")
     return paradas_filtradas
