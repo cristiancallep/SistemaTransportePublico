@@ -26,6 +26,7 @@ from api.routers import (
     usuarios,
     auditoria,
 )
+
 from api.exception_handlers import (
     validation_exception_handler,
     integrity_error_handler,

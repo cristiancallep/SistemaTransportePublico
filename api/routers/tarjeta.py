@@ -20,10 +20,17 @@ from sqlalchemy import (
     select,
 )
 from Entities import usuario
+
 from api.dependencies import get_db, get_pagination_params
 from Crud.auditoria_crud import AuditoriaCRUD
 from Crud.tarjeta_crud import TarjetaCRUD
-from Entities.tarjeta import TarjetaCreate, TarjetaUpdate, Tarjeta, TarjetaOut
+from Entities.tarjeta import (
+    TarjetaCreate,
+    TarjetaUpdate,
+    Tarjeta,
+    TarjetaOut,
+    TarjetaOutSaldo,
+)
 from Crud.transacciones_crud import TransaccionCRUD
 
 router = APIRouter()
@@ -43,7 +50,7 @@ async def consultar_saldo(documento: str, db: Session = Depends(get_db)):
     return {"saldo": saldo}
 
 
-@router.put("/", response_model=TarjetaUpdate, status_code=201)
+@router.put("/", response_model=TarjetaOutSaldo, status_code=201)
 async def recargar_tarjeta(tarjeta: TarjetaUpdate, db: Session = Depends(get_db)):
     """
     Recargar saldo a una tarjeta existente.
@@ -54,12 +61,13 @@ async def recargar_tarjeta(tarjeta: TarjetaUpdate, db: Session = Depends(get_db)
     crud = TarjetaCRUD(db)
     try:
         tarjeta_recargada = crud.recargar_tarjeta(tarjeta.documento, tarjeta.saldo)
+
         AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Tarjeta")
-        return {
-            "mensaje": "Recarga exitosa",
-            "nuevo_saldo": tarjeta_recargada.saldo,
-            "documento": tarjeta.documento,
-        }
+
+        return TarjetaOutSaldo(
+            documento=tarjeta.documento,
+            saldo=tarjeta_recargada.saldo,
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

@@ -7,6 +7,7 @@ from datetime import datetime
 import uuid
 from fastapi import HTTPException
 import random
+from Crud.transacciones_crud import TransaccionCRUD
 
 
 class TarjetaCRUD:
@@ -99,7 +100,9 @@ class TarjetaCRUD:
             tarjeta.fecha_ultima_recarga = datetime.now()
             self.db.commit()
             self.db.refresh(tarjeta)
+
             return tarjeta
+
         else:
             raise HTTPException(
                 status_code=404,
@@ -125,6 +128,7 @@ class TarjetaCRUD:
             .first()
         )
         if tarjeta:
+
             return tarjeta.saldo
         else:
             raise HTTPException(

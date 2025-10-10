@@ -71,7 +71,7 @@ class TarjetaCreate(BaseModel):
 class TarjetaOutSaldo(BaseModel):
     """Esquema de salida para mostrar el saldo de una tarjeta."""
 
-    id_tarjeta: uuid.UUID
+    documento: str
     saldo: float
 
 
