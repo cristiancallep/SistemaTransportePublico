@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
 from database.config import Base
+import uuid
 
 
 class Transaccion(Base):
@@ -39,3 +40,16 @@ class Transaccion(Base):
     def __repr__(self):
         """Representación en string del objeto Transaccion"""
         return f"<Transaccion(id_transaccion={self.id_transaccion}, tipo_transaccion='{self.tipo_transaccion}', monto={self.monto})>"
+
+
+class TransaccionOut(BaseModel):
+    """Esquema de salida para una transaccion."""
+
+    id_transaccion: uuid.UUID
+    numero_tarjeta: str
+    tipo_transaccion: str
+    monto: float
+    fecha_transaccion: datetime
+
+    class Config:
+        from_atributes = True
