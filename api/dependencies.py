@@ -25,7 +25,6 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-# Función para paginación
 def get_pagination_params(skip: int = 0, limit: int = 100):
     """
     Parámetros de paginación para endpoints de listado.

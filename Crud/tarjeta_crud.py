@@ -32,7 +32,6 @@ class TarjetaCRUD:
         id_usuario: uuid.UUID,
         tipo_tarjeta: str,
         estado: str,
-        # numero_tarjeta: str,
         saldo,
     ) -> Tarjeta:
         """Registra una nueva tarjeta en la base de datos.
