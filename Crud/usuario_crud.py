@@ -50,7 +50,7 @@ class UsuarioCRUD:
         ).decode("utf-8")
 
         nuevo_usuario = Usuario(
-            id_rol=usuario_data.id_rol or 2,  # Por defecto rol cliente
+            id_rol=usuario_data.id_rol or 2,
             nombre=usuario_data.nombre.strip().title(),
             apellido=usuario_data.apellido.strip().title(),
             documento=usuario_data.documento.strip(),
@@ -174,13 +174,16 @@ class UsuarioCRUD:
         if not usuario:
             raise ValueError("Usuario no encontrado")
 
-        # Eliminar asignaciones relacionadas
+        from Entities.auditoria import Auditoria
+
+        self.db.query(Auditoria).filter(Auditoria.id_usuario == usuario_id).delete()
+        self.db.commit()
+
         from Entities.asignacionT import AsignacionT
 
         self.db.query(AsignacionT).filter(AsignacionT.id_usuario == usuario_id).delete()
         self.db.commit()
 
-        # Eliminar transacciones y tarjetas asociadas
         from Entities.tarjeta import Tarjeta
         from Entities.transaccion import Transaccion
 
