@@ -1,50 +1,59 @@
 # Sistema de Transporte Público
 
-- Este proyecto es un sistema para la gestión de transporte público. Incluye manejo de usuarios, auditorías, rutas, tarjetas, transportes, entre otros. Está desarrollado en **Python** y utiliza **SQLAlchemy** como ORM para la gestión de la base de datos.
+- Este proyecto es un sistema para la gestión de transporte público. Incluye manejo de usuarios, auditorías, rutas, tarjetas, transportes, entre otros. Está desarrollado en ***Python***, utiliza ***SQLAlchemy*** como ORM para la gestión de la base de datos, y cuenta con una API desarrollada con FastAPI para exponer los servicios del sistema.
+
+## Descripción
+Se implementó una ***API RESTful usando FastAPI***, que permite la interacción con el sistema mediante peticiones HTTP.
+Esta API incluye controladores (endpoints) para realizar operaciones CRUD sobre las principales entidades del sistema: usuarios, rutas, tarjetas, transportes, empleados, etc.
+
+- Framework: FastAPI
+- Validaciones: realizadas con Pydantic, garantizando la integridad de los datos enviados y recibidos.
+- Respuestas personalizadas en formato JSON para errores comunes (404, 400, 422, 500).
+- Cada entidad cuenta con su propio router y esquema, lo que facilita la escalabilidad y el mantenimiento del proyecto.
 ---
 
 ## Estructura del Proyecto
 
 ```
-SISTEMATRANSPORTEPUBLICO/
+SistemaTransportePublico/
+├── api/
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   ├── asignacion.py
+│   │   ├── auditoria.py
+│   │   ├── empleado.py
+│   │   ├── linea.py
+│   │   ├── parada.py
+│   │   ├── ruta.py
+│   │   ├── tarjeta.py
+│   │   ├── transaccion.py
+│   │   ├── transporte.py
+│   │   ├── usuarios.py
+│   │   ├── dependencies.py
+│   │   └── exception_handlers.py
+│   ├── config/
+│   │   ├── pyproject.toml
+│   │   └── requirements.txt
 │
-├── Crud/ # Módulos CRUD (Create, Read, Update, Delete) para cada entidad
-│ ├── asignacionT_crud.py # Operaciones CRUD para asignaciones
-│ ├── auditoria_crud.py # Operaciones CRUD para registros de auditoría
-│ ├── empleado_crud.py # Operaciones CRUD para empleados
-│ ├── linea_crud.py # Operaciones CRUD para líneas de transporte
-│ ├── parada_crud.py # Operaciones CRUD para paradas
-│ ├── ruta_crud.py # Operaciones CRUD para rutas
-│ ├── tarjeta_crud.py # Operaciones CRUD para tarjetas
-│ ├── transacciones_crud.py # Operaciones CRUD para transacciones
-│ ├── transporte_crud.py # Operaciones CRUD para medios de transporte
-│ └── usuario_crud.py # Operaciones CRUD para usuarios
+├── Crud/
+│   ├── __init__.py
+│   ├── asignacionT_crud.py
+│   ├── auditoria_crud.py
+│   ├── empleado_crud.py
+│   ├── linea_crud.py
+│   ├── parada_crud.py
+│   ├── ruta_crud.py
+│   ├── tarjeta_crud.py
+│   ├── transacciones_crud.py
+│   ├── transporte_crud.py
+│   └── usuario_crud.py
 │
-├── database/ # Configuración y conexión a la base de datos
-│ ├── init.py
-│ └── config.py # Configuración de la conexión a la base de datos
-│
-├── Entities/ # Definición de entidades y modelos del sistema
-│ ├── asignacionT.py # Modelo de asignaciones
-│ ├── auditoria.py # Modelo de auditoría
-│ ├── empleado.py # Modelo de empleados
-│ ├── linea.py # Modelo de líneas de transporte
-│ ├── parada.py # Modelo de paradas
-│ ├── roles.py # Modelo de roles de usuario
-│ ├── ruta.py # Modelo de rutas
-│ ├── tarjeta.py # Modelo de tarjetas
-│ ├── transaccion.py # Modelo de transacciones
-│ ├── transporte.py # Modelo de transporte
-│ └── usuario.py # Modelo de usuarios
-│
-├── Utilities/ # Funciones utilitarias y soporte del sistema
-│ ├── logica.py # Lógica de negocio central
-│ └── menus.py # Menús y opciones de interacción para el usuario
-│
-├── main.py # Punto de entrada principal del sistema
-├── requirements.txt # Dependencias necesarias para ejecutar el proyecto
-├── README.md # Documentación del proyecto
-└── .gitignore # Archivos y carpetas ignorados por git
+├── database/
+├── Entities/
+├── .gitignore
+├── main.py
+└── README.md
+
 ```
 ---
 
@@ -57,8 +66,6 @@ Clona este repositorio:
   cd SistemaTransportePublico
   ```
 
-## Uso
-
 ### Instalar dependencias
 
 Instala todas las librerías necesarias desde el archivo requirements.txt:
@@ -66,7 +73,7 @@ Instala todas las librerías necesarias desde el archivo requirements.txt:
 pip install -r requirements.txt
 ```
 ### Añadir archivos necesarios
-Se deberan añadir en el primer nivel el archivo '.env'.
+Se debera añadir en el primer nivel el archivo '.env'.
 
  ### Ejecuta el programa en la terminal con:
 
@@ -101,23 +108,6 @@ Cada clase corresponde a una tabla/modelo en la base de datos y está definida d
 ---
 Cada una de estas entidades está asociada con su respectivo módulo en la carpeta `Crud/`, que se encarga de las operaciones **CRUD (Crear, Leer, Actualizar, Eliminar)** sobre ellas.
 ---
-
-## Funcionamiento del Menú
-El sistema, esta compuesto por 2 menus diferentes, y su visualización varia depende del tipo de usuario(administrador,cliente). Estos se encuentran dentro de la carpeta 'Utilities/' en el archivo 'menus.py'.
-
-### Menu usuario
-Corresponde al menu mostrado al tipo de usuario cliente, permitiendo opciones como: Crear Tarjeta, Recargar Tarjeta, Consultar Saldo, Comprar Tiquete y ver Tiquetes y transportes asignados.
-Este menu procesa la opcion solicitada por el usuario, y llama los metodos necesarios de la otra parte del proyecto que se encuentran en 'Utilities/logica.py'.
-
-### Menu Administrador
-Corresponde al menu mostrado al tipo de usuario administrados, que es el encargado de manejar los usos del sistema, teniendo opciones que le permitan: Registrar usuarios, Actualizar usuarios, Eliminar usuarios, Consultar usuarios, ver cambios, Registrar empleado, Actualizar empleado, Eliminar empleado, Consultar empleados, Agregar ruta, Modificar Ruta, Agregar linea, Agregar transporte, asignar transporte a usuario, ver asignaciones y tiquetes.
-
-Este menu procesa la opcion solicitada por el administrador, y llama los metodos necesarios de la otra parte del proyecto que se encuentran en 'Utilities/logica.py'.
-Y sus funciones son estrictamente para este tipo de usuario, garantizando un buen funcionamiento y diferenciacion de roles.
-
----
-
-
 
 ## Lógica de Negocio - Sistema de Transporte
 
@@ -293,7 +283,7 @@ Contraseñas deben almacenarse encriptadas.
 
 Control de sesiones con cierre automático por inactividad.
 
-5. Flujo resumido del sistema
+**5. Flujo resumido del sistema**
 Usuario:
 
 Registrarse o iniciar sesión.
@@ -317,36 +307,7 @@ Gestionar entidades (usuarios, tarjetas, líneas, rutas, paradas, asignaciones).
 Generar reportes y monitorear el sistema.
 
 ## Ejemplo de Uso
-
-Ejemplo de uso para tipo de cliente usuario. Funcionalidad: Crear Tarjeta
-
-## 🎴 Flujo para crear una tarjeta  
-
-### 1. Inicio  
-- El sistema pregunta si el usuario ya tiene cuenta.  
-- **Si tiene cuenta** → inicia sesión.  
-- **Si no tiene cuenta** → se registra en el sistema.  
-
-### 2. Menú de usuario  
-- Una vez dentro, el sistema muestra el menú principal para usuarios.  
-- El usuario selecciona la **opción 1: Crear tarjeta**.  
-
-### 3. Ingreso de documento  
-- El sistema solicita el número de documento.  
-- El usuario lo ingresa y el sistema hace sus validaciones.  
-
-### 4. Creación de la tarjeta  
-- El sistema llama al método:  
-  ```python
-  logica.crear_tarjeta(documento=documento)
-
-- **Si ya tiene tarjeta registrada** → El sistema no permite que cree otra.
-- **Si no tiene tarjeta registrada** → El sistema la crea y la guarda en la base de datos.
-
--El sistema imprime el número de la tarjeta.
--El sistema vuelve a mostrar el menú.
-
-
+https://www.canva.com/design/DAG1UiyP6OU/jOzQeOjsPIG7s9L35Qw_cA/edit?utm_content=DAG1UiyP6OU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 ## 👨‍💻 Créditos
 
