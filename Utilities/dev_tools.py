@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Script de desarrollo para formatear código con Black
 ===================================================
