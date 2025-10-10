@@ -11,8 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 
-# Importar todos los modelos ANTES de los routers para evitar problemas circulares
-import Entities  # Esto importará todos los modelos en orden correcto
+import Entities
 
 from api.routers import (
     transporte,
@@ -34,7 +33,6 @@ from api.exception_handlers import (
     general_exception_handler,
 )
 
-# Crear la aplicación FastAPI
 app = FastAPI(
     title="Sistema de Transporte Público API",
     description="API REST para el manejo del sistema de transporte público",
@@ -43,22 +41,22 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configurar CORS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar dominios específicos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configurar manejadores de excepciones
+
 app.add_exception_handler(ValidationError, validation_exception_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-# Incluir routers
+
 app.include_router(auditoria.router, prefix="/api/auditoria", tags=["Auditoria"])
 app.include_router(usuarios.router, prefix="/api/usuarios", tags=["Usuarios"])
 app.include_router(transporte.router, prefix="/api/transportes", tags=["Transportes"])
@@ -93,7 +91,6 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
 
-    # Configuración por defecto
     HOST = "127.0.0.1"
     PORT = 8000
 
@@ -105,7 +102,6 @@ if __name__ == "__main__":
     print("-" * 60)
 
     try:
-        # Usar import string para habilitar reload correctamente
         uvicorn.run("main:app", host=HOST, port=PORT, reload=True, log_level="info")
     except Exception as e:
         print(f" Error al iniciar el servidor: {e}")
