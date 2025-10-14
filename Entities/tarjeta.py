@@ -1,10 +1,28 @@
+"""
+Módulo de Entidades - Tarjeta
+============================
+
+Este módulo contiene la definición de la entidad Tarjeta y sus esquemas
+de validación para el sistema de transporte público.
+
+Classes:
+    Tarjeta: Modelo SQLAlchemy para la tabla tarjetas
+    TarjetaCreate: Esquema para crear nuevas tarjetas
+    TarjetaUpdate: Esquema para actualizar tarjetas existentes
+    TarjetaOut: Esquema de salida para creación de tarjetas
+    TarjetaOutSaldo: Esquema de salida para consulta de saldo
+    TarjetaComplete: Esquema de salida completo de tarjeta
+"""
+
 import uuid
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
+from uuid import UUID as UUIDType
+
+from pydantic import BaseModel, Field, field_validator
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from database.config import Base
 
 
@@ -58,8 +76,21 @@ class TarjetaCreate(BaseModel):
     estado: str = Field("Activa", max_length=20)
     saldo: float = Field(0.0, ge=0, description="Saldo inicial de la tarjeta")
 
-    @validator("tipo_tarjeta")
+    @field_validator("tipo_tarjeta")
+    @classmethod
     def validar_tipo_tarjeta(cls, v):
+        """
+        Valida que el tipo de tarjeta sea uno de los valores permitidos.
+
+        Args:
+            v (str): El tipo de tarjeta a validar.
+
+        Returns:
+            str: El tipo de tarjeta validado.
+
+        Raises:
+            ValueError: Si el tipo de tarjeta no es válido.
+        """
         tipos_validos = {"Estudiante", "Normal", "Frecuente"}
         if v not in tipos_validos:
             raise ValueError(
@@ -85,8 +116,21 @@ class TarjetaUpdate(BaseModel):
         ..., ge=0, description="Nuevo saldo de la tarjeta (no puede ser negativo)"
     )
 
-    @validator("saldo")
+    @field_validator("saldo")
+    @classmethod
     def validar_saldo(cls, v):
+        """
+        Valida que el saldo no sea negativo.
+
+        Args:
+            v (float): El saldo a validar.
+
+        Returns:
+            float: El saldo validado.
+
+        Raises:
+            ValueError: Si el saldo es negativo.
+        """
         if v < 0:
             raise ValueError("El saldo no puede ser negativo.")
         return v
@@ -100,4 +144,19 @@ class TarjetaOut(BaseModel):
     mensaje: str
 
     class Config:
-        from_atributes = True
+        from_attributes = True
+
+
+class TarjetaComplete(BaseModel):
+    """Esquema de salida completo para representar una tarjeta."""
+
+    id_tarjeta: UUIDType
+    id_usuario: UUIDType
+    tipo_tarjeta: str
+    numero_tarjeta: str
+    estado: str
+    fecha_ultima_recarga: Optional[datetime]
+    saldo: float
+
+    class Config:
+        from_attributes = True

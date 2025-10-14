@@ -1,11 +1,17 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
+"""
+Entidad Transacción
+===================
+
+Modelo de Transacción con SQLAlchemy y esquemas de validación con Pydantic.
+"""
+
+import uuid
+from datetime import datetime
+from sqlalchemy import Column, ForeignKey, String, DateTime, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from pydantic import BaseModel, EmailStr, Field, validator
-from datetime import datetime
-from typing import Optional
+from pydantic import BaseModel
 from database.config import Base
-import uuid
 
 
 class Transaccion(Base):
@@ -20,7 +26,6 @@ class Transaccion(Base):
     """
 
     __tablename__ = "transacciones"
-    import uuid
 
     id_transaccion = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
@@ -42,6 +47,14 @@ class Transaccion(Base):
         return f"<Transaccion(id_transaccion={self.id_transaccion}, tipo_transaccion='{self.tipo_transaccion}', monto={self.monto})>"
 
 
+class TransaccionCreate(BaseModel):
+    """Esquema para crear una nueva transacción."""
+
+    numero_tarjeta: str
+    tipo_transaccion: str
+    monto: float
+
+
 class TransaccionOut(BaseModel):
     """Esquema de salida para una transaccion."""
 
@@ -52,4 +65,6 @@ class TransaccionOut(BaseModel):
     fecha_transaccion: datetime
 
     class Config:
-        from_atributes = True
+        """Configuración para permitir la conversión desde objetos SQLAlchemy."""
+
+        from_attributes = True

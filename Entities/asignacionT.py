@@ -6,11 +6,13 @@ Modelo de AsignacionT con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
 import uuid
+from datetime import datetime
+from typing import Optional
+from uuid import UUID as UUIDType
+
 from sqlalchemy import Column, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
-from datetime import datetime
 from database.config import Base
 
 
@@ -33,35 +35,40 @@ class AsignacionT(Base):
     )
 
 
-from uuid import UUID as UUIDType
-
-
 class AsignacionTCreate(BaseModel):
     """
-    Esquema de entrada para crear una nueva asicnacion.
+    Esquema de entrada para crear una nueva asignación.
     Contiene los identificadores de usuario, empleado, transporte y ruta.
     """
 
-    id_usuario: UUIDType
-    id_empleado: UUIDType
-    id_transporte: UUIDType
-    id_ruta: UUIDType
+    id_usuario: UUIDType = Field(
+        ..., description="ID del usuario que realiza la asignación"
+    )
+    id_empleado: UUIDType = Field(..., description="ID del empleado asignado")
+    id_transporte: UUIDType = Field(..., description="ID del transporte asignado")
+    id_ruta: UUIDType = Field(..., description="ID de la ruta asignada")
 
 
 class AsignacionTUpdate(BaseModel):
-    """Esquema de entrada para actualizar una asignacion existente.
+    """Esquema de entrada para actualizar una asignación existente.
     Todos los campos son opcionales para permitir actualizaciones parciales.
     """
 
-    id_usuario: UUIDType | None = None
-    id_empleado: UUIDType | None = None
-    id_transporte: UUIDType | None = None
-    id_ruta: UUIDType | None = None
+    id_usuario: Optional[UUIDType] = Field(
+        None, description="ID del usuario que realiza la asignación"
+    )
+    id_empleado: Optional[UUIDType] = Field(
+        None, description="ID del empleado asignado"
+    )
+    id_transporte: Optional[UUIDType] = Field(
+        None, description="ID del transporte asignado"
+    )
+    id_ruta: Optional[UUIDType] = Field(None, description="ID de la ruta asignada")
 
 
 class AsignacionTOut(BaseModel):
-    """Esquema de salida para representar una asignacion.
-    Incluye todos los campos relevantes de la asignacion.
+    """Esquema de salida para representar una asignación.
+    Incluye todos los campos relevantes de la asignación.
     """
 
     id_asignacion: UUIDType
@@ -73,4 +80,6 @@ class AsignacionTOut(BaseModel):
     fecha_actualizar: datetime
 
     class Config:
+        """Configuración para permitir la conversión desde objetos SQLAlchemy."""
+
         from_attributes = True

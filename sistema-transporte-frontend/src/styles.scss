@@ -1,0 +1,130 @@
+
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+}
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Mejorar la visibilidad de las tarjetas Material */
+mat-card {
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 12px !important;
+  transition: box-shadow 0.3s ease, transform 0.2s ease !important;
+}
+
+mat-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Mejorar contraste del fondo */
+.dashboard-container,
+.main-content {
+  background-color: #f5f7fa !important;
+}
+
+/* Mejorar las tarjetas de estadísticas */
+.stat-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%) !important;
+  border-left: 4px solid var(--primary-color, #2196f3) !important;
+}
+
+/* Mantener los bordes de colores en hover */
+.usuarios-card { border-left-color: #4CAF50 !important; }
+.tarjetas-card { border-left-color: #2196F3 !important; }
+.transportes-card { border-left-color: #FF9800 !important; }
+.transacciones-card { border-left-color: #9C27B0 !important; }
+
+.usuarios-card:hover { border-left-color: #4CAF50 !important; }
+.tarjetas-card:hover { border-left-color: #2196F3 !important; }
+.transportes-card:hover { border-left-color: #FF9800 !important; }
+.transacciones-card:hover { border-left-color: #9C27B0 !important; }
+
+/* Mejorar las tarjetas de módulos */
+.module-card {
+  background: #ffffff !important;
+  border: 2px solid #f0f0f0 !important;
+  cursor: pointer !important;
+}
+
+.module-card:hover {
+  border-color: var(--mat-sys-primary) !important;
+  background: #fafbfc !important;
+}
+
+/* Corregir problemas con mat-grid-tile */
+mat-grid-tile {
+  overflow: visible !important;
+}
+
+mat-grid-tile .mat-grid-tile-content {
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+/* Asegurar que las tarjetas de estadísticas mantengan su estilo en el grid */
+mat-grid-tile .stat-card {
+  width: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
+mat-grid-tile .stat-card:hover {
+  border-left: 4px solid inherit !important;
+}
+
+/* Específico para cada tipo de tarjeta en grid-tile */
+mat-grid-tile .usuarios-card,
+mat-grid-tile .usuarios-card:hover {
+  border-left: 4px solid #4CAF50 !important;
+}
+
+mat-grid-tile .tarjetas-card,
+mat-grid-tile .tarjetas-card:hover {
+  border-left: 4px solid #2196F3 !important;
+}
+
+mat-grid-tile .transportes-card,
+mat-grid-tile .transportes-card:hover {
+  border-left: 4px solid #FF9800 !important;
+}
+
+mat-grid-tile .transacciones-card,
+mat-grid-tile .transacciones-card:hover {
+  border-left: 4px solid #9C27B0 !important;
+}
