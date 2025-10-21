@@ -9,8 +9,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LoginRequest } from '../../../../shared/models';
+import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +26,8 @@ import { LoginRequest } from '../../../../shared/models';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   template: `
     <div class="login-container">
@@ -221,7 +224,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -283,8 +287,20 @@ export class LoginComponent implements OnInit {
 
   forgotPassword(event: Event): void {
     event.preventDefault();
-    // TODO: Implementar recuperación de contraseña
-    this.showInfo('Funcionalidad de recuperación de contraseña próximamente');
+    this.openForgotPasswordModal();
+  }
+
+  private openForgotPasswordModal(): void {
+    const dialogRef = this.dialog.open(ForgotPasswordModalComponent, {
+      width: '400px',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.showSuccess('Si el email existe, recibirás instrucciones para recuperar tu contraseña');
+      }
+    });
   }
 
   private markFormGroupTouched(): void {

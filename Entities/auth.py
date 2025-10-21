@@ -35,3 +35,17 @@ class RefreshTokenRequest(BaseModel):
     """Solicitud para refrescar token."""
 
     refreshToken: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Solicitud para recuperar contraseña."""
+
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Solicitud para restablecer contraseña."""
+
+    email: EmailStr
+    new_password: str
+    confirm_password: str
