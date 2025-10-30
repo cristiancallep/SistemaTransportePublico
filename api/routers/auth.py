@@ -17,13 +17,23 @@ from passlib.context import CryptContext
 
 from api.dependencies import get_db
 from Crud.usuario_crud import UsuarioCRUD
-from Entities.auth import LoginRequest, LoginResponse, RefreshTokenRequest
+from Entities.auth import (
+    LoginRequest,
+    LoginResponse,
+    RefreshTokenRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
 
 
 router = APIRouter()
 
-# Configuración de seguridad
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configuración de seguridad - usando configuración específica para evitar conflictos
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256", "bcrypt"],  # pbkdf2_sha256 como fallback
+    default="pbkdf2_sha256",  # Usar pbkdf2 por defecto
+    deprecated="auto",
+)
 security = HTTPBearer()
 
 # Configuración JWT (en producción usar variables de entorno)
@@ -210,3 +220,121 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Token expirado")
     except InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token inválido")
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    request: ForgotPasswordRequest, db: Session = Depends(get_db)
+):
+    """
+    Solicitar recuperación de contraseña.
+
+    En un entorno real, esto enviaría un email con un enlace de recuperación.
+    Por ahora, solo validamos que el usuario existe.
+    """
+    crud = UsuarioCRUD(db)
+
+    try:
+        # Verificar si el usuario existe
+        usuarios = crud.listar_usuarios()
+        usuario_encontrado = None
+
+        for usuario in usuarios:
+            if str(usuario.email) == request.email:
+                usuario_encontrado = usuario
+                break
+
+        if not usuario_encontrado:
+            # Por seguridad, no revelamos si el email existe o no
+            return {
+                "message": "Si el email existe, recibirás instrucciones para recuperar tu contraseña"
+            }
+
+        # Aquí normalmente enviarías un email con el token de recuperación
+        # Por ahora solo retornamos éxito
+        return {
+            "message": "Si el email existe, recibirás instrucciones para recuperar tu contraseña"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor",
+        )
+
+
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """
+    Restablecer contraseña con email y nueva contraseña.
+
+    En un entorno real, esto requeriría un token de recuperación.
+    Por simplicidad, permitimos el cambio solo con email.
+    """
+    if request.new_password != request.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Las contraseñas no coinciden",
+        )
+
+    if len(request.new_password) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La contraseña debe tener al menos 6 caracteres",
+        )
+
+    crud = UsuarioCRUD(db)
+
+    try:
+        print(f"DEBUG: Buscando usuario con email: {request.email}")
+        # Buscar usuario por email
+        usuarios = crud.listar_usuarios()
+        usuario_encontrado = None
+
+        print(f"DEBUG: Se encontraron {len(usuarios)} usuarios en total")
+        for usuario in usuarios:
+            print(f"DEBUG: Comparando '{str(usuario.email)}' con '{request.email}'")
+            if str(usuario.email) == request.email:
+                usuario_encontrado = usuario
+                print(f"DEBUG: Usuario encontrado: {usuario_encontrado.id_usuario}")
+                break
+
+        if not usuario_encontrado:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
+            )
+
+        # Actualizar contraseña (pasamos la contraseña en texto plano, el CRUD generará el hash)
+        print(
+            f"DEBUG: Contraseña recibida: '{request.new_password}' (longitud: {len(request.new_password)})"
+        )
+        print(f"DEBUG: Tipo de contraseña: {type(request.new_password)}")
+        print(
+            f"DEBUG: Actualizando contraseña para usuario ID: {usuario_encontrado.id_usuario}"
+        )
+
+        try:
+            success = crud.actualizar_contrasena(
+                usuario_encontrado.id_usuario, request.new_password
+            )
+            print(f"DEBUG: Actualización exitosa: {success}")
+        except Exception as e:
+            print(f"DEBUG ERROR en actualizar_contrasena: {str(e)}")
+            print(f"DEBUG ERROR tipo: {type(e)}")
+            raise
+
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error al actualizar la contraseña",
+            )
+
+        return {"message": "Contraseña actualizada exitosamente"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error interno del servidor: {str(e)}",
+        )

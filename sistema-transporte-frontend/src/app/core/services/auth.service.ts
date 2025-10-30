@@ -151,16 +151,17 @@ export class AuthService {
    * Solicitar restablecimiento de contraseña
    */
   forgotPassword(email: string): Observable<any> {
-    return this.apiService.post('auth/forgot-password', { email });
+    return this.apiService.post('api/auth/forgot-password', { email });
   }
 
   /**
    * Restablecer contraseña
    */
-  resetPassword(token: string, newPassword: string): Observable<any> {
-    return this.apiService.post('auth/reset-password', {
-      token,
-      newPassword
+  resetPassword(email: string, newPassword: string, confirmPassword: string): Observable<any> {
+    return this.apiService.post('api/auth/reset-password', {
+      email,
+      new_password: newPassword,
+      confirm_password: confirmPassword
     });
   }
 
