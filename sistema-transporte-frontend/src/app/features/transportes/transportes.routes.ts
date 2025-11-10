@@ -1,28 +1,16 @@
 import { Routes } from '@angular/router';
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-transportes-placeholder',
-  standalone: true,
-  template: `
-    <div class="container">
-      <h2>Gestión de Transportes</h2>
-      <p>Módulo en desarrollo...</p>
-      <div class="mt-4">
-        <button class="btn btn-primary me-2">Agregar Transporte</button>
-        <button class="btn btn-warning me-2">Mantenimiento</button>
-        <button class="btn btn-secondary">Ver Flota</button>
-      </div>
-    </div>
-  `
-})
-export class TransportesPlaceholderComponent {}
+import { ListaTransportesComponent } from './lista-transportes.component';
+import { TransporteFormComponent } from './transporte-form.component';
+import { LineaFormComponent } from './linea-form.component';
+import { LineasListComponent } from './lineas-list.component';
 
 export const transporteRoutes: Routes = [
-  {
-    path: '',
-    component: TransportesPlaceholderComponent
-  }
+  { path: '', component: ListaTransportesComponent },
+  { path: 'crear', component: TransporteFormComponent },
+  { path: 'editar/:id', component: TransporteFormComponent },
+  { path: 'lineas/crear', component: LineaFormComponent },
+  { path: 'lineas/editar/:id', component: LineaFormComponent },
+  { path: 'lineas', component: LineasListComponent },
 ];
 
 export default transporteRoutes;
