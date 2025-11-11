@@ -41,7 +41,7 @@ template: `
             <div *ngIf="table.loading">Cargando...</div>
             <div *ngIf="!table.loading && table.error" style="color:crimson">{{ table.error }}</div>
             <div *ngIf="!table.loading && !table.error">
-              <div *ngIf="table.data.length > 0 && table.data.length === 1" style="font-size:12px; color:#666; margin-bottom:6px">Respuesta única (se muestra envuelta como arreglo).</div>
+              <div *ngIf="table.key !== 'asignaciones' && table.data.length > 0 && table.data.length === 1" style="font-size:12px; color:#666; margin-bottom:6px">Respuesta única (se muestra envuelta como arreglo).</div>
               <table *ngIf="table.data.length > 0" style="width:100%; border-collapse: collapse;">
                 <thead>
                 <tr>
@@ -76,13 +76,16 @@ export class ReportesComponent implements OnInit {
     const apiUrl = environment.apiUrl?.replace(/\/$/, '');
 
     // Define the tables we want to fetch. These keys map to API endpoints.
-        this.tables = [
-        { key: 'usuarios', title: 'Usuarios', endpoint: environment.endpoints.usuarios || 'api/usuarios', data: [], columns: [], loading: false },
-        { key: 'empleados', title: 'Empleados', endpoint: environment.endpoints.empleados || 'api/empleados', data: [], columns: [], loading: false },
-        { key: 'transportes', title: 'Transportes', endpoint: environment.endpoints.transportes || 'api/transportes', data: [], columns: [], loading: false },
-        { key: 'paradas', title: 'Paradas', endpoint: 'api/paradas', data: [], columns: [], loading: false },
-        { key: 'asignaciones', title: 'Asignaciones', endpoint: 'api/asignaciones', data: [], columns: [], loading: false }
-        ];
+    this.tables = [
+    { key: 'usuarios', title: 'Usuarios', endpoint: environment.endpoints.usuarios || 'api/usuarios', data: [], columns: [], loading: false },
+    { key: 'empleados', title: 'Empleados', endpoint: environment.endpoints.empleados || 'api/empleados', data: [], columns: [], loading: false },
+    { key: 'transportes', title: 'Transportes', endpoint: environment.endpoints.transportes || 'api/transportes', data: [], columns: [], loading: false },
+    { key: 'lineas', title: 'Líneas', endpoint: (environment.endpoints as any).lineas || 'api/lineas', data: [], columns: [], loading: false },
+    { key: 'tarjetas', title: 'Tarjetas', endpoint: environment.endpoints.tarjetas || 'api/tarjetas', data: [], columns: [], loading: false },
+    { key: 'rutas', title: 'Rutas', endpoint: (environment.endpoints as any).rutas || 'api/rutas', data: [], columns: [], loading: false },
+    { key: 'paradas', title: 'Paradas', endpoint: 'api/paradas', data: [], columns: [], loading: false },
+    { key: 'asignaciones', title: 'Asignaciones', endpoint: 'api/asignaciones', data: [], columns: [], loading: false }
+    ];
 }
 
     ngOnInit(): void {
@@ -121,9 +124,9 @@ export class ReportesComponent implements OnInit {
     }
 
     refreshAll() {
-            for (const t of this.tables) {
-                        this.fetchTable(t);
-                    }
+        for (const t of this.tables) {
+            this.fetchTable(t);
+        }
     }
 
     public fetchTable(table: any, params?: any) {
