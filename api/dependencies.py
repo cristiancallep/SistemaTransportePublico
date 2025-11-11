@@ -9,6 +9,46 @@ manejo de sesiones de base de datos y autenticación.
 from typing import Generator
 from database.config import SessionLocal
 from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import Optional
+import os
+import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+
+# Seguridad para extraer el usuario desde el token
+# Allow missing Authorization header (auto_error=False) so endpoints can opt-in
+security = HTTPBearer(auto_error=False)
+
+# Valores por defecto compatibles con los utilizados en el router de auth
+SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_super_segura_cambiar_en_produccion")
+ALGORITHM = "HS256"
+
+
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+) -> Optional[dict]:
+    """
+    Dependencia para obtener el usuario actual desde el header Authorization (Bearer token).
+
+    Retorna un dict con keys `user_id` y `email`.
+    """
+    # If no credentials provided, return None (caller may allow anonymous access)
+    if not credentials:
+        return None
+
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+        email = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Token inválido")
+        return {"user_id": user_id, "email": email}
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expirado")
+    except InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Token inválido")
 
 
 def get_db() -> Generator[Session, None, None]:

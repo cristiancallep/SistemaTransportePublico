@@ -17,6 +17,10 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTableDataSource } from '@angular/material/table';
 import { EmpleadoFormComponent } from './empleado-form.component';
 import { EmpleadoService } from './services/empleado.service';
+import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 @Component({
@@ -41,6 +45,32 @@ import { Router } from '@angular/router';
   ],
   template: `
   <div class="dashboard-container">
+    <ng-template #assignDialog>
+      <h2 mat-dialog-title>Crear asignación</h2>
+      <mat-dialog-content>
+        <div style="display:flex; flex-direction:column; gap:8px; min-width:320px">
+          <div><strong>Empleado:</strong> {{ assignTargetEmpleado?.nombre }} {{ assignTargetEmpleado?.apellido }}</div>
+          <div>
+            <label style="font-size:12px;color:#666">Transporte</label><br />
+            <select (change)="assignSelectedTransporte = $any($event.target).value" style="width:100%; padding:6px; border-radius:6px">
+              <option value="">-- Seleccione --</option>
+              <option *ngFor="let t of transportesOptions" [value]="t.id_transporte || t.id || t.idTransporte">{{ t.placa || t.numero || t.modelo || ('Transporte ' + (t.id_transporte || t.id)) }}</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;color:#666">Ruta</label><br />
+            <select (change)="assignSelectedRuta = $any($event.target).value" style="width:100%; padding:6px; border-radius:6px">
+              <option value="">-- Seleccione --</option>
+              <option *ngFor="let r of rutasOptions" [value]="r.id_ruta || r.id || r.idRuta">{{ r.nombre || r.descripcion || (r.origen && r.destino ? r.origen + ' → ' + r.destino : ('Ruta ' + (r.id_ruta || r.id))) }}</option>
+            </select>
+          </div>
+        </div>
+      </mat-dialog-content>
+      <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Cancelar</button>
+        <button mat-flat-button color="primary" (click)="confirmCreateAssign()" [disabled]="assignLoading">Asignar</button>
+      </mat-dialog-actions>
+    </ng-template>
     <ng-template #confirmDialog let-data>
       <h2 mat-dialog-title>
         <mat-icon color="warn" style="vertical-align:middle; margin-right:8px">help_outline</mat-icon>
@@ -132,8 +162,9 @@ import { Router } from '@angular/router';
           <ng-container matColumnDef="acciones">
             <th mat-header-cell *matHeaderCellDef>{{ 'Acciones' | uppercase }}</th>
             <td mat-cell *matCellDef="let element">
-              <button mat-icon-button color="primary" (click)="editar(element)"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button color="warn" (click)="eliminar(element)"><mat-icon>delete</mat-icon></button>
+                      <button mat-icon-button color="primary" (click)="editar(element)"><mat-icon>edit</mat-icon></button>
+                      <button mat-icon-button color="primary" title="Asignar" (click)="openAssignDialog(element)"><mat-icon>assignment</mat-icon></button>
+                      <button mat-icon-button color="warn" (click)="eliminar(element)"><mat-icon>delete</mat-icon></button>
             </td>
           </ng-container>
 
@@ -173,6 +204,12 @@ export class EmpleadosListComponent implements OnInit {
   displayedColumns: string[] = ['nombre', 'apellido', 'documento', 'email', 'rol', 'acciones'];
   dataSource = new MatTableDataSource<any>([]);
     selectedRole: string | null = null;
+  transportesOptions: any[] = [];
+  rutasOptions: any[] = [];
+  assignSelectedTransporte: string | null = null;
+  assignSelectedRuta: string | null = null;
+  assignLoading = false;
+  assignTargetEmpleado: any = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -180,11 +217,14 @@ export class EmpleadosListComponent implements OnInit {
   @ViewChild('docInput') docInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('emailInput') emailInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('roleSelect') roleSelect!: ElementRef<HTMLSelectElement>;
+  @ViewChild('assignDialog') assignDialog!: TemplateRef<any>;
 
   constructor(
     private empleadoService: EmpleadoService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
+    private api: ApiService,
+    private auth: AuthService,
     private router: Router
   ) {}
 
@@ -245,6 +285,54 @@ export class EmpleadosListComponent implements OnInit {
         next: () => { this.snackBar.open('Empleado eliminado', 'Cerrar', { duration: 2000 }); this.loadEmpleados(); },
         error: (err: any) => { console.error(err); this.snackBar.open('Error al eliminar empleado', 'Cerrar', { duration: 3000 }); }
       });
+    });
+  }
+
+  openAssignDialog(empleado: any): void {
+    this.assignTargetEmpleado = empleado;
+    this.assignSelectedTransporte = null;
+    this.assignSelectedRuta = null;
+    // load transportes and rutas
+    this.api.get<any>("api/transportes").pipe(catchError(() => of([]))).subscribe({
+      next: (t: any) => { this.transportesOptions = Array.isArray(t) ? t : (t.data || []); },
+      error: (e) => { console.warn('Error cargando transportes', e); this.transportesOptions = []; }
+    });
+
+    this.api.get<any>("api/rutas").pipe(catchError(() => of([]))).subscribe({
+      next: (r: any) => { this.rutasOptions = Array.isArray(r) ? r : (r.data || []); },
+      error: (e) => { console.warn('Error cargando rutas', e); this.rutasOptions = []; }
+    });
+
+    this.dialog.open(this.assignDialog, { width: '480px' });
+  }
+
+  confirmCreateAssign(): void {
+    if (!this.assignTargetEmpleado) return;
+    if (!this.assignSelectedTransporte || !this.assignSelectedRuta) {
+      this.snackBar.open('Selecciona transporte y ruta', 'Cerrar', { duration: 2500 });
+      return;
+    }
+
+    const user = this.auth.getCurrentUser();
+    const id_usuario = (user as any)?.id_usuario || (user as any)?.id;
+    if (!id_usuario) { this.snackBar.open('Necesitas iniciar sesión', 'Cerrar', { duration: 2500 }); return; }
+
+    const payload = {
+      id_usuario,
+      id_empleado: this.assignTargetEmpleado.id_empleado || this.assignTargetEmpleado.id,
+      id_transporte: this.assignSelectedTransporte,
+      id_ruta: this.assignSelectedRuta
+    };
+
+    this.assignLoading = true;
+    this.api.post<any>('api/asignaciones', payload).subscribe({
+      next: (res) => {
+        this.assignLoading = false;
+        this.snackBar.open('Asignación creada', 'Cerrar', { duration: 2500 });
+        try { this.dialog.closeAll(); } catch {}
+        this.loadEmpleados();
+      },
+      error: (err) => { this.assignLoading = false; console.error('Error creando asignación', err); this.snackBar.open(err?.message || 'Error creando asignación', 'Cerrar', { duration: 4000 }); }
     });
   }
 
