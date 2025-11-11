@@ -16,6 +16,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { UsuarioService } from './services/usuario.service';
 import { Usuario } from '../../shared/models';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { environment } from '../../../environments/environment';
 import { UsuarioFormComponent } from './usuario-form.component';
 import { Router } from '@angular/router';
@@ -145,7 +146,7 @@ import { Router } from '@angular/router';
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let element">
                 <button mat-icon-button color="primary" (click)="editar(element)"><mat-icon>edit</mat-icon></button>
-                <button mat-icon-button color="warn" (click)="eliminar(element)"><mat-icon>delete</mat-icon></button>
+                <button *ngIf="!isCurrentUser(element)" mat-icon-button color="warn" (click)="eliminar(element)"><mat-icon>delete</mat-icon></button>
             </td>
             </ng-container>
 
@@ -222,8 +223,23 @@ export class UsuariosListComponent implements OnInit {
         private apiService: ApiService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
-        private router: Router
+        private router: Router,
+        private authService: AuthService
     ) {}
+
+    /**
+     * Devuelve true si la fila corresponde al usuario actualmente autenticado.
+     * Compara `id_usuario`/`id` y como fallback compara `email`.
+     */
+    isCurrentUser(usuario: any): boolean {
+        const current = this.authService.getCurrentUser();
+        if (!current || !usuario) return false;
+        const uId = usuario.id_usuario ?? usuario.id ?? null;
+        const cId = (current as any).id_usuario ?? (current as any).id ?? null;
+        if (uId != null && cId != null) return uId === cId;
+        if (usuario.email && current.email) return usuario.email === current.email;
+        return false;
+    }
 
     navigateTo(route: string): void {
         this.router.navigate([route]);
@@ -271,6 +287,11 @@ export class UsuariosListComponent implements OnInit {
     }
 
     eliminar(usuario: any): void {
+        // Evitar eliminar al usuario actualmente autenticado como capa de seguridad extra
+        if (this.isCurrentUser(usuario)) {
+            this.snackBar.open('No se puede eliminar el usuario en sesión', 'Cerrar', { duration: 3000 });
+            return;
+        }
         const dialogRef = this.dialog.open(this.confirmDialog, {
             width: '420px',
             data: { title: 'Eliminar usuario', message: `¿Eliminar usuario ${usuario.nombre} ${usuario.apellido}?` }
