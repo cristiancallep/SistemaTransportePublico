@@ -48,8 +48,6 @@ async def consultar_transacciones(
 
     transacciones = crud.obtener_todas_transacciones()
 
-    # Registrar auditoría (lectura)
     AuditoriaCRUD.agregar_auditoria_usuario("READ", "Transaccion")
 
-    # Devolver lista (vacía si no hay registros)
     return transacciones

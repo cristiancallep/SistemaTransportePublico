@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { LineaService } from './services/linea.service';
 
 @Component({
@@ -23,46 +25,49 @@ import { LineaService } from './services/linea.service';
     MatCardModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   template: `
     <div class="dashboard-container">
       <mat-toolbar color="primary" class="dashboard-header">
         <span class="title">
           <mat-icon class="title-icon">route</mat-icon>
-          Crear Línea
+          {{ isEdit ? 'Editar Línea' : 'Crear Línea' }}
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes']">
+        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes/lineas']">
           <mat-icon>arrow_back</mat-icon>
           Volver
         </button>
       </mat-toolbar>
 
       <div class="main-content">
-        <mat-card>
+        <mat-card class="form-card">
           <mat-card-content>
-            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
-              <div class="form-row">
-                <label>Nombre</label>
-                <input class="input" placeholder="Línea 1" formControlName="nombre" />
-                <div class="error" *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched">Nombre requerido</div>
-              </div>
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-wrapper">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput placeholder="Línea 1" formControlName="nombre" />
+                <mat-error *ngIf="form.get('nombre')?.hasError('required')">Nombre requerido</mat-error>
+                <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">Mínimo 2 caracteres</mat-error>
+              </mat-form-field>
 
-              <div class="form-row">
-                <label>Descripción</label>
-                <textarea class="input" rows="3" placeholder="Descripción opcional" formControlName="descripcion"></textarea>
-              </div>
+              <mat-form-field appearance="outline">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput rows="3" placeholder="Descripción opcional" formControlName="descripcion"></textarea>
+              </mat-form-field>
 
               <div class="actions">
                 <button mat-raised-button color="accent" [disabled]="form.invalid || isSaving">
                   <mat-icon>save</mat-icon>
-                  Crear Línea
+                  {{ isEdit ? 'Guardar Cambios' : 'Crear Línea' }}
                 </button>
               </div>
             </form>
             <div class="loading-state" *ngIf="isSaving">
               <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-              <p>Guardando...</p>
+              <p>{{ isEdit ? 'Actualizando...' : 'Guardando...' }}</p>
             </div>
           </mat-card-content>
         </mat-card>
@@ -70,23 +75,20 @@ import { LineaService } from './services/linea.service';
     </div>
   `,
   styles: [`
-    .dashboard-container { min-height: 60vh; background: #f5f5f5; }
-    .dashboard-header { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .title { display: flex; align-items: center; font-size: 1.1rem; }
+    .dashboard-container { min-height: 60vh; background: #f5f7fa; }
+    .dashboard-header { box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    .title { display: flex; align-items: center; font-size: 1.15rem; font-weight: 600; }
     .title-icon { margin-right: 8px; }
     .spacer { flex: 1; }
-    .main-content { padding: 24px; }
-    mat-card { margin: 16px; padding: 16px; }
-    .btn-volver { color: #42a5f5; font-weight: 500; border-radius: 8px; padding: 0.6rem 1.2rem; margin-right: 16px; cursor: pointer; display: flex; align-items: center; transition: all .2s; box-shadow: 0 3px 6px rgba(0,0,0,.15); }
-    .btn-volver:hover { background: #a8ccebff; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,.25); }
-
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-    .form-row { display: flex; flex-direction: column; gap: 6px; }
-    .input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; }
-    textarea.input { resize: vertical; }
-    .error { color: #d32f2f; font-size: .82rem; }
-    .actions { margin-top: 8px; }
-    .loading-state { display: flex; flex-direction: column; align-items: center; margin-top: 12px; gap: 8px; }
+    .main-content { padding: 32px 24px; display: flex; justify-content: center; }
+    .form-card { width: 100%; max-width: 640px; border-radius: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+    .btn-volver { color: #fff; font-weight: 500; border-radius: 8px; padding: 0.55rem 1.1rem; margin-left: 12px; display: flex; align-items: center; gap:4px; box-shadow: 0 3px 6px rgba(0,0,0,.18); }
+    .btn-volver:hover { background: #1565c0; }
+    .form-wrapper { display: flex; flex-direction: column; gap: 18px; }
+    mat-form-field { width: 100%; }
+    .actions { display: flex; justify-content: flex-end; margin-top: 4px; }
+    .loading-state { display: flex; flex-direction: column; align-items: center; margin-top: 16px; gap: 10px; }
+    .loading-state p { margin: 0; font-size: 0.9rem; color: #555; }
   `]
 })
 export class LineaFormComponent implements OnInit {
@@ -112,7 +114,7 @@ export class LineaFormComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     this.isEdit = !!this.id;
     if (this.isEdit && this.id) {
-      // Podríamos cargar la línea, pero solo necesitamos valores iniciales si los tuviéramos
+      
       this.lineaService.getLinea(this.id).subscribe({
         next: (l) => {
           this.form.patchValue({ nombre: (l as any)?.nombre || '', descripcion: (l as any)?.descripcion || '' });

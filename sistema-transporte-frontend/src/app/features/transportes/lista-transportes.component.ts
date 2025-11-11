@@ -48,6 +48,10 @@ import { forkJoin } from 'rxjs';
           <mat-icon>route</mat-icon>
           Crear Línea
         </button>
+        <button mat-raised-button color="accent" class="btn-volver" [routerLink]="['/transportes/rutas']">
+          <mat-icon>map</mat-icon>
+          Ver Rutas
+        </button>
         <button mat-raised-button color="accent" class="btn-volver" [routerLink]="['/transportes/lineas']">
           <mat-icon>playlist_add_check</mat-icon>
           Gestionar Líneas
@@ -215,7 +219,7 @@ export class ListaTransportesComponent implements OnInit {
   cargar() {
     this.isLoading = true;
     this.error = null;
-    // Cargar líneas y transportes en paralelo
+    
     forkJoin({
       transportes: this.transporteService.getTransportes(),
       lineas: this.lineaService.getLineas()
@@ -248,7 +252,7 @@ export class ListaTransportesComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        // Si falla una de las dos, intentar al menos mostrar transportes
+        
         console.warn('Error al cargar lineas/transportes, intentando cargar transportes solo', err);
         this.transporteService.getTransportes().subscribe({
           next: (res: any) => {

@@ -68,7 +68,7 @@ async def consultar_saldo(documento: str, db: Session = Depends(get_db)):
     transaccion_crud = TransaccionCRUD(db)
 
     try:
-        # Obtener la tarjeta para conseguir el número
+
         tarjeta = crud.obtener_tarjeta_por_documento(documento)
         if not tarjeta:
             raise ValueError(
@@ -77,7 +77,6 @@ async def consultar_saldo(documento: str, db: Session = Depends(get_db)):
 
         saldo = crud.obtener_saldo(documento)
 
-        # Registrar la transacción de consulta
         transaccion_crud.registrar_transaccion(
             numero_tarjeta=tarjeta.numero_tarjeta, tipo_transaccion="consulta", monto=0
         )
@@ -101,10 +100,9 @@ async def recargar_tarjeta(tarjeta: TarjetaUpdate, db: Session = Depends(get_db)
     transaccion_crud = TransaccionCRUD(db)
 
     try:
-        # Recargar la tarjeta
+
         tarjeta_recargada = crud.recargar_tarjeta(tarjeta.documento, tarjeta.saldo)
 
-        # Registrar la transacción
         transaccion_crud.registrar_transaccion(
             numero_tarjeta=tarjeta_recargada.numero_tarjeta,
             tipo_transaccion="recarga",
@@ -154,7 +152,6 @@ async def crear_tarjeta(tarjeta: TarjetaCreate, db: Session = Depends(get_db)):
             id_usuario, tarjeta.tipo_tarjeta, tarjeta.estado, tarjeta.saldo
         )
 
-        # Registrar la transacción de creación
         transaccion_crud.registrar_transaccion(
             numero_tarjeta=nueva_tarjeta.numero_tarjeta,
             tipo_transaccion="creacion",

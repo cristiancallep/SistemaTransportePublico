@@ -142,13 +142,13 @@ export class TransporteFormComponent implements OnInit {
       placa: ['', [Validators.required, Validators.minLength(6)]],
       capacidad: [null, [Validators.required, Validators.min(1)]],
       id_linea: ['', [Validators.required]],
-      estado: [''], // Solo para edición
+      estado: [''], 
     });
 
     this.id = this.route.snapshot.paramMap.get('id');
     this.isEdit = !!this.id;
 
-    // Cargar líneas para el select
+    
     this.lineaService.getLineas().subscribe({
       next: (ls) => this.lineas = Array.isArray(ls) ? ls : (ls as any)?.data || [],
       error: (err) => {

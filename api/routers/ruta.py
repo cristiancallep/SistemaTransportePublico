@@ -22,10 +22,26 @@ from sqlalchemy import (
 
 from api.dependencies import get_db, get_pagination_params
 from Crud.ruta_crud import RutaCRUD
-from Entities.ruta import RutaCreate, RutaUpdate
+from Entities.ruta import RutaCreate, RutaUpdate, RutaOut
 from Crud.auditoria_crud import AuditoriaCRUD
 
 router = APIRouter()
+
+
+@router.get("/", response_model=List[RutaOut])
+async def listar_rutas(db: Session = Depends(get_db)):
+    """Listar todas las rutas disponibles.
+
+    Returns:
+        List[RutaOut]: Lista completa de rutas con sus datos.
+    """
+    crud = RutaCRUD(db)
+    try:
+        rutas = crud.listar_rutas()
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Ruta")
+        return rutas
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al listar rutas: {str(e)}")
 
 
 @router.post("/", response_model=RutaCreate, status_code=201)
@@ -90,3 +106,19 @@ async def actualizar_ruta(ruta: RutaUpdate, db: Session = Depends(get_db)):
         }
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.delete("/{id_ruta}")
+async def eliminar_ruta(id_ruta: UUID, db: Session = Depends(get_db)):
+    """Eliminar una ruta por su ID."""
+    crud = RutaCRUD(db)
+    try:
+        eliminado = crud.eliminar_ruta(id_ruta)
+        if not eliminado:
+            raise HTTPException(status_code=404, detail="Ruta no encontrada")
+        AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Ruta")
+        return {"message": "Ruta eliminada correctamente"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error al eliminar ruta: {str(e)}")

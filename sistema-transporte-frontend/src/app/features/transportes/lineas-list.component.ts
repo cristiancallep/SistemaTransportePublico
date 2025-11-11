@@ -245,7 +245,7 @@ export class LineasListComponent implements OnInit {
 
   eliminar(id: string) {
     if (!confirm('¿Eliminar esta línea? Si tiene transportes asociados puede fallar.')) return;
-    // No endpoint delete implementado en servicio aún; lo añadiremos en transporte/linea.service si se requiere reutilizar.
+    
     this.lineaService.eliminarLinea(id).subscribe({
       next: () => { this.snack.open('Línea eliminada', 'Cerrar', { duration: 3000 }); this.cargar(); },
       error: (err) => this.snack.open(err?.error?.detail || err?.message || 'Error al eliminar', 'Cerrar', { duration: 5000 })
