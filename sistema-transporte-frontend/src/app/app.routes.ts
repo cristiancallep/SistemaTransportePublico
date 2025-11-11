@@ -70,6 +70,19 @@ export const routes: Routes = [
       .then(m => m.transporteRoutes)
   },
 
+  // Módulo de Paradas (protegido)
+  {
+    path: 'paradas',
+    canActivate: [AuthGuard],
+    data: {
+      // Permitir acceso si el usuario tiene permisos de Paradas o Transportes
+      permissions: ['paradas:leer', 'transportes:leer'],
+      breadcrumb: 'Paradas'
+    },
+    loadChildren: () => import('./features/paradas/paradas.routes')
+      .then(m => m.paradaRoutes)
+  },
+
   // Módulo de Empleados (protegido)
   {
     path: 'empleados',

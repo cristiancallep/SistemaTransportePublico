@@ -7,7 +7,7 @@ import { Tarjeta, TarjetaCreate, TarjetaUpdate, TarjetaFilter, PaginatedResponse
   providedIn: 'root'
 })
 export class TarjetaService {
-  private endpoint = 'tarjetas';
+  private endpoint = 'api/tarjetas';
 
   constructor(private apiService: ApiService) {}
 
@@ -86,6 +86,13 @@ export class TarjetaService {
    */
   recargarSaldo(id: number, recarga: RecargaTarjeta): Observable<Tarjeta> {
     return this.apiService.patch<Tarjeta>(`${this.endpoint}/${id}/recargar`, recarga);
+  }
+
+  /**
+   * Recarga saldo en una tarjeta usando el documento del usuario
+   */
+  recargarTarjeta(documento: string, saldo: number): Observable<any> {
+    return this.apiService.put<any>(`${this.endpoint}`, { documento, saldo });
   }
 
   /**

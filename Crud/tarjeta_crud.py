@@ -149,3 +149,64 @@ class TarjetaCRUD:
             .first()
         )
         return tarjeta[0] if tarjeta else None
+
+    def obtener_todas_tarjetas(self) -> List[Tarjeta]:
+        """Obtiene todas las tarjetas de la base de datos.
+
+        Returns:
+            List[Tarjeta]: Lista con todas las tarjetas registradas.
+        """
+        return self.db.query(Tarjeta).all()
+
+    def obtener_tarjeta_por_documento(self, documento: str) -> Tarjeta:
+        """Obtiene una tarjeta asociada a un usuario por su documento.
+
+        Args:
+            documento (str): Documento del usuario.
+
+        Returns:
+            Tarjeta: La tarjeta asociada al usuario, o None si no existe.
+        """
+        return (
+            self.db.query(Tarjeta)
+            .join(Usuario, Usuario.id_usuario == Tarjeta.id_usuario)
+            .filter(Usuario.documento == documento)
+            .first()
+        )
+
+    def eliminar_tarjeta(self, id_tarjeta: uuid.UUID) -> bool:
+        """Elimina una tarjeta de la base de datos.
+
+        Args:
+            id_tarjeta (uuid.UUID): ID de la tarjeta a eliminar.
+
+        Returns:
+            bool: True si la tarjeta fue eliminada exitosamente.
+
+        Raises:
+            HTTPException: Si la tarjeta no existe.
+        """
+        from Entities.transaccion import Transaccion
+
+        tarjeta = (
+            self.db.query(Tarjeta).filter(Tarjeta.id_tarjeta == id_tarjeta).first()
+        )
+
+        if not tarjeta:
+            raise HTTPException(status_code=404, detail="Tarjeta no encontrada.")
+
+        try:
+            # Primero eliminar todas las transacciones relacionadas
+            self.db.query(Transaccion).filter(
+                Transaccion.numero_tarjeta == tarjeta.numero_tarjeta
+            ).delete()
+
+            # Luego eliminar la tarjeta
+            self.db.delete(tarjeta)
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(
+                status_code=500, detail=f"Error al eliminar la tarjeta: {str(e)}"
+            )
