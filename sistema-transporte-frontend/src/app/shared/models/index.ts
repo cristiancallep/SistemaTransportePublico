@@ -2,6 +2,7 @@
 export * from './usuario.model';
 export * from './tarjeta.model';
 export * from './transporte.model';
+export * from './parada.model';
 export * from './rol.model';
 
 // Interfaces comunes del sistema

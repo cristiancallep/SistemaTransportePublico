@@ -3,17 +3,17 @@ export interface Tarjeta {
   numero: string;
   saldo: number;
   estado: 'activa' | 'bloqueada' | 'vencida';
-  fechaCreacion: Date;
+  fechaUltimaRecarga: Date;
   fechaVencimiento?: Date;
   usuarioId: number;
   usuario?: Usuario;
 }
 
 export interface TarjetaCreate {
-  numero: string;
-  saldoInicial?: number;
-  usuarioId: number;
-  fechaVencimiento?: Date;
+  documento: string;
+  tipo_tarjeta: 'Estudiante' | 'Normal' | 'Frecuente';
+  estado: 'Activa' | 'Inactiva';
+  saldo: number;
 }
 
 export interface TarjetaUpdate {

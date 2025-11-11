@@ -30,10 +30,31 @@ from Entities.tarjeta import (
     Tarjeta,
     TarjetaOut,
     TarjetaOutSaldo,
+    TarjetaComplete,
 )
 from Crud.transacciones_crud import TransaccionCRUD
 
 router = APIRouter()
+
+
+@router.get("/", response_model=List[TarjetaComplete])
+async def obtener_todas_tarjetas(db: Session = Depends(get_db)):
+    """
+    Obtiene todas las tarjetas registradas en el sistema.
+
+    Returns:
+        List[TarjetaComplete]: Lista con todas las tarjetas y su información completa.
+    """
+    crud = TarjetaCRUD(db)
+
+    try:
+        tarjetas = crud.obtener_todas_tarjetas()
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Tarjeta")
+        return tarjetas
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error al obtener tarjetas: {str(e)}"
+        )
 
 
 @router.get("/{documento}")
@@ -44,10 +65,27 @@ async def consultar_saldo(documento: str, db: Session = Depends(get_db)):
     """
 
     crud = TarjetaCRUD(db)
-    saldo = crud.obtener_saldo(documento)
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Tarjeta")
+    transaccion_crud = TransaccionCRUD(db)
 
-    return {"saldo": saldo}
+    try:
+
+        tarjeta = crud.obtener_tarjeta_por_documento(documento)
+        if not tarjeta:
+            raise ValueError(
+                "No se encontró la tarjeta para el documento proporcionado"
+            )
+
+        saldo = crud.obtener_saldo(documento)
+
+        transaccion_crud.registrar_transaccion(
+            numero_tarjeta=tarjeta.numero_tarjeta, tipo_transaccion="consulta", monto=0
+        )
+
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Tarjeta")
+
+        return {"saldo": saldo}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.put("/", response_model=TarjetaOutSaldo, status_code=201)
@@ -59,8 +97,17 @@ async def recargar_tarjeta(tarjeta: TarjetaUpdate, db: Session = Depends(get_db)
     - **monto**: Monto a recargar
     """
     crud = TarjetaCRUD(db)
+    transaccion_crud = TransaccionCRUD(db)
+
     try:
+
         tarjeta_recargada = crud.recargar_tarjeta(tarjeta.documento, tarjeta.saldo)
+
+        transaccion_crud.registrar_transaccion(
+            numero_tarjeta=tarjeta_recargada.numero_tarjeta,
+            tipo_transaccion="recarga",
+            monto=tarjeta.saldo,
+        )
 
         AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Tarjeta")
 
@@ -81,6 +128,8 @@ async def crear_tarjeta(tarjeta: TarjetaCreate, db: Session = Depends(get_db)):
     - **estado**: Estado inicial de la tarjeta (Activa, Inactiva)
     """
     crud = TarjetaCRUD(db)
+    transaccion_crud = TransaccionCRUD(db)
+
     try:
         id_usuario_obj = db.execute(
             select(usuario.Usuario).where(
@@ -102,6 +151,13 @@ async def crear_tarjeta(tarjeta: TarjetaCreate, db: Session = Depends(get_db)):
         nueva_tarjeta = crud.registrar_tarjeta(
             id_usuario, tarjeta.tipo_tarjeta, tarjeta.estado, tarjeta.saldo
         )
+
+        transaccion_crud.registrar_transaccion(
+            numero_tarjeta=nueva_tarjeta.numero_tarjeta,
+            tipo_transaccion="creacion",
+            monto=0,
+        )
+
         AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "Tarjeta")
         return TarjetaOut(
             numero_tarjeta=nueva_tarjeta.numero_tarjeta,
@@ -111,3 +167,30 @@ async def crear_tarjeta(tarjeta: TarjetaCreate, db: Session = Depends(get_db)):
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/{id_tarjeta}", status_code=200)
+async def eliminar_tarjeta(id_tarjeta: UUID, db: Session = Depends(get_db)):
+    """
+    Eliminar una tarjeta del sistema.
+
+    - **id_tarjeta**: UUID de la tarjeta a eliminar
+
+    Returns:
+        dict: Mensaje de confirmación de eliminación
+    """
+    crud = TarjetaCRUD(db)
+
+    try:
+        crud.eliminar_tarjeta(id_tarjeta)
+        AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Tarjeta")
+        return {
+            "mensaje": "Tarjeta eliminada exitosamente",
+            "id_tarjeta": str(id_tarjeta),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error al eliminar tarjeta: {str(e)}"
+        )
