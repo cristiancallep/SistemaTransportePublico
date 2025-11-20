@@ -36,10 +36,6 @@ import { Router } from '@angular/router';
           Emitir Nueva Tarjeta
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" (click)="onCancel()">
-          <mat-icon class="me-2">arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="main-content">

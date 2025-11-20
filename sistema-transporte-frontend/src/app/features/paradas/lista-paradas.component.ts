@@ -34,10 +34,6 @@ import { ParadaService } from './services/parada.service';
           Gestión de Paradas
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/']">
-          <mat-icon>home</mat-icon>
-          Inicio
-        </button>
         <button mat-raised-button color="accent" class="btn-volver" [routerLink]="['/paradas/crear']">
           <mat-icon>add_location</mat-icon>
           Nueva Parada

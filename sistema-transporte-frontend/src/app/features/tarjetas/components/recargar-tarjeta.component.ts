@@ -35,10 +35,6 @@ import { Router, RouterModule } from '@angular/router';
           Recargar Tarjeta
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/tarjetas']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="main-content">

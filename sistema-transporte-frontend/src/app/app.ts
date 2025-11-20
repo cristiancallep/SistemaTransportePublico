@@ -1,26 +1,18 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
-  template: `
-    <div class="app-container">
-      <router-outlet></router-outlet>
-    </div>
-  `,
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
   styles: [`
-    .app-container {
-      min-height: 100vh;
-      width: 100%;
-    }
-
     /* Global styles */
     :host {
       display: block;
       font-family: 'Roboto', sans-serif;
+      width: 100%;
+      height: 100%;
     }
 
     /* Snackbar styles */

@@ -22,10 +22,6 @@ import { RecargarTarjetaComponent } from './components/recargar-tarjeta.componen
           Gestión de Tarjetas
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" (click)="navigateTo('/dashboard')">
-          <mat-icon class="me-2">arrow_back</mat-icon>
-          Volver al menú
-        </button>
       </mat-toolbar>
 
       <div class="main-content">

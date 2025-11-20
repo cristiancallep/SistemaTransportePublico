@@ -5,9 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsuarioService } from '../../usuarios/services/usuario.service';
@@ -24,445 +21,560 @@ import { forkJoin } from 'rxjs';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatToolbarModule,
-    MatMenuModule,
-    MatGridListModule,
     MatDividerModule
   ],
   template: `
     <div class="dashboard-container">
-      <!-- Header -->
-      <mat-toolbar color="primary" class="dashboard-header">
-        <span class="title">
-          <mat-icon class="title-icon">directions_bus</mat-icon>
-          Sistema Transporte Público
-        </span>
-        <div class="spacer"></div>
-        <div class="user-info">
-          <span class="welcome-text">Bienvenido, {{ currentUser?.nombre || 'Usuario' }}</span>
-          <button mat-icon-button [matMenuTriggerFor]="userMenu">
-            <mat-icon>account_circle</mat-icon>
-          </button>
-          <mat-menu #userMenu="matMenu">
-            <button mat-menu-item (click)="viewProfile()">
-              <mat-icon>person</mat-icon>
-              <span>Mi Perfil</span>
-            </button>
-            <button mat-menu-item (click)="settings()">
-              <mat-icon>settings</mat-icon>
-              <span>Configuración</span>
-            </button>
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <div class="welcome-content">
+          <h1 class="welcome-title">¡Bienvenido, {{ currentUser?.nombre }}!</h1>
+          <p class="welcome-subtitle">Panel de control del Sistema de Transporte Público</p>
+        </div>
+        <div class="current-date">
+          <mat-icon>event</mat-icon>
+          <span>{{ currentDate | date:'fullDate':'':'es' }}</span>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-section">
+        <div class="stats-grid">
+          
+          <!-- Usuarios Card -->
+          <mat-card class="stat-card usuarios-card">
+            <mat-card-content class="stat-content">
+              <div class="stat-header">
+                <div class="stat-icon-wrapper usuarios-icon-bg">
+                  <mat-icon class="stat-icon">people</mat-icon>
+                </div>
+                <div class="stat-trend positive">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>+12%</span>
+                </div>
+              </div>
+              <div class="stat-info">
+                <h3 class="stat-number">{{ stats.usuarios | number }}</h3>
+                <p class="stat-label">Usuarios Registrados</p>
+                <small class="stat-description">Total en el sistema</small>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Tarjetas Card -->
+          <mat-card class="stat-card tarjetas-card">
+            <mat-card-content class="stat-content">
+              <div class="stat-header">
+                <div class="stat-icon-wrapper tarjetas-icon-bg">
+                  <mat-icon class="stat-icon">credit_card</mat-icon>
+                </div>
+                <div class="stat-trend positive">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>+8%</span>
+                </div>
+              </div>
+              <div class="stat-info">
+                <h3 class="stat-number">{{ stats.tarjetas | number }}</h3>
+                <p class="stat-label">Tarjetas Activas</p>
+                <small class="stat-description">En circulación</small>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Transportes Card -->
+          <mat-card class="stat-card transportes-card">
+            <mat-card-content class="stat-content">
+              <div class="stat-header">
+                <div class="stat-icon-wrapper transportes-icon-bg">
+                  <mat-icon class="stat-icon">directions_bus</mat-icon>
+                </div>
+                <div class="stat-trend positive">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>+5%</span>
+                </div>
+              </div>
+              <div class="stat-info">
+                <h3 class="stat-number">{{ stats.transportes | number }}</h3>
+                <p class="stat-label">Transportes</p>
+                <small class="stat-description">En operación</small>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Transacciones Card -->
+          <mat-card class="stat-card transacciones-card">
+            <mat-card-content class="stat-content">
+              <div class="stat-header">
+                <div class="stat-icon-wrapper transacciones-icon-bg">
+                  <mat-icon class="stat-icon">payments</mat-icon>
+                </div>
+                <div class="stat-trend positive">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>+24%</span>
+                </div>
+              </div>
+              <div class="stat-info">
+                <h3 class="stat-number">{{ stats.transaccionesHoy | number }}</h3>
+                <p class="stat-label">Transacciones Hoy</p>
+                <small class="stat-description">Últimas 24 horas</small>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="content-grid">
+        <!-- Quick Stats -->
+        <mat-card class="quick-stats-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="header-icon">analytics</mat-icon>
+            <mat-card-title>Estadísticas del Sistema</mat-card-title>
+            <mat-card-subtitle>Información general</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="quick-stat-item">
+              <div class="quick-stat-label">
+                <mat-icon>route</mat-icon>
+                <span>Rutas Registradas</span>
+              </div>
+              <div class="quick-stat-value">{{ stats.rutas }}</div>
+            </div>
             <mat-divider></mat-divider>
-            <button mat-menu-item (click)="logout()">
-              <mat-icon>exit_to_app</mat-icon>
-              <span>Cerrar Sesión</span>
-            </button>
-          </mat-menu>
-        </div>
-      </mat-toolbar>
+            <div class="quick-stat-item">
+              <div class="quick-stat-label">
+                <mat-icon>people_outline</mat-icon>
+                <span>Empleados Activos</span>
+              </div>
+              <div class="quick-stat-value">{{ stats.empleados }}</div>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="quick-stat-item">
+              <div class="quick-stat-label">
+                <mat-icon>location_on</mat-icon>
+                <span>Paradas Disponibles</span>
+              </div>
+              <div class="quick-stat-value">{{ stats.paradas }}</div>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="quick-stat-item">
+              <div class="quick-stat-label">
+                <mat-icon>local_shipping</mat-icon>
+                <span>Líneas Operativas</span>
+              </div>
+              <div class="quick-stat-value">{{ stats.lineas }}</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <!-- Stats Cards -->
-        <div class="stats-section">
-          <h2 class="section-title">Resumen General</h2>
-          <mat-grid-list cols="4" rowHeight="160px" gutterSize="16px" class="stats-grid">
-            
-            <!-- Usuarios Card -->
-            <mat-grid-tile>
-              <mat-card class="stat-card usuarios-card">
-                <mat-card-content class="stat-content">
-                  <div class="stat-icon">
-                    <mat-icon>people</mat-icon>
-                  </div>
-                  <div class="stat-info">
-                    <h3 class="stat-number">{{ stats.usuarios | number }}</h3>
-                    <p class="stat-label">Usuarios</p>
-                    <small class="stat-description">Total registrados</small>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Tarjetas Card -->
-            <mat-grid-tile>
-              <mat-card class="stat-card tarjetas-card">
-                <mat-card-content class="stat-content">
-                  <div class="stat-icon">
-                    <mat-icon>credit_card</mat-icon>
-                  </div>
-                  <div class="stat-info">
-                    <h3 class="stat-number">{{ stats.tarjetas | number }}</h3>
-                    <p class="stat-label">Tarjetas</p>
-                    <small class="stat-description">Activas en sistema</small>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Transportes Card -->
-            <mat-grid-tile>
-              <mat-card class="stat-card transportes-card">
-                <mat-card-content class="stat-content">
-                  <div class="stat-icon">
-                    <mat-icon>directions_bus</mat-icon>
-                  </div>
-                  <div class="stat-info">
-                    <h3 class="stat-number">{{ stats.transportes | number }}</h3>
-                    <p class="stat-label">Transportes</p>
-                    <small class="stat-description">En operación</small>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Transacciones Card -->
-            <mat-grid-tile>
-              <mat-card class="stat-card transacciones-card">
-                <mat-card-content class="stat-content">
-                  <div class="stat-icon">
-                    <mat-icon>payment</mat-icon>
-                  </div>
-                  <div class="stat-info">
-                    <h3 class="stat-number">{{ stats.transaccionesHoy | number }}</h3>
-                    <p class="stat-label">Transacciones</p>
-                    <small class="stat-description">Hoy</small>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </mat-grid-tile>
-
-          </mat-grid-list>
-        </div>
-
-        <!-- Modules Grid -->
-        <div class="modules-section">
-          <h2 class="section-title">Módulos del Sistema</h2>
-          <mat-grid-list cols="3" rowHeight="200px" gutterSize="16px" class="modules-grid">
-            
-            <!-- Gestión de Usuarios -->
-            <mat-grid-tile>
-              <mat-card class="module-card" (click)="navigateTo('/usuarios')">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="module-icon users-icon">people</mat-icon>
-                  <mat-card-title>Gestión de Usuarios</mat-card-title>
-                  <mat-card-subtitle>Administrar usuarios del sistema</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p>Crear, editar y gestionar usuarios. Control de roles y permisos.</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Acceder
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Gestión de Tarjetas -->
-            <mat-grid-tile>
-              <mat-card class="module-card" (click)="navigateTo('/tarjetas')">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="module-icon cards-icon">credit_card</mat-icon>
-                  <mat-card-title>Gestión de Tarjetas</mat-card-title>
-                  <mat-card-subtitle>Control de tarjetas de transporte</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p>Emisión, recarga y bloqueo de tarjetas. Historial de transacciones.</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Acceder
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Flota de Transportes -->
-            <mat-grid-tile>
-              <mat-card class="module-card" (click)="navigateTo('/transportes')">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="module-icon transport-icon">directions_bus</mat-icon>
-                  <mat-card-title>Flota de Transportes</mat-card-title>
-                  <mat-card-subtitle>Gestión de vehículos</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p>Control de la flota, mantenimientos y asignación de conductores.</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Acceder
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Empleados -->
-            <mat-grid-tile>
-              <mat-card class="module-card" (click)="navigateTo('/empleados')">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="module-icon employees-icon">business_center</mat-icon>
-                  <mat-card-title>Empleados</mat-card-title>
-                  <mat-card-subtitle>Administración de personal</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p>Gestión de conductores, supervisores y personal administrativo.</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Acceder
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Transacciones -->
-            <mat-grid-tile>
-              <mat-card class="module-card" (click)="navigateTo('/transacciones')">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="module-icon transactions-icon">receipt</mat-icon>
-                  <mat-card-title>Transacciones</mat-card-title>
-                  <mat-card-subtitle>Historial y reportes</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p>Consulta de transacciones, recargas y movimientos financieros.</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Acceder
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </mat-grid-tile>
-
-            <!-- Reportes -->
-            <mat-grid-tile>
-              <mat-card class="module-card" (click)="navigateTo('/reportes')">
-                <mat-card-header>
-                  <mat-icon mat-card-avatar class="module-icon reports-icon">assessment</mat-icon>
-                  <mat-card-title>Reportes</mat-card-title>
-                  <mat-card-subtitle>Estadísticas y análisis</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p>Reportes detallados, gráficos y análisis de datos del sistema.</p>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Acceder
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </mat-grid-tile>
-
-          </mat-grid-list>
-        </div>
-      </main>
+          <!-- System Status -->
+        <mat-card class="system-status-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="header-icon">info</mat-icon>
+            <mat-card-title>Estado del Sistema</mat-card-title>
+            <mat-card-subtitle>Monitoreo en tiempo real</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="status-list">
+              <div class="status-item">
+                <mat-icon [class]="'status-icon ' + (systemHealth.api?.status === 'operational' ? 'success' : systemHealth.api?.status === 'warning' ? 'warning' : 'error')">
+                  {{ systemHealth.api?.status === 'operational' ? 'check_circle' : systemHealth.api?.status === 'warning' ? 'warning' : 'error' }}
+                </mat-icon>
+                <div class="status-details">
+                  <p class="status-label">Servidor API</p>
+                  <p [class]="'status-value ' + (systemHealth.api?.status === 'operational' ? 'success' : systemHealth.api?.status === 'warning' ? 'warning' : 'error')">
+                    {{ systemHealth.api?.message || 'Verificando...' }}
+                  </p>
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+              <div class="status-item">
+                <mat-icon [class]="'status-icon ' + (systemHealth.database?.status === 'operational' ? 'success' : systemHealth.database?.status === 'warning' ? 'warning' : 'error')">
+                  {{ systemHealth.database?.status === 'operational' ? 'check_circle' : systemHealth.database?.status === 'warning' ? 'warning' : 'error' }}
+                </mat-icon>
+                <div class="status-details">
+                  <p class="status-label">Base de Datos</p>
+                  <p [class]="'status-value ' + (systemHealth.database?.status === 'operational' ? 'success' : systemHealth.database?.status === 'warning' ? 'warning' : 'error')">
+                    {{ systemHealth.database?.message || 'Verificando...' }}
+                  </p>
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+              <div class="status-item">
+                <mat-icon [class]="'status-icon ' + (systemHealth.services?.status === 'operational' ? 'success' : systemHealth.services?.status === 'warning' ? 'warning' : 'error')">
+                  {{ systemHealth.services?.status === 'operational' ? 'check_circle' : systemHealth.services?.status === 'warning' ? 'warning' : 'error' }}
+                </mat-icon>
+                <div class="status-details">
+                  <p class="status-label">Servicios</p>
+                  <p [class]="'status-value ' + (systemHealth.services?.status === 'operational' ? 'success' : systemHealth.services?.status === 'warning' ? 'warning' : 'error')">
+                    {{ systemHealth.services?.message || 'Verificando...' }}
+                  </p>
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+              <div class="status-item">
+                <mat-icon [class]="'status-icon ' + (systemHealth.system?.status === 'operational' ? 'success' : systemHealth.system?.status === 'warning' ? 'warning' : 'error')">
+                  {{ systemHealth.system?.status === 'operational' ? 'check_circle' : systemHealth.system?.status === 'warning' ? 'warning' : 'error' }}
+                </mat-icon>
+                <div class="status-details">
+                  <p class="status-label">Sistema</p>
+                  <p [class]="'status-value ' + (systemHealth.system?.status === 'operational' ? 'success' : systemHealth.system?.status === 'warning' ? 'warning' : 'error')">
+                    {{ systemHealth.system?.message || 'Verificando...' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
     </div>
   `,
   styles: [`
     .dashboard-container {
-      min-height: 100vh;
-      background-color: #f5f5f5;
+      padding: 24px;
+      background-color: #f5f7fa;
+      min-height: calc(100vh - 64px);
     }
 
-    .dashboard-header {
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .title {
+    /* Welcome Section */
+    .welcome-section {
+      background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      color: white;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      font-size: 1.2rem;
-      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(30, 136, 229, 0.3);
     }
 
-    .title-icon {
-      margin-right: 8px;
-    }
-
-    .spacer {
+    .welcome-content {
       flex: 1;
     }
 
-    .user-info {
+    .welcome-title {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-subtitle {
+      margin: 8px 0 0;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .current-date {
       display: flex;
       align-items: center;
       gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
     }
 
-    .welcome-text {
-      font-size: 0.9rem;
+    .current-date mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
-    .main-content {
-      padding: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .section-title {
-      margin: 0 0 16px 0;
-      color: #333;
-      font-weight: 500;
-    }
-
+    /* Stats Section */
     .stats-section {
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .stats-grid {
-      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
     }
 
     .stat-card {
-      height: 100%;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: default;
+      transition: all 0.3s ease;
+      border-radius: 16px;
+      border: none;
+      overflow: hidden;
     }
 
     .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     .stat-content {
+      padding: 24px !important;
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .stat-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
-      height: 100%;
-      padding: 16px;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon-wrapper {
+      transform: scale(1.1);
     }
 
     .stat-icon {
-      margin-right: 16px;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: white;
     }
 
-    .stat-icon mat-icon {
-      font-size: 2.5rem;
-      width: 2.5rem;
-      height: 2.5rem;
+    .usuarios-icon-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
-    .usuarios-card .stat-icon mat-icon { color: #4CAF50; }
-    .tarjetas-card .stat-icon mat-icon { color: #2196F3; }
-    .transportes-card .stat-icon mat-icon { color: #FF9800; }
-    .transacciones-card .stat-icon mat-icon { color: #9C27B0; }
+    .tarjetas-icon-bg {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .transportes-icon-bg {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .transacciones-icon-bg {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stat-trend.positive {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .stat-trend mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
 
     .stat-info {
-      flex: 1;
+      text-align: left;
     }
 
     .stat-number {
-      font-size: 2rem;
-      font-weight: bold;
-      margin: 0;
-      color: #333;
+      font-size: 36px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: #1a1a1a;
+      line-height: 1;
     }
 
     .stat-label {
-      font-size: 1rem;
-      font-weight: 500;
-      margin: 4px 0;
-      color: #666;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: #555;
     }
 
     .stat-description {
+      font-size: 13px;
       color: #999;
-      font-size: 0.8rem;
     }
 
-    .modules-section {
-      margin-top: 32px;
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
     }
 
-    .modules-grid {
-      gap: 16px;
+    /* Quick Stats Card */
+    .quick-stats-card {
+      border-radius: 16px;
+      border: none;
     }
 
-    .module-card {
-      height: 100%;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .quick-stats-card mat-card-header {
+      padding: 24px 24px 0;
+    }
+
+    .quick-stat-item {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
     }
 
-    .module-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    .quick-stat-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #555;
+      font-weight: 500;
     }
 
-    .module-icon {
-      font-size: 2rem !important;
-      width: 2rem !important;
-      height: 2rem !important;
+    .quick-stat-label mat-icon {
+      color: #1E88E5;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
     }
 
-    .users-icon { background-color: #4CAF50 !important; color: white !important; }
-    .cards-icon { background-color: #2196F3 !important; color: white !important; }
-    .transport-icon { background-color: #FF9800 !important; color: white !important; }
-    .employees-icon { background-color: #607D8B !important; color: white !important; }
-    .transactions-icon { background-color: #9C27B0 !important; color: white !important; }
-    .reports-icon { background-color: #795548 !important; color: white !important; }
-
-    mat-card-content {
-      flex: 1;
-      padding: 8px 16px !important;
+    .quick-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
     }
 
-    mat-card-content p {
-      color: #666;
-      font-size: 0.9rem;
-      line-height: 1.4;
+    mat-divider {
       margin: 0;
     }
 
-    mat-card-actions {
-      padding: 8px 16px !important;
-      margin: 0 !important;
+    /* System Status Card */
+    .system-status-card {
+      border-radius: 16px;
+      border: none;
     }
 
-    @media (max-width: 1024px) {
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-      }
-      
-      .modules-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-      }
+    .system-status-card mat-card-header {
+      padding: 24px 24px 0;
     }
 
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0;
+    }
+
+    .status-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .status-icon.success {
+      color: #2e7d32;
+    }
+
+    .status-icon.warning {
+      color: #f57c00;
+    }
+
+    .status-icon.error {
+      color: #d32f2f;
+    }
+
+    .status-details {
+      flex: 1;
+    }
+
+    .status-label {
+      margin: 0;
+      font-size: 15px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .status-value {
+      margin: 4px 0 0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .status-value.success {
+      color: #2e7d32;
+    }
+
+    .status-value.warning {
+      color: #f57c00;
+    }
+
+    .status-value.error {
+      color: #d32f2f;
+    }
+
+    .header-icon {
+      background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+      color: white !important;
+      border-radius: 12px;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .main-content {
+      .dashboard-container {
         padding: 16px;
       }
-      
-      .stats-grid {
-        grid-template-columns: 1fr !important;
-      }
-      
-      .modules-grid {
-        grid-template-columns: 1fr !important;
+
+      .welcome-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
       }
 
-      .welcome-text {
-        display: none;
+      .welcome-title {
+        font-size: 24px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-grid {
+        grid-template-columns: 1fr;
       }
     }
   `]
-})
-export class DashboardComponent implements OnInit {
+  })
+  export class DashboardComponent implements OnInit {
   currentUser: Usuario | null = null;
+  currentDate = new Date();
   stats = {
     usuarios: 0,
     tarjetas: 0,
     transportes: 0,
-    transaccionesHoy: 0
+    transaccionesHoy: 0,
+    rutas: 0,
+    empleados: 0,
+    paradas: 0,
+    lineas: 0
+  };
+
+  systemHealth = {
+    api: { status: 'operational', message: 'Verificando...' },
+    database: { status: 'operational', message: 'Verificando...' },
+    services: { status: 'operational', message: 'Verificando...' },
+    system: { status: 'operational', message: 'Verificando...' }
   };
 
   isLoading = true;
@@ -479,6 +591,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loadDashboardData();
+    this.checkSystemHealth();
   }
 
   private loadDashboardData(): void {
@@ -489,7 +602,11 @@ export class DashboardComponent implements OnInit {
           usuarios: data.usuarios?.total || 0,
           tarjetas: data.tarjetas?.total || 0,
           transportes: data.transportes?.total || 0,
-          transaccionesHoy: data.tarjetas?.transaccionesHoy || 0
+          transaccionesHoy: data.tarjetas?.transaccionesHoy || 0,
+          rutas: data.rutas?.total || 0,
+          empleados: data.empleados?.total || 0,
+          paradas: data.paradas?.total || 0,
+          lineas: data.lineas?.total || 0
         };
         this.isLoading = false;
         console.log('Datos del dashboard cargados:', this.stats);
@@ -501,27 +618,43 @@ export class DashboardComponent implements OnInit {
           usuarios: 0,
           tarjetas: 0,
           transportes: 0,
-          transaccionesHoy: 0
+          transaccionesHoy: 0,
+          rutas: 0,
+          empleados: 0,
+          paradas: 0,
+          lineas: 0
         };
         this.isLoading = false;
       }
     });
   }
 
+  private checkSystemHealth(): void {
+    // Verificar el estado del sistema en tiempo real
+    this.http.get<any>('http://127.0.0.1:8000/api/dashboard/health').subscribe({
+      next: (data: any) => {
+        this.systemHealth = {
+          api: data.api || { status: 'operational', message: 'API funcionando' },
+          database: data.database || { status: 'operational', message: 'Base de datos conectada' },
+          services: data.services || { status: 'operational', message: 'Servicios activos' },
+          system: data.system || { status: 'operational', message: 'Sistema funcionando' }
+        };
+        console.log('Estado del sistema:', this.systemHealth);
+      },
+      error: (error: any) => {
+        console.error('Error verificando estado del sistema:', error);
+        // Si no puede conectarse a la API, marcar todo como error
+        this.systemHealth = {
+          api: { status: 'error', message: 'No se puede conectar' },
+          database: { status: 'error', message: 'Sin conexión' },
+          services: { status: 'error', message: 'No disponibles' },
+          system: { status: 'error', message: 'Sistema caído' }
+        };
+      }
+    });
+  }
+
   navigateTo(route: string): void {
     this.router.navigate([route]);
-  }
-
-  viewProfile(): void {
-    this.router.navigate(['/profile']);
-  }
-
-  settings(): void {
-    this.router.navigate(['/settings']);
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
   }
 }

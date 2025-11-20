@@ -32,10 +32,6 @@ import { ParadaService } from './services/parada.service';
           {{ isEdit ? 'Editar Parada' : 'Nueva Parada' }}
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/paradas']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="main-content">

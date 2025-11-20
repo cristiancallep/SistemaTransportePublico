@@ -45,7 +45,7 @@ import { RouterModule, Router } from '@angular/router';
     <div class="container">
       <div class="header">
         <h2 class="title">Configuración / Editar Perfil</h2>
-        <button class="btn btn-custom outline go-back" type="button" (click)="goToMenu()">Volver al menú</button>
+
       </div>
 
       <div class="form-card">

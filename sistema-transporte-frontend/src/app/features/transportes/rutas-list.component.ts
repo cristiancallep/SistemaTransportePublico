@@ -34,10 +34,6 @@ import { RutaService } from './services/ruta.service';
           Rutas
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
         <button mat-raised-button color="accent" class="btn-volver" [routerLink]="['/transportes/rutas/crear']">
           <mat-icon>add</mat-icon>
           Nueva Ruta

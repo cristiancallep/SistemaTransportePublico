@@ -35,10 +35,6 @@ import { Tarjeta } from '../../../shared/models';
           Lista de Tarjetas
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/tarjetas']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver al menú
-        </button>
       </mat-toolbar>
 
       <div class="main-content">
