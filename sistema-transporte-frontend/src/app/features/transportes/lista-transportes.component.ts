@@ -221,7 +221,6 @@ export class ListaTransportesComponent implements OnInit {
       lineas: this.lineaService.getLineas()
     }).subscribe({
       next: ({ transportes, lineas }) => {
-        // Construir mapa id_linea -> nombre
         const listaLineas = Array.isArray(lineas) ? lineas : (lineas as any)?.data || [];
         this.lineaMap = {};
         for (const ln of listaLineas) {

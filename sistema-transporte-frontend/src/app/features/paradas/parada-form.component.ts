@@ -111,7 +111,7 @@ export class ParadaFormComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       direccion: ['', [Validators.required, Validators.minLength(10)]],
       coordenadas: [''],
-      estado: [''], // solo edición
+      estado: [''], 
     });
 
     this.id = this.route.snapshot.paramMap.get('id');

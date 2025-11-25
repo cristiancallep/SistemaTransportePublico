@@ -2,14 +2,12 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  // Ruta por defecto - redirigir a usuarios
   {
     path: '',
     redirectTo: '/usuarios',
     pathMatch: 'full'
   },
 
-  // Rutas de autenticación (públicas - sin layout)
   {
     path: 'auth',
     children: [
@@ -26,21 +24,18 @@ export const routes: Routes = [
     ]
   },
 
-  // Rutas con layout (todas las rutas protegidas)
   {
     path: '',
     canActivate: [AuthGuard],
     loadComponent: () => import('./shared/components/layout/layout.component')
       .then(m => m.LayoutComponent),
     children: [
-      // Dashboard
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/components/dashboard.component')
           .then(m => m.DashboardComponent)
       },
 
-      // Módulo de Usuarios
       {
         path: 'usuarios',
         data: { 
@@ -51,7 +46,6 @@ export const routes: Routes = [
           .then(m => m.usuarioRoutes)
       },
 
-      // Módulo de Tarjetas
       {
         path: 'tarjetas',
         data: { 
@@ -62,7 +56,6 @@ export const routes: Routes = [
           .then(m => m.tarjetaRoutes)
       },
 
-      // Módulo de Transportes
       {
         path: 'transportes',
         data: { 
@@ -73,7 +66,6 @@ export const routes: Routes = [
           .then(m => m.transporteRoutes)
       },
 
-      // Módulo de Paradas
       {
         path: 'paradas',
         data: {
@@ -84,7 +76,6 @@ export const routes: Routes = [
           .then(m => m.paradaRoutes)
       },
 
-      // Módulo de Empleados
       {
         path: 'empleados',
         data: { 
@@ -95,7 +86,6 @@ export const routes: Routes = [
           .then(m => m.empleadoRoutes)
       },
 
-      // Módulo de Transacciones
       {
         path: 'transacciones',
         data: { 
@@ -106,7 +96,6 @@ export const routes: Routes = [
           .then(m => m.transaccionRoutes)
       },
 
-      // Módulo de Reportes
       {
         path: 'reportes',
         data: { 
@@ -117,14 +106,12 @@ export const routes: Routes = [
           .then(m => m.reporteRoutes)
       },
 
-      // Perfil de usuario
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/components/profile.component')
           .then(m => m.ProfileComponent)
       },
 
-      // Configuración
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/components/settings.component')
@@ -133,21 +120,18 @@ export const routes: Routes = [
     ]
   },
 
-  // Página de no autorizado (sin layout)
   {
     path: 'unauthorized',
     loadComponent: () => import('./shared/components/unauthorized/unauthorized.component')
       .then(m => m.UnauthorizedComponent)
   },
 
-  // Página de error 404 (sin layout)
   {
     path: '404',
     loadComponent: () => import('./shared/components/not-found/not-found.component')
       .then(m => m.NotFoundComponent)
   },
 
-  // Wildcard - debe estar al final
   {
     path: '**',
     redirectTo: '/404'

@@ -470,7 +470,7 @@ export class LayoutComponent implements OnInit {
       label: 'Inicio',
       icon: 'home',
       route: '/dashboard',
-      permission: undefined // Accesible para todos
+      permission: undefined
     },
     {
       label: 'Usuarios',
@@ -523,27 +523,22 @@ export class LayoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Obtener usuario actual
     this.currentUser = this.authService.getCurrentUser();
 
-    // Filtrar menú según permisos
     this.filterMenuByPermissions();
 
-    // Detectar cambios en el tamaño de pantalla
     this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.Tablet])
       .subscribe(result => {
         this.isMobile = result.matches;
       });
 
-    // Actualizar título de página según la ruta
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updatePageTitle();
       });
 
-    // Título inicial
     this.updatePageTitle();
   }
 
@@ -555,10 +550,9 @@ export class LayoutComponent implements OnInit {
     const userPermissions = this.currentUser.rol.permisos as any[];
     this.menuItems = this.menuItems.filter(item => {
       if (!item.permission) {
-        return true; // Mostrar items sin permisos requeridos
+        return true;
       }
       return userPermissions.some(p => {
-        // Manejar el caso donde permisos puede ser string o objeto
         const permissionName = typeof p === 'string' ? p : p.nombre;
         return permissionName === item.permission;
       });
@@ -583,7 +577,6 @@ export class LayoutComponent implements OnInit {
   }
 
   onMenuItemClick(): void {
-    // Cerrar sidebar en móvil después de hacer clic
     if (this.isMobile && this.sidenav) {
       this.sidenav.close();
     }

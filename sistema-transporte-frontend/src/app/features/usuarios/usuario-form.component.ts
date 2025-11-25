@@ -98,7 +98,6 @@ constructor(
         contrasena: ['']
     });
 
-    // When editing, prevent changing the documento: disable the control so the user cannot modify it
     if (this.isEdit) {
         this.form.get('documento')?.disable();
     }
@@ -118,7 +117,6 @@ save() {
 
     if (this.isEdit && this.data && this.data.usuario) {
         const id = this.data.usuario.id_usuario || this.data.usuario.id;
-        // If documento control is disabled it will be omitted from form.value; use original documento in that case
         const documentoVal = this.data.usuario?.documento ?? val.documento;
         const payload: any = {
             nombre: val.nombre,

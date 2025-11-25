@@ -138,7 +138,6 @@ export class RutasListComponent implements OnInit {
     this.rutaService.getRutas().subscribe({
       next: (res: any) => {
         const list = Array.isArray(res) ? res : (res?.data || []);
-        // Normalizar nombres de propiedades posibles
         this.rutas = list.map((r: any) => ({
           id_ruta: r.id_ruta || r.id || r.idRuta,
           id_linea: r.id_linea || r.idLinea,
@@ -159,9 +158,8 @@ export class RutasListComponent implements OnInit {
 
   iniciarEdicion(r: any) {
     this.editing = { ...r };
-    // Implementación simple: prompt por ahora. Podemos migrar a un dialog / form inline.
     const nuevoNombre = prompt('Nuevo nombre de la ruta', this.editing.nombre);
-    if (nuevoNombre === null) return; // cancelado
+    if (nuevoNombre === null) return; 
     this.editing.nombre = nuevoNombre.trim();
     const nuevoOrigen = prompt('Nuevo origen', this.editing.origen);
     if (nuevoOrigen === null) return;

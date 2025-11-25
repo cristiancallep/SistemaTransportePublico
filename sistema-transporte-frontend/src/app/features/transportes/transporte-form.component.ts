@@ -187,7 +187,6 @@ export class TransporteFormComponent implements OnInit {
     };
 
     if (this.isEdit && this.id) {
-      // En update, estado es opcional
       const update: any = { ...payload };
       if (this.form.value.estado) update.estado = this.form.value.estado;
 

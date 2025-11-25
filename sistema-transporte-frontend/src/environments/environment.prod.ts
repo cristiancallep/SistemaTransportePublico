@@ -1,12 +1,10 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.transporte-publico.com', // URL de producción
+  apiUrl: 'https://api.transporte-publico.com',
   
-  // Configuración de la aplicación
   appName: 'Sistema Transporte Público',
   version: '1.0.0',
   
-  // URLs de endpoints específicos
   endpoints: {
     auth: {
       login: 'api/auth/login',
@@ -25,43 +23,37 @@ export const environment = {
     dashboard: 'api/dashboard'
   },
 
-  // Configuración de autenticación
   auth: {
     tokenKey: 'auth_token',
     refreshTokenKey: 'refresh_token',
     userKey: 'current_user',
-    tokenExpiryBuffer: 5 * 60 * 1000 // 5 minutos en ms
+    tokenExpiryBuffer: 5 * 60 * 1000 
   },
 
-  // Configuración de paginación
   pagination: {
     defaultPageSize: 10,
     pageSizeOptions: [5, 10, 25, 50, 100]
   },
 
-  // Configuración de la interfaz
   ui: {
     sidebarCollapsed: false,
     theme: 'light',
     language: 'es'
   },
 
-  // Configuración de archivos
   files: {
-    maxSizeBytes: 5 * 1024 * 1024, // 5MB
+    maxSizeBytes: 5 * 1024 * 1024,
     allowedTypes: ['image/jpeg', 'image/png', 'application/pdf', 'text/csv']
   },
 
-  // Configuración adicional para producción
   logging: {
     level: 'error',
     enableConsole: false,
     enableRemote: true
   },
 
-  // Analytics (si se necesita)
   analytics: {
     enabled: true,
-    trackingId: 'GA_TRACKING_ID' // Reemplazar con ID real
+    trackingId: 'GA_TRACKING_ID'
   }
 };

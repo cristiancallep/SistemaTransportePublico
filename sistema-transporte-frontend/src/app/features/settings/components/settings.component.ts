@@ -117,7 +117,6 @@ export class SettingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Inicializar formulario aquí (fb ya inyectado)
     this.profileForm = this.fb.group({
       nombre: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
@@ -135,7 +134,6 @@ export class SettingsComponent implements OnInit {
         email: user.email || ''
       });
     } else {
-      // si no está en memoria, intentar obtener desde el observable
       this.authService.currentUser$.subscribe(u => {
         if (u) {
           this.profileForm.patchValue({
@@ -156,7 +154,6 @@ export class SettingsComponent implements OnInit {
   this.authService.updateProfile(payload as any).subscribe({
       next: (user) => {
         this.isLoading = false;
-        // Ya actualizamos el currentUser en el servicio; mostrar confirmación y actualizar el formulario
         this.updateSuccess = true;
         try {
           this.profileForm.patchValue({
@@ -183,7 +180,6 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
-    // Obtener email del usuario actualmente en sesión o del formulario de perfil
     const current = this.authService.getCurrentUser();
     const email = (current as any)?.email || this.profileForm.value.email;
     if (!email) {

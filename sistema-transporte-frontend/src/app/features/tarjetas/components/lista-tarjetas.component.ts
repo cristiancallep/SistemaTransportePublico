@@ -320,7 +320,6 @@ export class ListaTarjetasComponent implements OnInit {
     this.tarjetaService.getTarjetas().subscribe({
       next: (response: any) => {
         console.log('Tarjetas recibidas:', response);
-        // Mapear los campos si es necesario
         this.allTarjetas = (response?.data || response || []).map((t: any) => ({
           id: t.id || t.id_tarjeta || null,
           numero: t.numero || t.numero_tarjeta || null,
@@ -342,7 +341,6 @@ export class ListaTarjetasComponent implements OnInit {
   }
 
   onFilterChange(key: string, value: any) {
-    // Normalizar valores
     if (value === null || value === undefined || value === '') {
       this.filters[key] = null;
     } else if (key === 'saldoMin' || key === 'saldoMax') {
@@ -360,14 +358,10 @@ export class ListaTarjetasComponent implements OnInit {
   applyFilters() {
     const f = this.filters;
     this.tarjetas = this.allTarjetas.filter((t: any) => {
-      // numero filter (substring)
       if (f.numero && !(String(t.numero) || '').toLowerCase().includes(f.numero)) return false;
-      // estado filter
       if (f.estado && !(String(t.estado) || '').toLowerCase().includes(f.estado)) return false;
-      // saldo range
       if (f.saldoMin != null && (t.saldo == null || t.saldo < f.saldoMin)) return false;
       if (f.saldoMax != null && (t.saldo == null || t.saldo > f.saldoMax)) return false;
-      // fecha ultima recarga range
       if (f.fechaFrom && t.fechaUltimaRecarga) {
         const tf = new Date(t.fechaUltimaRecarga);
         if (tf < f.fechaFrom) return false;
@@ -384,16 +378,13 @@ export class ListaTarjetasComponent implements OnInit {
   }
 
   clearFilters() {
-    // Limpiar todos los filtros
     Object.keys(this.filters).forEach(k => this.filters[k] = null);
     
-    // Limpiar los inputs del DOM
     const inputs = document.querySelectorAll('.filters-panel input');
     inputs.forEach((input: any) => {
       input.value = '';
     });
     
-    // Reaplicar filtros (mostrará todos los registros)
     this.applyFilters();
   }
 
@@ -409,7 +400,6 @@ export class ListaTarjetasComponent implements OnInit {
           horizontalPosition: 'end',
           verticalPosition: 'top'
         });
-        // Recargar la lista de tarjetas
         this.cargarTarjetas();
       },
       error: (error: any) => {

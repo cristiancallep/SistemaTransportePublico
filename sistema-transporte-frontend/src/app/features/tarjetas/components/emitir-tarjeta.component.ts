@@ -164,10 +164,7 @@ export class EmitirTarjetaComponent {
       try {
         const documento = this.tarjetaForm.value.documento;
         
-        // El documento será validado en el backend
         console.log('Procesando solicitud para documento:', documento);
-
-        // Crear la tarjeta con los valores por defecto
         console.log('Creando tarjeta con:', {
           documento: documento,
           tipo_tarjeta: 'Frecuentes',

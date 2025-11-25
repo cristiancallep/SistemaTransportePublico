@@ -257,7 +257,7 @@ export class UsuariosListComponent implements OnInit {
             let list: any[] = [];
             if (Array.isArray(resp)) list = resp;
             else if (resp && resp.data) list = resp.data;
-            else if (resp) list = resp; // fallback
+            else if (resp) list = resp;
 
             this.dataSource.data = list;
             this.total = list.length;
@@ -282,7 +282,6 @@ export class UsuariosListComponent implements OnInit {
     }
 
     eliminar(usuario: any): void {
-        // Evitar eliminar al usuario actualmente autenticado como capa de seguridad extra
         if (this.isCurrentUser(usuario)) {
             this.snackBar.open('No se puede eliminar el usuario en sesión', 'Cerrar', { duration: 3000 });
             return;
@@ -330,7 +329,6 @@ export class UsuariosListComponent implements OnInit {
     }
 
     clearFilters(): void {
-        // Reset native inputs
         try {
             if (this.roleSelect && this.roleSelect.nativeElement) this.roleSelect.nativeElement.value = '';
         } catch {}

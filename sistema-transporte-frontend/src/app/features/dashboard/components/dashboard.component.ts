@@ -595,7 +595,6 @@ import { forkJoin } from 'rxjs';
   }
 
   private loadDashboardData(): void {
-    // Usar el nuevo endpoint de estadísticas del dashboard
     this.http.get<any>('http://127.0.0.1:8000/api/dashboard/estadisticas').subscribe({
       next: (data: any) => {
         this.stats = {
@@ -613,7 +612,6 @@ import { forkJoin } from 'rxjs';
       },
       error: (error: any) => {
         console.error('Error loading dashboard data:', error);
-        // Usar datos de ejemplo en caso de error
         this.stats = {
           usuarios: 0,
           tarjetas: 0,
@@ -630,7 +628,6 @@ import { forkJoin } from 'rxjs';
   }
 
   private checkSystemHealth(): void {
-    // Verificar el estado del sistema en tiempo real
     this.http.get<any>('http://127.0.0.1:8000/api/dashboard/health').subscribe({
       next: (data: any) => {
         this.systemHealth = {
@@ -643,7 +640,6 @@ import { forkJoin } from 'rxjs';
       },
       error: (error: any) => {
         console.error('Error verificando estado del sistema:', error);
-        // Si no puede conectarse a la API, marcar todo como error
         this.systemHealth = {
           api: { status: 'error', message: 'No se puede conectar' },
           database: { status: 'error', message: 'Sin conexión' },

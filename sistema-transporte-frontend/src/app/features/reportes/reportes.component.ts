@@ -204,7 +204,6 @@ export class ReportesComponent implements OnInit {
     constructor(private api: ApiService, private snackBar: MatSnackBar, private router: Router) {
     const apiUrl = environment.apiUrl?.replace(/\/$/, '');
 
-    // Define the tables we want to fetch. These keys map to API endpoints.
     this.tables = [
     { key: 'usuarios', title: 'Usuarios', endpoint: environment.endpoints.usuarios || 'api/usuarios', data: [], columns: [], loading: false },
     { key: 'empleados', title: 'Empleados', endpoint: environment.endpoints.empleados || 'api/empleados', data: [], columns: [], loading: false },
@@ -223,10 +222,8 @@ export class ReportesComponent implements OnInit {
     }
 
     private loadStats() {
-        // prepare observables for each table to fetch a lightweight count
         const calls: any = {};
         for (const t of this.tables) {
-            // try to GET the endpoint and count results; errors -> 'N/A'
             calls[t.key] = this.api.get<any>(t.endpoint).pipe(
                 catchError((err: any) => of({ __error: true }))
             );
@@ -238,7 +235,6 @@ export class ReportesComponent implements OnInit {
                 if (!res) return { key: t.key, title: t.title, count: 'N/A' };
                 if (Array.isArray(res)) return { key: t.key, title: t.title, count: res.length };
                 if (res && res.data && Array.isArray(res.data)) return { key: t.key, title: t.title, count: res.data.length };
-                // single object or error
                 if (res && res.__error) return { key: t.key, title: t.title, count: 'N/A' };
                 return { key: t.key, title: t.title, count: 1 };
             });
@@ -261,20 +257,16 @@ export class ReportesComponent implements OnInit {
     public fetchTable(table: any, params?: any) {
         table.loading = true;
         table.error = undefined;
-        // call ApiService.get with endpoint (ApiService will prepend base url)
             this.api.get<any>(table.endpoint, params).subscribe({
         next: (resp: any) => {
-            // Normalize response into an array so the template can iterate safely.
             let data: any[] = [];
             if (Array.isArray(resp)) {
             data = resp;
             } else if (resp && resp.data && Array.isArray(resp.data)) {
             data = resp.data;
             } else if (resp && typeof resp === 'object') {
-            // Single-object responses (e.g. { saldo: 123 }) -> wrap into an array
             data = [resp];
             } else if (resp !== undefined && resp !== null) {
-            // Primitive responses -> wrap
             data = [resp];
             }
 
@@ -284,7 +276,6 @@ export class ReportesComponent implements OnInit {
         },
         error: (err: any) => {
             table.loading = false;
-            // Provide a clearer message depending on status if available
             const status = err?.status || (err?.error && err.error.status) || null;
             if (status === 404) {
             table.error = 'No existe un endpoint de listado (GET) para esta entidad en el backend (404).';
@@ -308,16 +299,13 @@ export class ReportesComponent implements OnInit {
     private inferColumns(data: any[]): string[] {
         if (!data || data.length === 0) return ['-'];
         const keys = Object.keys(data[0]);
-        // limit columns to a reasonable number
         return keys.slice(0, 8);
     }
 
     formatCell(value: any): string {
         if (value === null || value === undefined) return '';
-        // Dates (ISO strings) -> show only YYYY-MM-DD (first 10 chars)
         if (value instanceof Date) return value.toISOString().slice(0, 10);
         if (typeof value === 'string') {
-            // Match ISO date prefix
             const m = value.match(/^(\d{4}-\d{2}-\d{2})/);
             if (m) return m[1];
         }
