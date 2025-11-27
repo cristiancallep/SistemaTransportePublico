@@ -7,21 +7,20 @@ export interface UsuarioUpdate {
 }
 import { Rol } from './rol.model';
 
-// Interfaces adapted to the backend (Entities/usuario.py)
 export interface Usuario {
-  id_usuario: string; // UUID string
+  id_usuario: string;
   id_rol: number;
   nombre: string;
   apellido: string;
   documento: string;
   email: string;
-  fecha_registro: string; // ISO date string
-  fecha_actualizar: string; // ISO date string
+  fecha_registro: string;
+  fecha_actualizar: string;
   rol?: Rol;
 }
 
 export interface UsuarioCreate {
-  id_rol?: number; // optional, backend defaults to 2
+  id_rol?: number;
   nombre: string;
   apellido: string;
   documento: string;
@@ -30,7 +29,7 @@ export interface UsuarioCreate {
 }
 
 export interface UsuarioCreate {
-  id_rol?: number; // optional, backend defaults to 2
+  id_rol?: number;
   nombre: string;
   apellido: string;
   documento: string;

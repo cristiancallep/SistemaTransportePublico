@@ -16,11 +16,8 @@ import os
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-# Seguridad para extraer el usuario desde el token
-# Allow missing Authorization header (auto_error=False) so endpoints can opt-in
 security = HTTPBearer(auto_error=False)
 
-# Valores por defecto compatibles con los utilizados en el router de auth
 SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_super_segura_cambiar_en_produccion")
 ALGORITHM = "HS256"
 
@@ -33,7 +30,6 @@ def get_current_user(
 
     Retorna un dict con keys `user_id` y `email`.
     """
-    # If no credentials provided, return None (caller may allow anonymous access)
     if not credentials:
         return None
 
@@ -78,11 +74,3 @@ def get_pagination_params(skip: int = 0, limit: int = 100):
     """
     return {"skip": skip, "limit": limit}
 
-
-# TODO: Implementar autenticación JWT si es necesario
-# from jose import JWTError, jwt
-# from passlib.context import CryptContext
-#
-# def get_current_user():
-#     """Dependencia para obtener el usuario actual autenticado."""
-#     pass

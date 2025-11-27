@@ -36,10 +36,6 @@ import { forkJoin } from 'rxjs';
           Gestión de Transportes
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/']">
-          <mat-icon>home</mat-icon>
-          Inicio
-        </button>
         <button mat-raised-button color="accent" class="btn-volver" [routerLink]="['/transportes/crear']">
           <mat-icon>add</mat-icon>
           Nuevo Transporte
@@ -225,7 +221,6 @@ export class ListaTransportesComponent implements OnInit {
       lineas: this.lineaService.getLineas()
     }).subscribe({
       next: ({ transportes, lineas }) => {
-        // Construir mapa id_linea -> nombre
         const listaLineas = Array.isArray(lineas) ? lineas : (lineas as any)?.data || [];
         this.lineaMap = {};
         for (const ln of listaLineas) {

@@ -7,7 +7,7 @@ Endpoints para obtener estadísticas y datos del dashboard.
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from datetime import datetime, date
 
 from api.dependencies import get_db
@@ -15,6 +15,10 @@ from Entities.usuario import Usuario
 from Entities.tarjeta import Tarjeta
 from Entities.transporte import Transporte
 from Entities.transaccion import Transaccion
+from Entities.empleado import Empleado
+from Entities.ruta import Ruta
+from Entities.parada import Parada
+from Entities.linea import Linea
 
 router = APIRouter()
 
@@ -52,6 +56,18 @@ async def obtener_estadisticas(db: Session = Depends(get_db)):
             or 0
         )
 
+        # Contar empleados totales
+        total_empleados = db.query(func.count(Empleado.id_empleado)).scalar() or 0
+
+        # Contar rutas totales
+        total_rutas = db.query(func.count(Ruta.id_ruta)).scalar() or 0
+
+        # Contar paradas totales
+        total_paradas = db.query(func.count(Parada.id_parada)).scalar() or 0
+
+        # Contar líneas totales
+        total_lineas = db.query(func.count(Linea.id_linea)).scalar() or 0
+
         return {
             "usuarios": {"total": total_usuarios, "activos": usuarios_activos},
             "tarjetas": {
@@ -66,6 +82,18 @@ async def obtener_estadisticas(db: Session = Depends(get_db)):
                 "hoy": transacciones_hoy,
                 "mes": 0,  # Se puede agregar después
             },
+            "empleados": {
+                "total": total_empleados,
+            },
+            "rutas": {
+                "total": total_rutas,
+            },
+            "paradas": {
+                "total": total_paradas,
+            },
+            "lineas": {
+                "total": total_lineas,
+            },
         }
 
     except Exception as e:
@@ -76,6 +104,10 @@ async def obtener_estadisticas(db: Session = Depends(get_db)):
             "tarjetas": {"total": 0, "transaccionesHoy": 0},
             "transportes": {"total": 0, "activos": 0},
             "transacciones": {"hoy": 0, "mes": 0},
+            "empleados": {"total": 0},
+            "rutas": {"total": 0},
+            "paradas": {"total": 0},
+            "lineas": {"total": 0},
         }
 
 
@@ -118,3 +150,55 @@ async def obtener_estadisticas_transportes(db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error obteniendo estadísticas de transportes: {e}")
         return {"total": 0}
+
+
+@router.get("/health")
+async def health_check(db: Session = Depends(get_db)):
+    """
+    Verificar el estado del sistema en tiempo real.
+    Devuelve el estado de la API, base de datos y servicios.
+    """
+    health_status = {
+        "api": {"status": "operational", "message": "API funcionando correctamente"},
+        "database": {"status": "operational", "message": "Base de datos conectada"},
+        "services": {"status": "operational", "message": "Todos los servicios activos"},
+        "system": {"status": "operational", "message": "Sistema funcionando"},
+    }
+
+    try:
+        # Intentar hacer una query simple para verificar la conexión a la base de datos
+        db.execute(text("SELECT 1"))
+        health_status["database"] = {
+            "status": "operational",
+            "message": "Conexión exitosa",
+        }
+    except Exception as e:
+        error_msg = str(e)[:100]  # Primeros 100 caracteres del error
+        print(f"Error en conexión a BD: {e}")
+        health_status["database"] = {
+            "status": "error",
+            "message": f"Error: {error_msg}",
+        }
+        health_status["system"] = {
+            "status": "warning",
+            "message": "Sistema con problemas",
+        }
+
+    # Verificar que los servicios principales estén disponibles
+    try:
+        # Verificar que podamos consultar las tablas principales
+        db.query(Usuario).first()
+        db.query(Tarjeta).first()
+        db.query(Transporte).first()
+        health_status["services"] = {
+            "status": "operational",
+            "message": "Servicios verificados",
+        }
+    except Exception as e:
+        print(f"Error verificando servicios: {e}")
+        health_status["services"] = {
+            "status": "warning",
+            "message": "Algunos servicios no responden",
+        }
+
+    return health_status

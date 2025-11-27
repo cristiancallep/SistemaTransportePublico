@@ -41,10 +41,6 @@ import { LineaService } from './services/linea.service';
           Crear Ruta
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes/rutas']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="form-content">

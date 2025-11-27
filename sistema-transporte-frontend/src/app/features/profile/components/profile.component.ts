@@ -57,7 +57,7 @@ import { AuthService } from '../../../core/services/auth.service';
         <div class="mt-3 profile-actions">
           <!-- Convertimos a botón con navegación programática y clase personalizada -->
           <button class="btn btn-primary btn-custom me-2 primary" (click)="navigateToSettings()">Editar Perfil</button>
-          <button class="btn btn-secondary btn-custom btn_volver" (click)="navigateToMenu()">Volver al menú</button>
+
         </div>
       </ng-container>
 
