@@ -34,10 +34,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
           Historial de Transacciones
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/dashboard']">
-          <mat-icon class="me-2">arrow_back</mat-icon>
-          Volver al menú
-        </button>
       </mat-toolbar>
 
       <div class="main-content">

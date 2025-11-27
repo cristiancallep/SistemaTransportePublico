@@ -37,10 +37,6 @@ import { LineaService } from './services/linea.service';
           {{ isEdit ? 'Editar Transporte' : 'Nuevo Transporte' }}
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="main-content">
@@ -191,7 +187,6 @@ export class TransporteFormComponent implements OnInit {
     };
 
     if (this.isEdit && this.id) {
-      // En update, estado es opcional
       const update: any = { ...payload };
       if (this.form.value.estado) update.estado = this.form.value.estado;
 

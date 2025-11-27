@@ -121,7 +121,7 @@ import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-pa
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #1E88E5;
       padding: 20px;
     }
 

@@ -91,10 +91,6 @@ import { Router } from '@angular/router';
         Gestión de Empleados
       </span>
       <div class="spacer"></div>
-      <button mat-raised-button color="primary" class="btn-volver" (click)="navigateTo('/dashboard')">
-        <mat-icon class="me-2">arrow_back</mat-icon>
-        Volver al menú
-      </button>
 
       <button mat-icon-button color="accent" (click)="refresh()" title="Refrescar">
         <mat-icon>refresh</mat-icon>

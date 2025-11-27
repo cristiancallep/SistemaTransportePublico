@@ -36,10 +36,6 @@ import { FormBuilder, ReactiveFormsModule, FormGroup, Validators } from '@angula
           Gestión de Líneas
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
         <button mat-raised-button color="accent" class="btn-volver" [routerLink]="['/transportes/lineas/crear']">
           <mat-icon>add</mat-icon>
           Nueva Línea

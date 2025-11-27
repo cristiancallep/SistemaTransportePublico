@@ -36,10 +36,6 @@ import { Router } from '@angular/router';
           Emitir Nueva Tarjeta
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" (click)="onCancel()">
-          <mat-icon class="me-2">arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="main-content">
@@ -168,10 +164,7 @@ export class EmitirTarjetaComponent {
       try {
         const documento = this.tarjetaForm.value.documento;
         
-        // El documento será validado en el backend
         console.log('Procesando solicitud para documento:', documento);
-
-        // Crear la tarjeta con los valores por defecto
         console.log('Creando tarjeta con:', {
           documento: documento,
           tipo_tarjeta: 'Frecuentes',

@@ -12,7 +12,6 @@ export class UsuarioService {
 
   constructor(private apiService: ApiService) {}
 
-  /** List users with optional pagination (page/pageSize converted to skip/limit) */
   getUsuarios(filters?: UsuarioFilter & { page?: number; pageSize?: number }): Observable<PaginatedResponse<Usuario>> {
     const params: any = { ...filters };
 
@@ -28,20 +27,16 @@ export class UsuarioService {
     return this.apiService.get<PaginatedResponse<Usuario>>(this.endpoint, params);
   }
 
-  /** Get user by UUID (id_usuario) */
   getUsuarioById(id: string): Observable<Usuario> {
     return this.apiService.get<Usuario>(`${this.endpoint}/${id}`);
   }
 
-  /** Get user by documento */
   getUsuarioByDocumento(documento: string): Observable<Usuario> {
     return this.apiService.get<Usuario>(`${this.endpoint}/documento/${encodeURIComponent(documento)}`);
   }
-  /** Get user by email */
   getUsuarioByEmail(email: string): Observable<Usuario> {
     return this.apiService.get<Usuario>(`${this.endpoint}/email/${encodeURIComponent(email)}`);
   }
-  /** Create user (backend expects nombre, apellido, documento, email, contrasena, id_rol) */
   crearUsuario(usuario: UsuarioCreate): Observable<Usuario> {
     const payload: any = {
       nombre: usuario.nombre,
