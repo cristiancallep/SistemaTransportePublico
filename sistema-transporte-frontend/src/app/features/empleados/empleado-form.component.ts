@@ -90,8 +90,6 @@ export class EmpleadoFormComponent {
       documento: [e?.documento ?? '', Validators.required],
       rol: [e?.rol ?? null, Validators.required]
     });
-
-    // When editing, prevent changing the documento: disable the control so the user cannot modify it
     if (this.isEdit) {
       this.form.get('documento')?.disable();
     }

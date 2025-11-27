@@ -1,18 +1,15 @@
-// Archivo de exportación de todos los modelos
 export * from './usuario.model';
 export * from './tarjeta.model';
 export * from './transporte.model';
 export * from './parada.model';
 export * from './rol.model';
 
-// Interfaces comunes del sistema
 export interface ApiResponse<T> {
   data: T;
   success: boolean;
   message?: string;
   timestamp: Date;
 }
-
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;

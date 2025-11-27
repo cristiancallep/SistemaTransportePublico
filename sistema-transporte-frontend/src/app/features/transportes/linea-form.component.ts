@@ -36,10 +36,6 @@ import { LineaService } from './services/linea.service';
           {{ isEdit ? 'Editar Línea' : 'Crear Línea' }}
         </span>
         <div class="spacer"></div>
-        <button mat-raised-button color="primary" class="btn-volver" [routerLink]="['/transportes/lineas']">
-          <mat-icon>arrow_back</mat-icon>
-          Volver
-        </button>
       </mat-toolbar>
 
       <div class="main-content">

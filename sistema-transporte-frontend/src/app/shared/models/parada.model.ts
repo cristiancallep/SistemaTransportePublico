@@ -1,10 +1,10 @@
 export interface Parada {
-  id?: string; // UUID en frontend para conveniencia
-  id_parada?: string; // UUID real del backend
+  id?: string;
+  id_parada?: string;
   nombre: string;
   direccion: string;
   coordenadas?: string | null;
-  estado?: string; // Activa | Inactiva | Mantenimiento
+  estado?: string;
   fechaRegistro?: Date | string;
   fecha_actualizar?: Date | string;
 }

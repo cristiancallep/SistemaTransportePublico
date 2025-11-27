@@ -177,7 +177,6 @@ export class ForgotPasswordModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Form is already initialized in constructor
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -209,7 +208,6 @@ export class ForgotPasswordModalComponent implements OnInit {
         this.isLoading = false;
         this.showSuccess('Contraseña actualizada exitosamente');
         
-        // Cerrar el modal con éxito
         setTimeout(() => {
           this.dialogRef.close(true);
         }, 1500);

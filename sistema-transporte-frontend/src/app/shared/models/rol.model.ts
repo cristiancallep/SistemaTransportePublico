@@ -21,13 +21,11 @@ export interface RolUpdate {
 }
 
 export enum Permiso {
-  // Usuarios
   USUARIOS_LEER = 'usuarios:leer',
   USUARIOS_CREAR = 'usuarios:crear',
   USUARIOS_EDITAR = 'usuarios:editar',
   USUARIOS_ELIMINAR = 'usuarios:eliminar',
   
-  // Tarjetas
   TARJETAS_LEER = 'tarjetas:leer',
   TARJETAS_CREAR = 'tarjetas:crear',
   TARJETAS_EDITAR = 'tarjetas:editar',
@@ -35,24 +33,20 @@ export enum Permiso {
   TARJETAS_RECARGAR = 'tarjetas:recargar',
   TARJETAS_BLOQUEAR = 'tarjetas:bloquear',
   
-  // Transportes
   TRANSPORTES_LEER = 'transportes:leer',
   TRANSPORTES_CREAR = 'transportes:crear',
   TRANSPORTES_EDITAR = 'transportes:editar',
   TRANSPORTES_ELIMINAR = 'transportes:eliminar',
   TRANSPORTES_MANTENIMIENTO = 'transportes:mantenimiento',
   
-  // Empleados
   EMPLEADOS_LEER = 'empleados:leer',
   EMPLEADOS_CREAR = 'empleados:crear',
   EMPLEADOS_EDITAR = 'empleados:editar',
   EMPLEADOS_ELIMINAR = 'empleados:eliminar',
   
-  // Reportes
   REPORTES_VER = 'reportes:ver',
   REPORTES_EXPORTAR = 'reportes:exportar',
   
-  // Administración
   ADMIN_CONFIGURACION = 'admin:configuracion',
   ADMIN_AUDITORIA = 'admin:auditoria',
   ADMIN_ROLES = 'admin:roles'
