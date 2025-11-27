@@ -89,3 +89,19 @@ class RutaCRUD:
             List[Ruta]: Lista de objetos de rutas
         """
         return self.db.query(Ruta).all()
+
+    def eliminar_ruta(self, id_ruta) -> bool:
+        """Elimina una ruta por su ID.
+
+        Args:
+            id_ruta (UUID|str): Identificador de la ruta.
+
+        Returns:
+            bool: True si se eliminó, False si no existe.
+        """
+        ruta = self.db.query(Ruta).filter(Ruta.id_ruta == id_ruta).first()
+        if not ruta:
+            return False
+        self.db.delete(ruta)
+        self.db.commit()
+        return True
