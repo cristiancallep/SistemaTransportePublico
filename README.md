@@ -53,39 +53,141 @@ SistemaTransportePublico/
 ├── .gitignore
 ├── main.py
 └── README.md
+```
 
+Estructura  de `sistema-transporte-frontend/`:
+
+```
+sistema-transporte-frontend/
+├── angular.json
+├── package.json
+├── package-lock.json
+├── public/
+└── src/
+  ├── index.html
+  ├── main.ts
+  ├── styles.scss
+  ├── environments/
+  │   ├── environment.ts
+  │   └── environment.prod.ts
+  └── app/
+    ├── app.config.ts
+    ├── app.html
+    ├── app.routes.ts
+    ├── app.spec.ts
+    ├── app.ts
+    ├── core/
+    │   ├── guards/
+    │   │   └── auth.guard.ts
+    │   ├── interceptors/
+    │   │   └── auth.interceptor.ts
+    │   └── services/
+    │       ├── api.service.ts
+    │       └── auth.service.ts
+    ├── features/
+    │   ├── auth/
+    │   ├── dashboard/
+    │   ├── empleados/
+    │   │   ├── empleado-form.component.ts
+    │   │   └── empleados-list.component.ts
+    │   ├── paradas/
+    │   ├── profile/
+    │   ├── reportes/
+    │   ├── settings/
+    │   ├── tarjetas/
+    │   ├── transacciones/
+    │   ├── transportes/
+    │   │   ├── linea-form.component.ts
+    │   │   ├── lineas-list.component.ts
+    │   │   └── transporte-form.component.ts
+    │   └── usuarios/
+    └── shared/
+      ├── components/
+      └── models/
 ```
 ---
 
 ## Instalación
 
-Clona este repositorio:  
+Clona el repositorio y sitúate en la carpeta del proyecto:
 
-  ```bash
-  git clone https://github.com/cristiancallep/SistemaTransportePublico.git
-  cd SistemaTransportePublico
-  ```
-
-### Instalar dependencias
-
-Instala todas las librerías necesarias desde el archivo requirements.txt:
-```bash
-pip install -r requirements.txt
+```powershell
+git clone https://github.com/cristiancallep/SistemaTransportePublico.git
+cd SistemaTransportePublico
 ```
-### Añadir archivos necesarios
-Se debera añadir en el primer nivel el archivo '.env'.
 
- ### Ejecuta el programa en la terminal con:
+### Backend (Python / FastAPI)
 
-```bash
+1. Crear y activar un entorno virtual (recomendado):
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+2. Instalar dependencias Python (el archivo está en `config/requirements.txt`):
+
+```powershell
+pip install -r .\config\requirements.txt
+```
+
+3. Añadir archivo de entorno `.env` en la raíz del proyecto con las variables de conexión. Ejemplo mínimo:
+
+```text
+# .env (ejemplo)
+DATABASE_URL=postgresql://user:password@localhost:5432/SistemaTransportePublico
+# o alternativamente definir DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
+```
+
+4. (Opcional) Crear las tablas en la base de datos desde Python:
+
+```powershell
+python -c "from database.config import create_tables; create_tables()"
+```
+
+5. Ejecutar la API:
+
+```powershell
 python .\main.py
 ```
-o también con
-```bash
-py .\main.py
+
+Nota: `database/config.py` usa `DATABASE_URL` del `.env` o las variables `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`.
+
+### Frontend (Angular)
+
+El frontend se encuentra en `sistema-transporte-frontend/` y es una aplicación Angular.
+
+1. Instalar dependencias y ejecutar (desde la carpeta del frontend):
+
+```powershell
+cd .\sistema-transporte-frontend
+npm install
+npm start
 ```
 
+Esto inicia la aplicación con `ng serve` (puerto por defecto 4200).
+
 ---
+
+### Cómo funciona el frontend
+
+El frontend es una aplicación SPA desarrollada con Angular ubicada en `sistema-transporte-frontend/` (código en `src/app/`). Principales conceptos:
+
+- Estructura: la carpeta `src/app/` está organizada en `core/` (guards, interceptors, servicios compartidos), `features/` (módulos/funcionalidades por área: auth, empleados, transacciones, transportes, etc.) y `shared/` (componentes y modelos reutilizables).
+
+- Ruteo: `app.routes.ts` define las rutas de la aplicación. Los guards en `core/guards/` protegen rutas que requieren autenticación.
+
+- Comunicación con el backend: `core/services/api.service.ts` (y `auth.service.ts`) usan `HttpClient` para realizar peticiones HTTP a la API. `core/interceptors/auth.interceptor.ts` añade el token JWT a las cabeceras de las peticiones cuando el usuario está autenticado.
+
+- Entornos: las URLs base y otras configuraciones por entorno están en `src/environments/environment.ts` y `environment.prod.ts`. Para conectar con la API ajusta `environment.apiUrl` a la URL de tu backend (por ejemplo `http://localhost:8000`).
+
+- Desarrollo y despliegue:
+  - Desarrollo local: desde `sistema-transporte-frontend/` ejecuta `npm install` y `npm start` (`ng serve`).
+  - Build de producción: `npm run build` (genera los archivos estáticos en `dist/`), que puedes servir con cualquier servidor estático o integrarlos en el backend.
+
+- CORS: durante el desarrollo asegúrate de que la API (FastAPI) permita peticiones desde el origen del frontend (por ejemplo `http://localhost:4200`). En FastAPI se usa `CORSMiddleware` para configurar orígenes permitidos.
+
+Este diseño separa claramente la lógica de presentación (Angular) de la lógica de negocio y API (FastAPI), facilitando el desarrollo independiente y pruebas.
 
 ## Clases Principales
 El sistema está compuesto por diferentes entidades que representan los elementos.
@@ -304,10 +406,6 @@ Iniciar sesión como administrador.
 
 Gestionar entidades (usuarios, tarjetas, líneas, rutas, paradas, asignaciones).
 
-Generar reportes y monitorear el sistema.
-
-## Ejemplo de Uso
-https://www.canva.com/design/DAG1UiyP6OU/jOzQeOjsPIG7s9L35Qw_cA/edit?utm_content=DAG1UiyP6OU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 ## 👨‍💻 Créditos
 

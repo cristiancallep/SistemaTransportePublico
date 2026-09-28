@@ -6,14 +6,16 @@ Modelo de Usuario con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
 import uuid
+from datetime import datetime
+from typing import Optional
+from uuid import UUID as UUIDType
+
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from pydantic import BaseModel, EmailStr, Field, validator
-from datetime import datetime
-from typing import Optional
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
 from database.config import Base
-from uuid import UUID as UUIDType
 
 
 class Usuario(Base):
@@ -80,7 +82,8 @@ class UsuarioBase(BaseModel):
         ..., min_length=6, max_length=200, description="Contraseña del usuario"
     )
 
-    @validator("nombre")
+    @field_validator("nombre")
+    @classmethod
     def validar_nombre(cls, v):
         """
         Valida que el nombre no esté vacío y lo formatea con la primera letra en mayúscula.
@@ -89,7 +92,8 @@ class UsuarioBase(BaseModel):
             raise ValueError("El nombre no puede estar vacío")
         return v.strip().title()
 
-    @validator("apellido")
+    @field_validator("apellido")
+    @classmethod
     def validar_apellido(cls, v):
         """
         Valida que el apellido no esté vacío y lo formatea con la primera letra en mayúscula.
@@ -98,7 +102,8 @@ class UsuarioBase(BaseModel):
             raise ValueError("El apellido no puede estar vacío")
         return v.strip().title()
 
-    @validator("documento")
+    @field_validator("documento")
+    @classmethod
     def validar_documento(cls, v):
         """
         Valida que el documento no esté vacío y tenga al menos 8 caracteres.
@@ -109,20 +114,23 @@ class UsuarioBase(BaseModel):
             raise ValueError("El documento debe tener al menos 8 caracteres")
         return v.strip()
 
-    @validator("email")
+    @field_validator("email")
+    @classmethod
     def validar_email(cls, v):
         """
         Normaliza el correo electrónico a minúsculas y sin espacios extra.
         """
         return v.lower().strip()
 
-    def validar_id_rol(self):
+    @field_validator("id_rol")
+    @classmethod
+    def validar_id_rol(cls, v):
         """
         Valida que el rol del usuario sea 1 (admin) o 2 (cliente).
         """
-        if self.id_rol not in [1, 2]:
+        if v not in [1, 2]:
             raise ValueError("El id_rol debe ser 1 (admin) o 2 (cliente)")
-        return self.id_rol
+        return v
 
 
 class UsuarioCreate(UsuarioBase):
@@ -130,10 +138,6 @@ class UsuarioCreate(UsuarioBase):
     Esquema para la creación de un nuevo usuario.
     Hereda validaciones y atributos del esquema base.
     """
-
-    pass
-
-
 class UsuarioUpdate(BaseModel):
     """
     Esquema para la actualización de un usuario existente.
@@ -153,10 +157,32 @@ class UsuarioUpdate(BaseModel):
         None, description="Correo electrónico del usuario"
     )
 
+    @field_validator("id_rol")
+    @classmethod
+    def validar_id_rol(cls, v):
+        """Valida que el rol sea válido si se proporciona."""
+        if v is not None and v not in [1, 2]:
+            raise ValueError("El id_rol debe ser 1 (admin) o 2 (cliente)")
+        return v
+
+    @field_validator("nombre", "apellido")
+    @classmethod
+    def validar_nombres(cls, v):
+        """Valida nombres y apellidos si se proporcionan."""
+        if v is not None and not v.strip():
+            raise ValueError("El campo no puede estar vacío")
+        return v.strip().title() if v else v
+
+    @field_validator("email")
+    @classmethod
+    def validar_email(cls, v):
+        """Normaliza el email si se proporciona."""
+        return v.lower().strip() if v else v
+
 
 class UsuarioOut(BaseModel):
-    """Esquema de salida para representar un empleado.
-    Se excluye la fecha de registro y actualizacion.
+    """Esquema de salida para representar un usuario.
+    Incluye toda la información del usuario excepto la contraseña.
     """
 
     id_usuario: UUIDType
@@ -165,6 +191,8 @@ class UsuarioOut(BaseModel):
     apellido: str
     documento: str
     email: str
+    fecha_registro: datetime
+    fecha_actualizar: datetime
 
     class Config:
         """Configuración para permitir la conversión desde objetos SQLAlchemy."""

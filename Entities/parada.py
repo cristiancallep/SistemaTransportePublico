@@ -7,10 +7,12 @@ Modelo de Parada con SQLAlchemy y esquemas de validación con Pydantic.
 
 from datetime import datetime
 import uuid
+from typing import Optional
+from uuid import UUID as UUIDType
+
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from database.config import Base
 
 
@@ -31,38 +33,108 @@ class Parada(Base):
     )
 
 
-from uuid import UUID as UUIDType
-
-
 class ParadaCreate(BaseModel):
     """Esquema de entrada para crear una nueva parada.
-    Contiene la informacion basica necesaria.
+    Contiene la información básica necesaria.
     """
 
-    nombre: str
-    direccion: str
-    coordenadas: str | None = None
+    nombre: str = Field(
+        ...,
+        min_length=3,
+        max_length=100,
+        description="Nombre de la parada",
+        examples=[
+            "Terminal Central",
+            "Estación Universidad",
+            "Parada Centro Comercial",
+        ],
+    )
+    direccion: str = Field(
+        ...,
+        min_length=10,
+        max_length=255,
+        description="Dirección física de la parada",
+        examples=["Calle 123 # 45-67", "Av. Principal con Calle 50"],
+    )
+    coordenadas: Optional[str] = Field(
+        None,
+        max_length=100,
+        description="Coordenadas GPS de la parada",
+        examples=["4.6097, -74.0817", "10.4806, -66.9036"],
+    )
+
+    @field_validator("nombre", "direccion")
+    @classmethod
+    def validar_campos_texto(cls, v):
+        """Valida que los campos no estén vacíos."""
+        if not v.strip():
+            raise ValueError("El campo no puede estar vacío")
+        return v.strip()
+
+    @field_validator("coordenadas")
+    @classmethod
+    def validar_coordenadas(cls, v):
+        """Valida el formato de coordenadas si se proporciona."""
+        if v is not None:
+            v = v.strip()
+            if v and "," not in v:
+                raise ValueError(
+                    "Las coordenadas deben tener formato 'latitud, longitud'"
+                )
+        return v
 
 
 class ParadaUpdate(BaseModel):
     """Esquema de entrada para actualizar los datos de una parada.
     Todos los campos son opcionales."""
 
-    nombre: str | None = None
-    direccion: str | None = None
-    coordenadas: str | None = None
-    estado: str | None = None
+    nombre: Optional[str] = Field(
+        None, min_length=3, max_length=100, description="Nombre de la parada"
+    )
+    direccion: Optional[str] = Field(
+        None, min_length=10, max_length=255, description="Dirección física de la parada"
+    )
+    coordenadas: Optional[str] = Field(
+        None, max_length=100, description="Coordenadas GPS de la parada"
+    )
+    estado: Optional[str] = Field(
+        None,
+        description="Estado de la parada",
+        examples=["Activa", "Inactiva", "Mantenimiento"],
+    )
+
+    @field_validator("nombre", "direccion")
+    @classmethod
+    def validar_campos_texto(cls, v):
+        """Valida campos de texto si no son nulos."""
+        if v is not None and not v.strip():
+            raise ValueError("El campo no puede estar vacío")
+        return v.strip() if v else v
+
+    @field_validator("coordenadas")
+    @classmethod
+    def validar_coordenadas(cls, v):
+        """Valida coordenadas si no son nulas."""
+        if v is not None:
+            v = v.strip()
+            if v and "," not in v:
+                raise ValueError(
+                    "Las coordenadas deben tener formato 'latitud, longitud'"
+                )
+        return v
 
 
 class ParadaOut(BaseModel):
     """Esquema de salida para representar una parada.
-    Incluye los datos principales de identificacion y estado."""
+    Incluye todos los datos de identificación, ubicación y estado."""
 
     id_parada: UUIDType
     nombre: str
     direccion: str
-    coordenadas: str | None
+    coordenadas: Optional[str]
     estado: str
+    fecha_registro: datetime
+    fecha_actualizar: datetime
 
     class Config:
         """

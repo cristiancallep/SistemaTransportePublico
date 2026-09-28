@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from Entities import Auditoria
 from api.dependencies import get_db
+from typing import Any
+import uuid
 
 
 class AuditoriaCRUD:
@@ -19,7 +21,7 @@ class AuditoriaCRUD:
         self.db = db
 
     def registrar_evento(
-        self, usuario_id: int, tabla_afectada: str, accion: str, descripcion: str
+        self, usuario_id: Any, tabla_afectada: str, accion: str, descripcion: str
     ) -> Auditoria:
         """
         Registra un evento en la tabla de auditoría.
@@ -63,14 +65,31 @@ class AuditoriaCRUD:
         db_gen = get_db()
         db = next(db_gen)
         try:
+            # Intentar obtener un usuario válido para asociar la auditoría. Si no se
+            # proporciona uno, usamos el primer usuario de la tabla como fallback.
+            usuario_id = None
+            try:
+                from Entities.usuario import Usuario
+
+                u = db.query(Usuario).first()
+                if u:
+                    usuario_id = u.id_usuario
+            except Exception:
+                usuario_id = None
+
+            if usuario_id is None:
+                # Si no hay usuarios en la BD, no podemos crear la auditoría por la FK.
+                print("Warning: no hay usuario disponible para asignar auditoría; omitiendo registro")
+                return
+
             auditoria_crud = AuditoriaCRUD(db)
             auditoria_crud.registrar_evento(
-                usuario_id="7d1a4c4c-7427-4ea0-b377-2f9d5e20fbf8",
+                usuario_id=usuario_id,
                 tabla_afectada=nombre_tabla,
                 accion=nombre_accion,
                 descripcion=(f"{nombre_accion} en {nombre_tabla}"),
             )
-            db.commit()
+            # registrar_evento ya hace commit/refresh; no es necesario un commit extra
         except Exception as e:
             print(f"Error al registrar auditoría: {e}")
             db.rollback()

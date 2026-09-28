@@ -1,10 +1,20 @@
+"""
+Entidad Línea
+=============
+
+Modelo de Línea con SQLAlchemy y esquemas de validación con Pydantic.
+Define las líneas de transporte del sistema.
+"""
+
 import uuid
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional
+
+from sqlalchemy import Column, String, DateTime
+from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+from pydantic import BaseModel, Field, field_validator
+
 from database.config import Base
 
 
@@ -40,13 +50,58 @@ class Linea(Base):
 class LineaCreate(BaseModel):
     """Esquema de creación para una línea."""
 
-    nombre: str = Field(..., max_length=100, example="Línea 1")
+    nombre: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Nombre de la línea",
+        examples=["Línea 1", "Línea Amarilla"],
+    )
     descripcion: Optional[str] = Field(
-        None, max_length=255, example="Línea que conecta A con B"
+        None,
+        max_length=255,
+        description="Descripción de la línea",
+        examples=["Línea que conecta A con B", "Ruta principal centro-periferia"],
     )
 
-    @validator("nombre")
+    @field_validator("nombre")
+    @classmethod
     def nombre_no_vacio(cls, v):
+        """Valida que el nombre de la línea no esté vacío."""
         if not v.strip():
             raise ValueError("El nombre no puede estar vacío")
-        return v
+        return v.strip()
+
+
+class LineaUpdate(BaseModel):
+    """Esquema para actualizar una línea existente."""
+
+    nombre: Optional[str] = Field(
+        None, min_length=1, max_length=100, description="Nombre de la línea"
+    )
+    descripcion: Optional[str] = Field(
+        None, max_length=255, description="Descripción de la línea"
+    )
+
+    @field_validator("nombre")
+    @classmethod
+    def validar_nombre(cls, v):
+        """Valida que el nombre no esté vacío si se proporciona."""
+        if v is not None and not v.strip():
+            raise ValueError("El nombre no puede estar vacío")
+        return v.strip() if v else v
+
+
+class LineaOut(BaseModel):
+    """Esquema de salida para una línea."""
+
+    id_linea: uuid.UUID
+    nombre: str
+    descripcion: Optional[str]
+    fecha_creacion: datetime
+    fecha_actualizacion: datetime
+
+    class Config:
+        """Configuración para permitir la conversión desde objetos SQLAlchemy."""
+
+        from_attributes = True

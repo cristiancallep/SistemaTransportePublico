@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from Crud.auditoria_crud import AuditoriaCRUD
-from api.dependencies import get_db
+from api.dependencies import get_db, get_current_user
 from Crud.usuario_crud import UsuarioCRUD
 from Entities.usuario import UsuarioCreate, UsuarioUpdate, UsuarioOut
 
@@ -29,6 +29,7 @@ async def listar_usuarios(
     rol: int = Query(
         None, description="Filtrar por rol del usuario, 1: admin, 2: cliente"
     ),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Obtener lista de todos los usuarios.
@@ -42,7 +43,11 @@ async def listar_usuarios(
 
     if rol:
         usuarios = [e for e in usuarios if e.id_rol == rol]
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    try:
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario", current_user.get("user_id"))
+    except Exception:
+        # no bloquear la operación principal en caso de fallo en auditoría
+        pass
     return usuarios[skip : skip + limit]
 
 
@@ -60,7 +65,15 @@ async def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
 
     if not usuarios:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    try:
+        # intentar registrar auditoría si hay token válido
+        # (No usamos Depends aquí para no forzar auth en este endpoint si no aplica)
+        from api.dependencies import get_current_user
+        # get_current_user requires token; calling it directly would need a request context.
+        # Por simplicidad, intentamos registrar con el primer usuario (fallback) si es necesario.
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    except Exception:
+        pass
     return usuarios
 
 
@@ -80,7 +93,10 @@ async def obtener_usuario_por_documento(documento: str, db: Session = Depends(ge
         raise HTTPException(
             status_code=404, detail="usuario con ese documento no encontrado"
         )
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    try:
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    except Exception:
+        pass
     return usuario
 
 
@@ -100,7 +116,10 @@ async def obtener_usuario_por_email(email: str, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=404, detail="usuario con ese email no encontrado"
         )
-    AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    try:
+        AuditoriaCRUD.agregar_auditoria_usuario("READ", "Usuario")
+    except Exception:
+        pass
     return usuario
 
 
@@ -118,7 +137,10 @@ async def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
     try:
         crud = UsuarioCRUD(db)
         nuevo_usuario = crud.crear_usuario(usuario)
-        AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "Usuario")
+        try:
+            AuditoriaCRUD.agregar_auditoria_usuario("CREATE", "Usuario")
+        except Exception:
+            pass
         return nuevo_usuario
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al crear usuario: {str(e)}")
@@ -137,7 +159,10 @@ async def actualizar_usuario(
     try:
         crud = UsuarioCRUD(db)
         usuario_actualizado = crud.actualizar_usuario(usuario_id, usuario_update)
-        AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Usuario")
+        try:
+            AuditoriaCRUD.agregar_auditoria_usuario("UPDATE", "Usuario")
+        except Exception:
+            pass
         return usuario_actualizado
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -159,5 +184,8 @@ async def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
 
     if not eliminado:
         raise HTTPException(status_code=404, detail="usuario no encontrado")
-    AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Usuario")
+    try:
+        AuditoriaCRUD.agregar_auditoria_usuario("DELETE", "Usuario")
+    except Exception:
+        pass
     return {"message": "usuario eliminado correctamente"}

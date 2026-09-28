@@ -11,7 +11,9 @@ from sqlalchemy.exc import IntegrityError
 from pydantic import ValidationError
 
 
-async def validation_exception_handler(request: Request, exc: ValidationError):
+async def validation_exception_handler(
+    request: Request, exc: ValidationError
+) -> JSONResponse:
     """
     Manejador para errores de validación de Pydantic.
     """
@@ -25,7 +27,9 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     )
 
 
-async def integrity_error_handler(request: Request, exc: IntegrityError):
+async def integrity_error_handler(
+    request: Request, exc: IntegrityError
+) -> JSONResponse:
     """
     Manejador para errores de integridad de la base de datos.
     """
@@ -38,7 +42,7 @@ async def integrity_error_handler(request: Request, exc: IntegrityError):
     )
 
 
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """
     Manejador personalizado para HTTPException.
     """
@@ -52,7 +56,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-async def general_exception_handler(request: Request, exc: Exception):
+async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """
     Manejador para excepciones generales no capturadas.
     """

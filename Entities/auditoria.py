@@ -1,12 +1,18 @@
+"""
+Entidad Auditoría
+=================
+
+Modelo de Auditoría con SQLAlchemy y esquemas de validación con Pydantic.
+"""
+
 import uuid
+from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from uuid import UUID as UUIDType
 from sqlalchemy.orm import relationship
-from datetime import datetime
-from typing import Optional
-from database.config import Base
 from pydantic import BaseModel
+from database.config import Base
+from uuid import UUID as UUIDType
 
 
 class Auditoria(Base):
@@ -39,9 +45,18 @@ class Auditoria(Base):
         return f"<Auditoria(id_auditoria={self.id_auditoria}, id_usuario={self.id_usuario}, tabla_afectada='{self.tabla_afectada}', accion='{self.accion}', fecha={self.fecha})>"
 
 
+class AuditoriaCreate(BaseModel):
+    """Esquema de entrada para crear un nuevo registro de auditoría."""
+
+    id_usuario: UUIDType
+    tabla_afectada: str
+    accion: str
+    descripcion: str
+
+
 class AuditoriaOut(BaseModel):
-    """Esquema de salida para representar un empleado.
-    Se excluye la fecha de registro y actualizacion.
+    """Esquema de salida para representar una auditoría.
+    Incluye toda la información del registro de auditoría.
     """
 
     id_auditoria: UUIDType

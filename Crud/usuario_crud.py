@@ -1,6 +1,13 @@
 from sqlalchemy.orm import Session
 from Entities import Usuario, UsuarioCreate, UsuarioUpdate
-import bcrypt
+from passlib.context import CryptContext
+
+# Configuración de seguridad - usando configuración específica para evitar conflictos
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256", "bcrypt"],  # pbkdf2_sha256 como fallback
+    default="pbkdf2_sha256",  # Usar pbkdf2 por defecto
+    deprecated="auto",
+)
 
 
 class UsuarioCRUD:
@@ -45,9 +52,8 @@ class UsuarioCRUD:
         if len(usuario_data.contrasena) < 6:
             raise ValueError("La contraseña debe tener al menos 6 caracteres")
 
-        hashed_password = bcrypt.hashpw(
-            usuario_data.contrasena.encode("utf-8"), bcrypt.gensalt()
-        ).decode("utf-8")
+        # Usar passlib en lugar de bcrypt directo
+        hashed_password = pwd_context.hash(usuario_data.contrasena)
 
         nuevo_usuario = Usuario(
             id_rol=usuario_data.id_rol or 2,
@@ -100,9 +106,8 @@ class UsuarioCRUD:
         if not usuario:
             raise ValueError("Usuario no encontrado")
 
-        if not bcrypt.checkpw(
-            contrasena.encode("utf-8"), usuario.contrasena.encode("utf-8")
-        ):
+        # Usar passlib para verificar contraseña
+        if not pwd_context.verify(contrasena, str(usuario.contrasena)):
             raise ValueError("Contraseña incorrecta")
 
         return usuario
@@ -236,3 +241,46 @@ class UsuarioCRUD:
                 "%Y-%m-%d %H:%M:%S"
             ),
         }
+
+    def actualizar_contrasena(self, usuario_id, nueva_contrasena: str):
+        """
+        Actualiza la contraseña de un usuario.
+
+        Args:
+            usuario_id (int): ID del usuario
+            nueva_contrasena (str): Nueva contraseña en texto plano
+
+        Raises:
+            ValueError: Si el usuario no existe
+
+        Returns:
+            bool: True si la contraseña fue actualizada exitosamente
+        """
+        usuario = (
+            self.db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
+        )
+
+        if not usuario:
+            raise ValueError("Usuario no encontrado")
+
+        # Generar hash de la nueva contraseña usando passlib (igual que en el router)
+        print(
+            f"CRUD DEBUG: Contraseña a hashear: '{nueva_contrasena}' (longitud: {len(nueva_contrasena)})"
+        )
+        print(f"CRUD DEBUG: Tipo de contraseña: {type(nueva_contrasena)}")
+
+        try:
+            hashed_password = pwd_context.hash(nueva_contrasena)
+            print(f"CRUD DEBUG: Hash generado exitosamente: {hashed_password[:30]}...")
+        except Exception as e:
+            print(f"CRUD DEBUG ERROR en pwd_context.hash: {str(e)}")
+            print(f"CRUD DEBUG ERROR tipo: {type(e)}")
+            raise
+
+        # Usar update() en lugar de asignación directa
+        self.db.query(Usuario).filter(Usuario.id_usuario == usuario_id).update(
+            {Usuario.contrasena: hashed_password}
+        )
+        self.db.commit()
+
+        return True
